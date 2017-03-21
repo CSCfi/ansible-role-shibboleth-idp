@@ -1,0 +1,7 @@
+# test.yml
+---
+- hosts: all
+  roles:
+    - { role: cmprescott.xml }
+    - { role: CSC-IT-Center-for-Science.jetty }
+    - role_under_test

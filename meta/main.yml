@@ -1,0 +1,20 @@
+galaxy_info:
+  author: Sami Silén
+  description: Shibboleth IdPv3 for RedHat and Debian
+  company: CSC - IT Center for Science
+  license: license (BSD, MIT)
+  
+  min_ansible_version: 2.2
+  
+  platforms:
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+          
+dependencies:
+  - { src: cmprescott.xml }
+  - { src: CSC-IT-Center-for-Science.jetty }
+

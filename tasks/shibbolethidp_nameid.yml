@@ -1,0 +1,9 @@
+---
+- name: configure shibboleth-idp saml-nameid.properties
+  lineinfile: dest={{ idp_home }}/conf/saml-nameid.properties regexp="^#?\s*({{ item.option }}\s*=)" backrefs=yes  line="\\1 {{ item.value }}"
+  with_items:
+    - { option: 'idp.persistentId.sourceAttribute', value: "uid", state: present }
+    - { option: 'idp.persistentId.salt', value: "salti", state: present }
+    - { option: 'idp.persistentId.dataSource', value: "MyDataSource", state: present }
+      #    - { option: 'idp.persistentId.computed', value: "shibboleth.ComputedPersistentIdGenerator", state: present }
+      # Check this out

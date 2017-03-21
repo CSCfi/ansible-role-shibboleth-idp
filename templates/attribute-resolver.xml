@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    This file is an EXAMPLE configuration file. While the configuration
+    presented in this example file is semi-functional, it isn't very
+    interesting. It is here only as a starting point for your deployment
+    process.
+    
+    Very few attribute definitions and data connectors are demonstrated,
+    and use of LDAP is assumed, with the LDAP configuration primarily
+    supplied from the ldap.properties file.
+
+    Attribute-resolver-full.xml contains more examples of attributes,
+    encoders, and data connectors. Deployers should refer to the Shibboleth
+    documentation for a complete list of components and their options.
+-->
+<resolver:AttributeResolver
+        xmlns:resolver="urn:mace:shibboleth:2.0:resolver" 
+        xmlns:pc="urn:mace:shibboleth:2.0:resolver:pc"
+        xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad" 
+        xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
+        xmlns:enc="urn:mace:shibboleth:2.0:attribute:encoder" 
+        xmlns:sec="urn:mace:shibboleth:2.0:security"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:schemaLocation="urn:mace:shibboleth:2.0:resolver http://shibboleth.net/schema/idp/shibboleth-attribute-resolver.xsd
+                            urn:mace:shibboleth:2.0:resolver:pc http://shibboleth.net/schema/idp/shibboleth-attribute-resolver-pc.xsd
+                            urn:mace:shibboleth:2.0:resolver:ad http://shibboleth.net/schema/idp/shibboleth-attribute-resolver-ad.xsd
+                            urn:mace:shibboleth:2.0:resolver:dc http://shibboleth.net/schema/idp/shibboleth-attribute-resolver-dc.xsd
+                            urn:mace:shibboleth:2.0:attribute:encoder http://shibboleth.net/schema/idp/shibboleth-attribute-encoder.xsd
+                            urn:mace:shibboleth:2.0:security http://shibboleth.net/schema/idp/shibboleth-security.xsd">
+
+    <!-- ========================================== -->
+    <!--      Attribute Definitions                 -->
+    <!-- ========================================== -->
+
+    <!-- Schema: Core schema attributes-->
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="uid" sourceAttributeID="uid">
+        <resolver:Dependency ref="myLDAP" />
+<!--        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:uid" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:0.9.2342.19200300.100.1.1" friendlyName="uid" encodeType="false" /> -->
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="mail" sourceAttributeID="mail">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:mail" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:0.9.2342.19200300.100.1.3" friendlyName="mail" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="homePhone" sourceAttributeID="homePhone">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:homePhone" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:0.9.2342.19200300.100.1.20" friendlyName="homePhone" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="homePostalAddress" sourceAttributeID="homePostalAddress">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:homePostalAddress" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:0.9.2342.19200300.100.1.39" friendlyName="homePostalAddress" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="mobile" sourceAttributeID="mobile">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:mobile" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:0.9.2342.19200300.100.1.41" friendlyName="mobile" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="pagerNumber" sourceAttributeID="pager">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:pager" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:0.9.2342.19200300.100.1.42" friendlyName="pager" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+ 
+     <resolver:AttributeDefinition xsi:type="ad:Simple" id="cn" sourceAttributeID="cn">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:cn" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.3" friendlyName="cn" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+<!--
+    <resolver:AttributeDefinition xsi:type="ad:Template" id="cn">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:cn" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.3" friendlyName="cn" encodeType="false" />
+        <ad:Template>${givenName} ${sn}</ad:Template>
+        <ad:SourceAttribute>givenName</ad:SourceAttribute>
+        <ad:SourceAttribute>sn</ad:SourceAttribute>
+    </resolver:AttributeDefinition>
+-->
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="sn" sourceAttributeID="sn">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:sn" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.4" friendlyName="sn" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="locality" sourceAttributeID="l">
+        <resolver:Dependency ref="staticAttributes" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:l" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.7" friendlyName="l" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="stateProvince" sourceAttributeID="st">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:st" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.8" friendlyName="st" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="street" sourceAttributeID="street">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:street" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.9" friendlyName="street" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="organizationName" sourceAttributeID="o">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:o" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.10" friendlyName="o" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="organizationalUnit" sourceAttributeID="ou">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:ou" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.11" friendlyName="ou" encodeType="false" />
+    </resolver:AttributeDefinition>
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="title" sourceAttributeID="title">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:title" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.12" friendlyName="title" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="postalAddress" sourceAttributeID="postalAddress">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:postalAddress" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.16" friendlyName="postalAddress" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="postalCode" sourceAttributeID="postalCode">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:postalCode" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.17" friendlyName="postalCode" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="postOfficeBox" sourceAttributeID="postOfficeBox">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:postOfficeBox" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.18" friendlyName="postOfficeBox" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="telephoneNumber" sourceAttributeID="telephoneNumber">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:telephoneNumber" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.20" friendlyName="telephoneNumber" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="givenName" sourceAttributeID="givenName">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:givenName" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.42" friendlyName="givenName" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="initials" sourceAttributeID="initials">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:initials" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.43" friendlyName="initials" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <!-- Schema: inetOrgPerson attributes-->
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="departmentNumber" sourceAttributeID="departmentNumber">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:departmentNumber" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.16.840.1.113730.3.1.2" friendlyName="departmentNumber" encodeType="false" />
+    </resolver:AttributeDefinition>
+    
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="displayName" sourceAttributeID="displayName">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:displayName" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.16.840.1.113730.3.1.241" friendlyName="displayName" encodeType="false" />
+    </resolver:AttributeDefinition> 
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="employeeNumber" sourceAttributeID="employeeNumber">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:employeeNumber" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.16.840.1.113730.3.1.3" friendlyName="employeeNumber" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="employeeType" sourceAttributeID="employeeType">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:employeeType" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.16.840.1.113730.3.1.4" friendlyName="employeeType" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="jpegPhoto" sourceAttributeID="jpegPhoto">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:jpegPhoto" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:0.9.2342.19200300.100.1.60" friendlyName="jpegPhoto" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="preferredLanguage" sourceAttributeID="preferredLanguage">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:preferredLanguage" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.16.840.1.113730.3.1.39" friendlyName="preferredLanguage" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <!-- Schema: eduPerson attributes -->
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="eduPersonAffiliation" sourceAttributeID="eduPersonAffiliation">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:eduPersonAffiliation" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.1" friendlyName="eduPersonAffiliation" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="eduPersonEntitlement" sourceAttributeID="eduPersonEntitlement">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:eduPersonEntitlement" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.7" friendlyName="eduPersonEntitlement" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="eduPersonNickname" sourceAttributeID="eduPersonNickname">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:eduPersonNickname" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.2" friendlyName="eduPersonNickname" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="eduPersonPrimaryAffiliation" sourceAttributeID="eduPersonPrimaryAffiliation">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:eduPersonPrimaryAffiliation" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.5" friendlyName="eduPersonPrimaryAffiliation" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Scoped" id="eduPersonUniqueId" scope="%{idp.scope}" sourceAttributeID="localUniqueId">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1ScopedString" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.13" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2ScopedString" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.13" friendlyName="eduPersonUniqueId" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Prescoped" id="eduPersonPrincipalName" sourceAttributeID="eduPersonPrincipalName">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1ScopedString" name="urn:mace:dir:attribute-def:eduPersonPrincipalName" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2ScopedString" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.6" friendlyName="eduPersonPrincipalName" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Scoped" id="eduPersonScopedAffiliation" scope="%{idp.scope}" sourceAttributeID="eduPersonAffiliation">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1ScopedString" name="urn:mace:dir:attribute-def:eduPersonScopedAffiliation" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2ScopedString" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.9" friendlyName="eduPersonScopedAffiliation" encodeType="false" />
+    </resolver:AttributeDefinition>
+    
+    <resolver:AttributeDefinition xsi:type="ad:SAML2NameID" id="eduPersonTargetedID" nameIdFormat="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent" sourceAttributeID="storedId">
+        <resolver:Dependency ref="StoredIdConnector" />
+        <resolver:DisplayName xml:lang="fi">Yksityisyyttä suojaava tunniste</resolver:DisplayName>
+        <resolver:DisplayName xml:lang="en">Person's privacy-protecting opaque ID</resolver:DisplayName>
+        <resolver:DisplayName xml:lang="se"></resolver:DisplayName>
+        <resolver:DisplayDescription xml:lang="fi">Tunniste, joka yksilöi käyttäjän palvelussa, mutta ei paljasta kuka hän on tosielämässä (SAML2 persistent identifier)</resolver:DisplayDescription>
+        <resolver:DisplayDescription xml:lang="en">An identifier that enables the service to recognise the user but does not identify him/her (SAML2 persistent identifier)</resolver:DisplayDescription>
+        <resolver:DisplayDescription xml:lang="se"></resolver:DisplayDescription>
+        <resolver:AttributeEncoder xsi:type="SAML1XMLObject" xmlns="urn:mace:shibboleth:2.0:attribute:encoder" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.10" />
+        <resolver:AttributeEncoder xsi:type="SAML2XMLObject" xmlns="urn:mace:shibboleth:2.0:attribute:encoder" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.10" friendlyName="eduPersonTargetedID" />
+    </resolver:AttributeDefinition>
+    
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="eduPersonAssurance" sourceAttributeID="eduPersonAssurance">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:eduPersonAssurance" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.5923.1.1.1.11" friendlyName="eduPersonAssurance" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="funetEduPersonLearnerId" sourceAttributeID="funetEduPersonLearnerId">
+        <resolver:Dependency ref="myLDAP" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:funetEduPersonLearnerId" encodeType="false" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.16161.1.1.27" friendlyName="funetEduPersonLearnerId" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="electronicIdentificationNumber" sourceAttributeID="electronicIdentificationNumber">
+        <resolver:Dependency ref="myLDAP" />
+<!--        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:electronicIdentificationNumber" encodeType="false" /> -->
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.2.246.22" friendlyName="electronicIdentificationNumber" encodeType="false" />
+    </resolver:AttributeDefinition>
+  
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="nationalIdentificationNumber" sourceAttributeID="nationalIdentificationNumber">
+        <resolver:Dependency ref="myLDAP" />
+<!--        <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:nationalIdentificationNumber" encodeType="false" /> -->
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.2.246.21" friendlyName="nationalIdentificationNumber" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <!-- schac attributes -->
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacMotherTongue" sourceAttributeID="schacMotherTongue">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacMotherTongue" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.1" friendlyName="schacMotherTongue" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacGender" sourceAttributeID="schacGender">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacGender" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.2" friendlyName="schacGender" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacDateOfBirth" sourceAttributeID="schacDateOfBirth">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacDateOfBirth" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.3" friendlyName="schacDateOfBirth" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacPlaceOfBirth" sourceAttributeID="schacPlaceOfBirth">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacPlaceOfBirth" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.4" friendlyName="schacPlaceOfBirth" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacCountryOfCitizenship" sourceAttributeID="schacCountryOfCitizenship">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacCountryOfCitizenship" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.5" friendlyName="schacCountryOfCitizenship" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacHomeOrganization" sourceAttributeID="schacHomeOrganization">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacHomeOrganization" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.9" friendlyName="schacHomeOrganization" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacHomeOrganizationType" sourceAttributeID="schacHomeOrganizationType">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacHomeOrganizationType" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.10" friendlyName="schacHomeOrganizationType" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacCountryOfResidence" sourceAttributeID="schacCountryOfResidence">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacCountryOfResidence" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.11" friendlyName="schacCountryOfResidence" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacUserPresenceID" sourceAttributeID="schacUserPresenceID">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacUserPresenceID" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.12" friendlyName="schacUserPresenceID" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Template" id="schacPersonalUniqueCode">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacPersonalUniqueCode" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.14" friendlyName="schacPersonalUniqueCode" encodeType="false"/>
+      <ad:Template>${schacPersonalUniqueCode}</ad:Template>
+      <ad:SourceAttribute>schacPersonalUniqueCode</ad:SourceAttribute>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacPersonalUniqueID" sourceAttributeID="schacPersonalUniqueID">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacPersonalUniqueID" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.15" friendlyName="schacPersonalUniqueID" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="schacUserStatus" sourceAttributeID="schacUserStatus">
+      <resolver:Dependency ref="myLDAP" />
+      <resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:schac:attribute-def:schacUserStatus" encodeType="false"/>
+      <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.19" friendlyName="schacUserStatus" encodeType="false"/>
+    </resolver:AttributeDefinition>
+
+    <!-- ========================================== -->
+    <!--      Data Connectors                       -->
+    <!-- ========================================== -->
+    
+    <!-- Static Connector -->
+    <resolver:DataConnector id="staticAttributes" xsi:type="dc:Static">
+      <dc:Attribute id="l">
+        <dc:Value>Espoo</dc:Value>
+      </dc:Attribute>
+      <dc:Attribute id="homeOrganizationType">
+        <dc:Value>urn:schac:homeOrganizationType:fi:university</dc:Value>
+      </dc:Attribute>
+    </resolver:DataConnector>
+    <!--
+    Example LDAP Connector
+    
+    The connectivity details can be specified in ldap.properties to
+    share them with your authentication settings if desired.
+    -->
+    <resolver:DataConnector id="myLDAP" xsi:type="dc:LDAPDirectory"
+        ldapURL="%{idp.attribute.resolver.LDAP.ldapURL}"
+        baseDN="%{idp.attribute.resolver.LDAP.baseDN}" 
+        principal="%{idp.attribute.resolver.LDAP.bindDN}"
+        principalCredential="%{idp.attribute.resolver.LDAP.bindDNCredential}">
+        <dc:FilterTemplate>
+            <![CDATA[
+                %{idp.attribute.resolver.LDAP.searchFilter}
+            ]]>
+        </dc:FilterTemplate>
+<!--        <dc:StartTLSTrustCredential id="LDAPtoIdPCredential" xsi:type="sec:X509ResourceBacked">
+            <sec:Certificate>%{idp.attribute.resolver.LDAP.trustCertificates}</sec:Certificate>
+        </dc:StartTLSTrustCredential>
+-->
+    </resolver:DataConnector>
+
+    <resolver:DataConnector id="StoredIdConnector"
+                            xsi:type="dc:StoredId"
+                            sourceAttributeID="%{idp.persistentId.sourceAttribute}"
+                            salt="%{idp.persistentId.salt}"
+                            generatedAttributeID="storedId">
+      <resolver:Dependency ref="%{idp.persistentId.sourceAttribute}" />
+      <dc:BeanManagedConnection>MyDataSource</dc:BeanManagedConnection>
+    </resolver:DataConnector>
+
+</resolver:AttributeResolver>

@@ -1,0 +1,7 @@
+---
+# handlers file for shibboleth-idp
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: restart shibboleth-idp
+  service: name=shibboleth-idp state=restarted

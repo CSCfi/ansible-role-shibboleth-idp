@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<afp:AttributeFilterPolicyGroup id="ShibbolethFilterPolicy"
+        xmlns:afp="urn:mace:shibboleth:2.0:afp"
+        xmlns:basic="urn:mace:shibboleth:2.0:afp:mf:basic"
+        xmlns:saml="urn:mace:shibboleth:2.0:afp:mf:saml"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:mace:shibboleth:2.0:afp http://shibboleth.net/schema/idp/shibboleth-afp.xsd
+                            urn:mace:shibboleth:2.0:afp:mf:basic http://shibboleth.net/schema/idp/shibboleth-afp-mf-basic.xsd
+                            urn:mace:shibboleth:2.0:afp:mf:saml http://shibboleth.net/schema/idp/shibboleth-afp-mf-saml.xsd">
+
+    <afp:AttributeFilterPolicy id="Haka">
+      <afp:PolicyRequirementRule xsi:type="basic:ANY" />
+
+      <afp:AttributeRule attributeID="eduPersonTargetedID">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="eduPersonPrincipalName">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="eduPersonAffiliation">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="eduPersonOrgUnitDN">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="eduPersonPrimaryAffiliation">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="eduPersonPrimaryOrgUnitDN">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="funetEduPersonLearnerId">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="nationalIdentificationNumber">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="electronicIdentificationNumber ">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="schacHomeOrganization">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="schacHomeOrganizationType">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="schacDateOfBirth">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="schacPersonalUniqueCode">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="schacPersonalUniqueID">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="mail">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="uid">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="sn">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="cn">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="displayName">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="givenName">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="employeeNumber">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule> 
+      <afp:AttributeRule attributeID="mobile">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="o">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="preferredLanguage">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+      <afp:AttributeRule attributeID="telephoneNumber">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
+
+    </afp:AttributeFilterPolicy>
+</afp:AttributeFilterPolicyGroup>
+

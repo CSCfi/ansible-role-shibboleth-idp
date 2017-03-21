@@ -1,0 +1,9 @@
+---
+- name: Shibboleth IdP | F-Ticks | Configure
+  lineinfile: dest={{ idp_home }}/conf/idp.properties regexp="^#?\s*({{ item.option }}\s*=)" backrefs=yes  line="\\1 {{ item.value }}"
+  with_items:
+    - { option: 'idp.fticks.federation', value: "Haka", state: present }
+    - { option: 'idp.fticks.algorithm', value: "SHA-256", state: present }
+    - { option: 'idp.fticks.salt', value: "salt", state: present }
+    - { option: 'idp.fticks.loghost', value: "localhost", state: present }
+

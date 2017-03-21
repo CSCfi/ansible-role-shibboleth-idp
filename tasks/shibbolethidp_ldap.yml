@@ -1,0 +1,14 @@
+---
+- name: configure shibboleth-idp ldap.properties
+  lineinfile: dest={{ idp_home }}/conf/ldap.properties regexp="^#?\s*({{ item.option }}\s*=)" backrefs=yes  line="\\1 {{ item.value }}"
+  with_items:
+    - { option: 'idp.authn.LDAP.authenticator', value: 'bindSearchAuthenticator'}
+    - { option: 'idp.authn.LDAP.ldapURL', value: 'ldaps://{{ hostvars[inventory_hostname].service_name }}:636' }
+    - { option: 'idp.authn.LDAP.useStartTLS', value: 'false' }
+    - { option: 'idp.authn.LDAP.useSSL', value: 'true' }
+    - { option: 'idp.authn.LDAP.sslConfig ', value: 'certificateTrust' }
+    - { option: 'idp.authn.LDAP.trustCertificates', value: '/etc/pki/tls/certs/{{ hostvars[inventory_hostname].service_name }}.crt' }
+    - { option: 'idp.authn.LDAP.baseDN', value: 'ou=People,{{ root }}' }
+    - { option: 'idp.authn.LDAP.bindDN', value: 'cn=Directory Manager' }
+    - { option: 'idp.authn.LDAP.bindDNCredential', value: '{{ keystore_password }}' }
+

@@ -1,0 +1,24 @@
+---
+- name: Shibboleth IdP | Configure | MyDataSource
+  blockinfile:
+    dest: "{{ idp_home }}/conf/global.xml"
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    insertbefore: "</beans>"
+    content: |
+        <bean id="MyDataSource" class="org.apache.commons.dbcp2.BasicDataSource" p:driverClassName="org.mariadb.jdbc.Driver" p:url="jdbc:mariadb://localhost:3306/idp?autoReconnect=true"
+              p:username="idp" p:password="{{ keystore_password }}"
+              p:maxIdle="5" p:testOnBorrow="true" p:validationQuery="select 1" p:validationQueryTimeout="5" />
+         <bean id="shibboleth.JPAStorageService" class="org.opensaml.storage.impl.JPAStorageService"
+              p:cleanupInterval="%{idp.storage.cleanupInterval:PT10M}" c:factory-ref="shibboleth.JPAStorageService.entityManagerFactory"/>
+         <bean id="shibboleth.JPAStorageService.entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+           <property name="packagesToScan" value="org.opensaml.storage.impl"/>
+           <property name="dataSource" ref="MyDataSource"/>
+           <property name="jpaVendorAdapter" ref="shibboleth.JPAStorageService.JPAVendorAdapter"/>
+           <property name="jpaDialect">
+             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
+           </property>
+         </bean>
+
+         <bean id="shibboleth.JPAStorageService.JPAVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+           <property name="database" value="MYSQL" />
+         </bean>

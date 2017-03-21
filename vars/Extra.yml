@@ -1,0 +1,65 @@
+---
+shibboleth_packages:
+  - name: mariadb-java-client
+    url: http://central.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/1.5.9/mariadb-java-client-1.5.9.jar
+    dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
+  - name: commons-dbcp2
+    url: http://central.maven.org/maven2/org/apache/commons/commons-dbcp2/2.1.1/commons-dbcp2-2.1.1.jar
+    dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
+  - name: commons-pool2
+    url: http://central.maven.org/maven2/org/apache/commons/commons-pool2/2.4.2/commons-pool2-2.4.2.jar
+    dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
+
+jetty_packages:
+  - name: logback-classic
+    url: http://central.maven.org/maven2/ch/qos/logback/logback-classic/1.2.1/logback-classic-1.2.1.jar
+    dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
+  - name: logback-core
+    url: http://central.maven.org/maven2/ch/qos/logback/logback-core/1.2.1/logback-core-1.2.1.jar
+    dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
+  - name: logback-access
+    url: http://central.maven.org/maven2/ch/qos/logback/logback-access/1.2.1/logback-access-1.2.1.jar
+    dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
+  - name: jcl-over-slf4j
+    url: http://central.maven.org/maven2/org/slf4j/jcl-over-slf4j/1.7.24/jcl-over-slf4j-1.7.24.jar
+    dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
+  - name: slf4j-api
+    url: http://central.maven.org/maven2/org/slf4j/slf4j-api/1.7.24/slf4j-api-1.7.24.jar
+    dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
+  - name: jetty9-dta-ssl
+    url: https://build.shibboleth.net/nexus/content/repositories/releases/net/shibboleth/utilities/jetty9/jetty9-dta-ssl/1.0.0/jetty9-dta-ssl-1.0.0.jar 
+    dst: "{{ shibbolethidp_jetty_base }}/lib/ext/"
+
+jetty_files:
+  - name: jetty-ssl-context.xml
+    dst: "{{ shibbolethidp_jetty_base }}/etc"
+    src: "{{ shibbolethidp_jetty_home }}/etc"
+  - name: jetty-requestlog.xml
+    dst: "{{ shibbolethidp_jetty_base }}/etc"
+    src: "{{ shibbolethidp_jetty_home }}/etc"
+  - name: logback.xml
+    dst: "{{ shibbolethidp_jetty_base }}/resources"
+    src: "{{ shibbolethidp_jetty_home }}/resources"
+  - name: logback-access.xml
+    dst: "{{ shibbolethidp_jetty_base }}/resources"
+    src: "{{ shibbolethidp_jetty_home }}/resources"
+  - name: idp.xml
+    dst: "{{ shibbolethidp_jetty_base }}/webapps"
+    src: "{{ shibbolethidp_jetty_home }}/webapps"
+
+jetty_configurator:
+  - name: jetty.ssl.port
+    dst: "{{ shibbolethidp_jetty_base }}/start.d/ssl.ini"
+    value: "{{ shibbolethidp_jetty_secure_port }}"
+  - name: jetty.secure.port
+    dst: "{{ shibbolethidp_jetty_base }}/start.d/server.ini"
+    value: "{{ shibbolethidp_jetty_secure_port }}"
+  # shibbolethidp_jetty_backchannel_port: 8443
+  # shibbolethidp_jetty_backchannel_keystore_path: ../credentials/keystore.jks
+  # shibbolethidp_jetty_backchannel_keystore_password: defaultpassword
+#  - name: jetty.sslContext.keyStorePath
+#    dst: "{{ shibbolethidp_jetty_base }}/start.d/ssl.ini"
+#    value: "{{ shibbolethidp_jetty_sslcontext_keystorepath }}"
+#  - name: jetty.sslContext.keyStorePassword
+#    dst: "{{ shibbolethidp_jetty_base }}/start.d/ssl.ini"
+#    value: "{{ shibbolethidp_jetty_sslcontext_keystorepassword }}"
