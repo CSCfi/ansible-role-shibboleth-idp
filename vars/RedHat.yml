@@ -5,3 +5,4 @@ __shibbolethidp_packages:
 
 shibbolethidp_service_name: shibboleth-idp
 
+shibbolethidp_java_home: /etc/alternatives/jre_1.8.0

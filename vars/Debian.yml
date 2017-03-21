@@ -4,3 +4,5 @@ __shibbolethidp_packages:
     - libmysql-java
 
 shibbolethidp_service_name: shibboleth-idp
+
+shibbolethidp_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
