@@ -1,6 +1,6 @@
 JAVA_HOME={{ shibbolethidp_java_home }}
-        JETTY_BASE={{ shibbolethidp_jetty_base }}
-        JETTY_HOME={{ shibbolethidp_jetty_home }}
-        IDP_HOME={{ shibbolethidp_idp_home }}
-        IDP_SRC=/opt/shibboleth-identity-provider-{{ shibbolethidp_version }}
-        export JAVA_HOME JETTY_BASE JETTY_HOME IDP_HOME IDP_SRC
+JETTY_BASE={{ shibbolethidp_jetty_base }}
+JETTY_HOME={{ shibbolethidp_jetty_home }}
+IDP_HOME={{ shibbolethidp_idp_home }}
+IDP_SRC=/opt/shibboleth-identity-provider-{{ shibbolethidp_version }}
+export JAVA_HOME JETTY_BASE JETTY_HOME IDP_HOME IDP_SRC

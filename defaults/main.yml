@@ -4,12 +4,13 @@
 shibbolethidp_state: latest
 shibbolethidp_fqdn: "{{ ansible_fqdn }}"
 
-shibbolethidp_version: 3.3.0
+shibbolethidp_version: 3.3.1
 shibbolethidp_dst_dir: /opt
 shibbolethidp_jetty_base: /opt/shibboleth-idp/jetty-base
 shibbolethidp_jetty_home: /opt/jetty
 shibbolethidp_idp_home: /opt/shibboleth-idp
-shibbolethidp_java_home: /etc/alternatives/jre_1.8.0
+# shibbolethidp_java_home: /etc/alternatives/jre_1.8.0
+shibbolethidp_java_home: /etc/alternatives/java
 shibbolethidp_entityid: https://{{ shibbolethidp_fqdn }}/idp/shibboleth
 shibbolethidp_scope: "{{ shibbolethidp_fqdn.split('.')[1:] | join('.') }}"
 shibbolethidp_root: dc=csc,dc=fi
