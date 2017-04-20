@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/CSC-IT-Center-for-Science/ansible-role-shibboleth-idp.svg?branch=master)](https://travis-ci.org/CSC-IT-Center-for-Science/ansible-role-shibboleth-idp)
+[![Build Status](https://travis-ci.org/CSCfi/ansible-role-shibboleth-idp.svg?branch=master)](https://travis-ci.org/CSCfi/ansible-role-shibboleth-idp)
 
 Ansible-Role: Shibboleth IdP
 =========
@@ -9,7 +9,7 @@ Requirements
 ------------
 
 * cmprescott.xml ( Mandatory )
-* CSC-IT-Center-for-Science.jetty ( Optional, /opt/jetty must anyways contain unpacked jetty distribution )
+* CSCfi.jetty ( Optional, /opt/jetty must anyways contain unpacked jetty distribution )
 
 Role Variables
 --------------
@@ -20,14 +20,14 @@ Dependencies
 ------------
 
 * cmprescott.xml ( Mandatory )
-* CSC-IT-Center-for-Science.jetty
+* CSCfi.jetty
 
 Example Playbook
 ----------------
 
-    - hosts: localhost
+    - hosts: all
       roles:
         - { role: cmprescott.xml }
-        - { role: CSC-IT-Center-for-Science.jetty }
-        - { role: CSC-IT-Center-for-Science.shibboleth-idp }
+        - { role: CSCfi.jetty }
+        - { role: CSCfi.shibboleth-idp }
 
