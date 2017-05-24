@@ -26,6 +26,7 @@
   template: src={{ item.src }} dest={{ item.dst }}/{{ item.src }}
   with_items:
     - { src: idp.merge.properties, dst: /tmp }
+    - { src: idp-schema.sql, dst: /tmp }
     - { src: shibboleth-idp, dst: /etc/default }
     - { src: shibboleth-idp.service, dst: /etc/systemd/system }
 
@@ -114,3 +115,9 @@
 
 - name: Enable service shibboleth
   service: name=shibboleth-idp enabled=yes state=started
+
+- include: shibbolethidp_{{ item }}.yml
+  with_items: "{{ configurables }}"
+
+- name: Shibboleth IdP | Rebuild
+  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh"

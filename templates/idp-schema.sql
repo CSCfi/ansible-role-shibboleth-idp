@@ -34,5 +34,5 @@ CREATE TABLE IF NOT EXISTS tb_st (
 	    PRIMARY KEY (uid)
 );
 
-GRANT ALL ON idp.* TO 'idp'@'localhost' IDENTIFIED BY '{{ keystore_password }}';
+GRANT ALL ON idp.* TO '{{ shibbolethidp_dbuser }}'@'localhost' IDENTIFIED BY '{{ shibbolethidp_dbpassword }}';
 FLUSH PRIVILEGES;

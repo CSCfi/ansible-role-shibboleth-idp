@@ -14,7 +14,18 @@ shibbolethidp_scope: "{{ shibbolethidp_fqdn.split('.')[1:] | join('.') }}"
 shibbolethidp_root: dc={{ shibbolethidp_fqdn.split('.')[-2] }},dc={{ shibbolethidp_fqdn.split('.')[-1] }}
 shibbolethidp_keystore_password: changemepl3453
 
+# CONFIGURABLES
+shibbolethidp_dbuser: idp
+shibbolethidp_dbpassword: not_set_yet
+
+shibbolethidp_ldapuser: "cn=Directory Manager"
+shibbolethidp_ldappassword: not_set_yet
+shibbolethidp_ldapsuffix: "{{ shibbolethidp_scope }}"
+
+### NameID configuration
 shibbolethidp_persistentid_sourceattribute: uid
+shibbolethidp_persistentid_salt: this_should_be_ch4ng3d
+shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
 
 shibbolethidp_jetty_ssl_port: 443
 shibbolethidp_jetty_secure_port: 443
