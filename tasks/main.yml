@@ -118,6 +118,7 @@
 
 - include: shibbolethidp_{{ item }}.yml
   with_items: "{{ configurables }}"
+  when: configurables is defined
 
 - name: Shibboleth IdP | Rebuild
   shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh"
