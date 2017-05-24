@@ -396,7 +396,7 @@
                             salt="%{idp.persistentId.salt}"
                             generatedAttributeID="storedId">
       <resolver:Dependency ref="%{idp.persistentId.sourceAttribute}" />
-      <dc:BeanManagedConnection>MyDataSource</dc:BeanManagedConnection>
+      <dc:BeanManagedConnection>shibboleth.JPAStorageService.DataSource</dc:BeanManagedConnection>
     </resolver:DataConnector>
 
 </resolver:AttributeResolver>
