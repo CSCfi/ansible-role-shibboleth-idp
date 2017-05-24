@@ -122,3 +122,6 @@
 
 - name: Shibboleth IdP | Rebuild
   shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh"
+  args:
+    executable: /bin/bash
+
