@@ -16,5 +16,5 @@ galaxy_info:
           
 dependencies:
   - { src: cmprescott.xml }
-  - { src: CSC-IT-Center-for-Science.jetty }
+  - { src: CSCfi.jetty }
 

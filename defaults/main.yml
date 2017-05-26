@@ -20,7 +20,7 @@ shibbolethidp_dbpassword: not_set_yet
 
 shibbolethidp_ldapuser: "cn=Directory Manager"
 shibbolethidp_ldappassword: not_set_yet
-shibbolethidp_ldapsuffix: "{{ shibbolethidp_scope }}"
+shibbolethidp_ldapsuffix: "{{ shibbolethidp_root }}"
 
 ### NameID configuration
 shibbolethidp_persistentid_sourceattribute: uid
