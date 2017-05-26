@@ -86,8 +86,8 @@
   template: src={{ item.src }} dest={{ item.dst }}/{{ item.src }}
   with_items:
     - { src: idp.xml, dst: "{{ shibbolethidp_jetty_base }}/webapps" }
-    - { src: attribute-resolver.xml, dst: "{{ shibbolethidp_idp_home }}/conf" }
-    - { src: attribute-filter.xml, dst: "{{ shibbolethidp_idp_home }}/conf" }
+#    - { src: attribute-resolver.xml, dst: "{{ shibbolethidp_idp_home }}/conf" }
+#    - { src: attribute-filter.xml, dst: "{{ shibbolethidp_idp_home }}/conf" }
 
 #    - { src: jetty-requestlog.xml, dst: "{{ shibbolethidp_jetty_base }}/etc" }
 #    - { src: logback-access.xml, dst: "{{ shibbolethidp_jetty_base }}/resources" }
