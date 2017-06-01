@@ -2,7 +2,7 @@
 # tasks file for CSCfi.devidp
 
 - set_fact:
-    mfa_provider: {{ shibbolethidp_mfaprovider }}
+    mfa_provider: "{{ shibbolethidp_mfaprovider }}"
 
 - name: MFA | INITIAL PACKAGES | npm, maven
   yum: name={{ item }} state=present
@@ -20,10 +20,12 @@
   args:
     chdir: /tmp/MPASSid-proxy
     executable: /bin/bash
+    creates: /tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/checkstyle-checker.xml
 
 - name: IDP | MFA | Copy | idp-authn-impl-socialuser | jars
-  copy: src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/idp-authn-impl-socialuser-*.jar dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
-- copy: src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/dependency/ dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
+  copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/idp-authn-impl-socialuser-0.9.1-SNAPSHOT.jar dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
+  #- copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/dependency/ dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
+- shell: cp -r /tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/dependency/* {{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/.
 
 - name: JETTY | MFA | Annotations | idp.xml
   blockinfile:
@@ -38,9 +40,12 @@
   notify: restart shibboleth-idp
 
 - name: IDP | MFA | MPASSid | flow/conf/views
-  copy: src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/conf dest="{{ shibbolethidp_idp_home }}/."
-- copy: src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/flows dest="{{ shibbolethidp_idp_home }}/."
-- copy: src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/views dest="{{ shibbolethidp_idp_home }}/."
+  shell: cp -r /tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/conf {{ shibbolethidp_idp_home }}/.
+- shell: cp -r /tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/flows {{ shibbolethidp_idp_home }}/.
+- shell: cp -r /tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/views {{ shibbolethidp_idp_home }}/.
+  #- copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/conf dest="{{ shibbolethidp_idp_home }}/."
+  #- copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/flows dest="{{ shibbolethidp_idp_home }}/."
+  #- copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/views dest="{{ shibbolethidp_idp_home }}/."
 
 - name: IDP | MFA | SocialUser OpenID Connect | Remove default
   xml:
@@ -180,23 +185,39 @@
         </constructor-arg>
       </bean>
 
-- name: IDP | MFA | Configure | Flow
+- name: IDP | MFA | Configure | STEPUPePPN | attribute-resolver-haka.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver-haka.xml"
+    marker: "<!-- {mark} ANSIBLE MANAGED stepupeppn-->"
+    insertbefore: '<!-- Schema: Core schema attributes-->'
+    content: |
+      <resolver:AttributeDefinition xsi:type="ad:Simple" id="stepupEPPN" sourceAttributeID="eduPersonPrincipalName">
+        <resolver:Dependency ref="myLDAP" />
+      </resolver:AttributeDefinition>
+
+- name: IDP | MFA | Configure | STEPUPePPN | attribute-resolver.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
-    marker: "<!-- {mark} ANSIBLE MANAGED setupeppn-->"
+    marker: "<!-- {mark} ANSIBLE MANAGED stepupeppn-->"
     insertbefore: '<AttributeDefinition id="eduPersonPrincipalName" xsi:type="Scoped" scope="%{idp.scope}" sourceAttributeID="uid">'
     content: |
       <AttributeDefinition xsi:type="ad:Simple" id="stepupEPPN" sourceAttributeID="eduPersonPrincipalName">
-          <Dependency ref="myLDAP" />
-      </AttributeDefinition>
+        <Dependency ref="myLDAP" />
+      <AttributeDefinition>
 
 - name: IDP | MFA | credentials
   file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys state=directory mode=0755
-- shell: openssl genrsa -out /opt/shibboleth-idp/credentials/mfaclient.pem 2048
+- shell: openssl genrsa -out {{ shibbolethidp_idp_home }}/credentials/mfaclient.pem 2048
+  args:
+    creates: "{{ shibbolethidp_idp_home }}/credentials/mfaclient.pem"
 - shell: openssl rsa -in {{ shibbolethidp_idp_home }}/credentials/mfaclient.pem -outform PEM -pubout -out {{ shibbolethidp_idp_home }}/credentials/mfaclientpublic.pem
+  args:
+    creates: "{{ shibbolethidp_idp_home }}/credentials/mfaclientpublic.pem"
 - file: path={{ shibbolethidp_idp_home }}//credentials/mfaclient.pem mode=0750 group=jetty owner=root
 - shell: npm install -g pem-jwk
 - shell: pem-jwk {{ shibbolethidp_idp_home }}/credentials/mfaclientpublic.pem > {{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys/mfaclientkeyset.jwk
+  args:
+    creates: "{{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys/mfaclientkeyset.jwk"
 
 - file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/index.html state=touch
 - file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys/index.html state=touch
