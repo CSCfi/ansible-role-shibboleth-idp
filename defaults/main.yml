@@ -27,6 +27,9 @@ shibbolethidp_persistentid_sourceattribute: uid
 shibbolethidp_persistentid_salt: this_should_be_ch4ng3d
 shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
 
+### MFA
+shibbolethidp_mfaprovider: https://mfapilot.funet.fi
+
 shibbolethidp_jetty_ssl_port: 443
 shibbolethidp_jetty_secure_port: 443
 # shibbolethidp_jetty_backchannel_port: 8443

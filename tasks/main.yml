@@ -83,11 +83,11 @@
     - "{{ shibboleth_packages }}"
 
 - name: Shibboleth IdP | Templates | copy
-  template: src={{ item.src }} dest={{ item.dst }}/{{ item.src }}
+  template: src={{ item.src }} dest={{ item.dst }}
   with_items:
-    - { src: idp.xml, dst: "{{ shibbolethidp_jetty_base }}/webapps" }
-#    - { src: attribute-resolver.xml, dst: "{{ shibbolethidp_idp_home }}/conf" }
-#    - { src: attribute-filter.xml, dst: "{{ shibbolethidp_idp_home }}/conf" }
+    - { src: idp.xml, dst: "{{ shibbolethidp_jetty_base }}/webapps/idp.xml" }
+    - { src: attribute-resolver.xml, dst: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver-haka.xml" }
+    - { src: attribute-filter.xml, dst: "{{ shibbolethidp_idp_home }}/conf/attribute-filter-haka.xml" }
 
 #    - { src: jetty-requestlog.xml, dst: "{{ shibbolethidp_jetty_base }}/etc" }
 #    - { src: logback-access.xml, dst: "{{ shibbolethidp_jetty_base }}/resources" }
@@ -127,4 +127,5 @@
   shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh"
   args:
     executable: /bin/bash
+  notify: restart shibboleth-idp
 
