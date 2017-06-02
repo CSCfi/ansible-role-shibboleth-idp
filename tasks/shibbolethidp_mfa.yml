@@ -5,10 +5,12 @@
     mfa_provider: "{{ shibbolethidp_mfaprovider }}"
 
 - name: MFA | INITIAL PACKAGES | npm, maven
-  yum: name={{ item }} state=present
+  yum: name={{ item_mfa }} state=present
   with_items:
     - npm
     - maven
+  loop_control:
+    loop_var: item_mfa
 
 - name: MFA | Download | git | MPASSid-proxy
   git:
@@ -47,7 +49,7 @@
   #- copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/flows dest="{{ shibbolethidp_idp_home }}/."
   #- copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/src/main/resources/views dest="{{ shibbolethidp_idp_home }}/."
 
-- name: IDP | MFA | SocialUser OpenID Connect | Remove default
+- name: IDP | MFA | SocialUser OpenID Connect | Remove | socialuseropenidconnect-authn-beans.xml
   xml:
     file: "{{ shibbolethidp_idp_home }}/flows/authn/SocialUserOpenIDConnect/socialuseropenidconnect-authn-beans.xml"
     xpath: //x:beans/x:bean[@id='SetOIDCInformation']
@@ -56,11 +58,11 @@
       x: http://www.springframework.org/schema/beans
     ensure: absent
 
-- name: IDP | MFA | SocialUser OpenID Connect
+- name: IDP | MFA | SocialUser OpenID Connect | Insert | socialuseropenidconnect-authn-beans.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/flows/authn/SocialUserOpenIDConnect/socialuseropenidconnect-authn-beans.xml"
     marker: "<!-- {mark} ANSIBLE MANAGED SetOIDCInformation -->"
-    insertbefore: "<bean id=\"ValidateOIDCAuthenticationResponse\""
+    insertbefore: '<bean id="ValidateOIDCAuthenticationResponse"'
     content: |
       <bean id="JWTPrivateKey"
         class="net.shibboleth.ext.spring.factory.PrivateKeyFactoryBean"
@@ -86,20 +88,29 @@
       </bean>
   notify: restart shibboleth-idp
 
-- name: IDP | MFA | SocialUser OpenID Connect | Remove default
+- name: IDP | MFA | SocialUser OpenID Connect | Remove | general-authn.xml
   xml:
     file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
-    xpath: //x:beans/x:bean[@id='authn/SocialUserOpenIDConnect']
+    xpath: //x:beans/util:list/x:bean[@id='authn/SocialUserOpenIDConnect']
     namespaces:
       util: http://www.springframework.org/schema/util
       x: http://www.springframework.org/schema/beans
     ensure: absent
 
-- name: IDP | MFA | Configure | Flow
+- name: IDP | MFA | SocialUser OpenID Connect | Remove | general-authn.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    xpath: //x:beans/util:list/x:bean[@id='authn/MFA']
+    namespaces:
+      util: http://www.springframework.org/schema/util
+      x: http://www.springframework.org/schema/beans
+    ensure: absent
+
+- name: IDP | MFA | Configure | Flow | Insert | general-authn.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
     marker: "<!-- {mark} ANSIBLE MANAGED mfa-flow -->"
-    insertbefore: '<bean id="authn/Password" parent="shibboleth.AuthenticationFlow"'
+    insertbefore: '</util:list>'
     content: |
       <!-- only to be used by mfa, not to be activated separately -->
       <bean id="authn/SocialUserOpenIDConnect" parent="shibboleth.AuthenticationFlow"
@@ -120,7 +131,7 @@
         </property>
       </bean>
 
-- name: IDP | MFA | Configure | Flow | Remove default    
+- name: IDP | MFA | Configure | Flow | Remove | mfa-authn-config.xml
   xml:          
     file: "{{ shibbolethidp_idp_home }}/conf/authn/mfa-authn-config.xml"
     xpath: //util:map[@id='shibboleth.authn.MFA.TransitionMap']
@@ -129,7 +140,7 @@
       x: http://www.springframework.org/schema/beans
     ensure: absent
 
-- name: IDP | MFA | Configure | Flow | Remove default         
+- name: IDP | MFA | Configure | Flow | Remove | mfa-authn-config.xml
   xml:                  
     file: "{{ shibbolethidp_idp_home }}/conf/authn/mfa-authn-config.xml"
     xpath: //x:bean[@id='checkSecondFactor']
@@ -138,7 +149,7 @@
       x: http://www.springframework.org/schema/beans
     ensure: absent
 
-- name: IDP | MFA | Configure | Flow | mfa-authn-config.xml
+- name: IDP | MFA | Configure | Flow | Insert | mfa-authn-config.xml
   blockinfile:          
     dest: "{{ shibbolethidp_idp_home }}/conf/authn/mfa-authn-config.xml"
     marker: "<!-- {mark} ANSIBLE MANAGED mfa-flow -->"
@@ -219,13 +230,12 @@
   args:
     creates: "{{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys/mfaclientkeyset.jwk"
 
-- file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/index.html state=touch
-- file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys/index.html state=touch
-
 - name: IDP | MFA | Configure | AUTH flows
-  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ item.option }}\s*=)" backrefs=yes  line="\\1{{ item.value }}"
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ item_mfa.option }}\s*=)" backrefs=yes  line="\\1{{ item_mfa.value }}"
   with_items:
     - { option: 'idp.authn.flows', value: "Password|MFA", state: present }
+  loop_control:
+    loop_var: item_mfa
 
 - file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/index.html state=touch
 - file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys/index.html state=touch
