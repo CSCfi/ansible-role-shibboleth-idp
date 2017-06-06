@@ -3,6 +3,7 @@
 
 - set_fact:
     mfa_provider: "{{ shibbolethidp_mfaprovider }}"
+    mfa_version: "{{ shibbolethidp_mfaversion }}"
 
 - name: MFA | INITIAL PACKAGES | npm, maven
   yum: name={{ item_mfa }} state=present
@@ -16,6 +17,7 @@
   git:
     repo: 'https://github.com/Digipalvelutehdas/MPASSid-proxy'
     dest: /tmp/MPASSid-proxy
+    version: MPASSid-proxy-{{ mfa_version }}
     
 - name: MFA | Compile | MPASSid-proxy
   shell: mvn package
@@ -25,7 +27,7 @@
     creates: /tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/checkstyle-checker.xml
 
 - name: IDP | MFA | Copy | idp-authn-impl-socialuser | jars
-  copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/idp-authn-impl-socialuser-0.9.1-SNAPSHOT.jar dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
+  copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/idp-authn-impl-socialuser-{{ mfa_version }}.jar dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
   #- copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/dependency/ dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
 - shell: cp -r /tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/dependency/* {{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/.
 
@@ -75,7 +77,7 @@
           value="https://{{ ansible_fqdn }}/idp/Authn/SocialUserOpenIdConnectEnd" />
         <property name="Acr">
           <list>
-            <value>urn:test:stepup</value>
+            <value>https://refeds.org/profile/mfa</value>
           </list>
         </property>
         <property name="requestClaims">
@@ -113,20 +115,17 @@
     insertbefore: '</util:list>'
     content: |
       <!-- only to be used by mfa, not to be activated separately -->
-      <bean id="authn/SocialUserOpenIDConnect" parent="shibboleth.AuthenticationFlow"
-        p:nonBrowserSupported="false" p:forcedAuthenticationSupported="true">
+      <bean id="authn/SocialUserOpenIDConnect" parent="shibboleth.AuthenticationFlow" p:nonBrowserSupported="false" p:forcedAuthenticationSupported="true">
         <property name="supportedPrincipals">
           <list>
-            <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="urn:test:stepup" />
+            <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://refeds.org/profile/mfa" />
           </list>
         </property>
       </bean>
-      <bean id="authn/MFA" parent="shibboleth.AuthenticationFlow"
-        p:passiveAuthenticationSupported="false"
-        p:forcedAuthenticationSupported="true">
+      <bean id="authn/MFA" parent="shibboleth.AuthenticationFlow" p:passiveAuthenticationSupported="false" p:forcedAuthenticationSupported="true">
         <property name="supportedPrincipals">
           <list>
-            <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="urn:test:stepup" />
+            <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://refeds.org/profile/mfa" />
           </list>
         </property>
       </bean>
@@ -162,36 +161,39 @@
         </entry>
         <!-- Second rule runs oidc mfa flow if password authentication succeeds. -->
         <entry key="authn/Password">
-          <bean parent="shibboleth.authn.MFA.Transition"
-            p:nextFlowStrategy-ref="doSecondFactor" />
+          <bean parent="shibboleth.authn.MFA.Transition" p:nextFlowStrategy-ref="doSecondFactor" />
         </entry>
       </util:map>
       
       <!-- Resolves attributes and then runs oidc mfa flow. -->
-      <bean id="doSecondFactor" parent="shibboleth.ContextFunctions.Scripted"
-        factory-method="inlineScript" p:customObject-ref="shibboleth.AttributeResolverService">
+      <bean id="doSecondFactor" parent="shibboleth.ContextFunctions.Scripted" factory-method="inlineScript" p:customObject-ref="shibboleth.AttributeResolverService">
         <constructor-arg>
           <value>
             <![CDATA[
               nextFlow = "authn/SocialUserOpenIDConnect";
+            
               // Set up for an attribute lookup.
               authCtx = input.getSubcontext("net.shibboleth.idp.authn.context.AuthenticationContext");
               mfaCtx = authCtx.getSubcontext("net.shibboleth.idp.authn.context.MultiFactorAuthenticationContext");
-              // Attribute check is required to decide if first factor alone is enough.
-              resCtx = input.getSubcontext(
-              "net.shibboleth.idp.attribute.resolver.context.AttributeResolutionContext", true);
-              resCtx.setPrincipal(input.getSubcontext(
-              "net.shibboleth.idp.authn.context.SubjectCanonicalizationContext").getPrincipalName());
+            
+              // Attributes are resolved to pass for second factor.
+              resCtx = input.getSubcontext("net.shibboleth.idp.attribute.resolver.context.AttributeResolutionContext", true);
+
+              // Look up the username and resolve attributes
+              usernameLookupStrategyClass = Java.type("net.shibboleth.idp.session.context.navigate.CanonicalUsernameLookupStrategy");
+              usernameLookupStrategy = new usernameLookupStrategyClass();
+              resCtx.setPrincipal(usernameLookupStrategy.apply(input));
               resCtx.getRequestedIdPAttributeNames().add("uid");
               resCtx.getRequestedIdPAttributeNames().add("stepupEPPN");
               resCtx.getRequestedIdPAttributeNames().add("mobile");
               resCtx.resolveAttributes(custom);
+            
               //Pass the resolved attributes to context
               suCtx = authCtx.getSubcontext("fi.okm.mpass.idp.authn.impl.SocialUserOpenIdConnectContext", true);
               suCtx.setResolvedIdPAttributes(resCtx.getResolvedIdPAttributes());
               input.removeSubcontext(resCtx);
               nextFlow; // pass control to oidc flow
-              ]]>
+            ]]>
           </value>
         </constructor-arg>
       </bean>

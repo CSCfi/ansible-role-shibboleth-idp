@@ -29,6 +29,7 @@ shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
 
 ### MFA
 shibbolethidp_mfaprovider: https://mfapilot.funet.fi
+shibbolethidp_mfaversion: 0.9.0
 
 shibbolethidp_jetty_ssl_port: 443
 shibbolethidp_jetty_secure_port: 443
