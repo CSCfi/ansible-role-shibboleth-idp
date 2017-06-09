@@ -3,7 +3,7 @@
 
 - set_fact:
     mfa_provider: "{{ shibbolethidp_mfaprovider }}"
-    mfa_version: "{{ shibbolethidp_mfaversion }}"
+    mpassid_version: "{{ shibbolethidp_mpassidversion }}"
 
 - name: MFA | INITIAL PACKAGES | npm, maven
   yum: name={{ item_mfa }} state=present
@@ -17,7 +17,7 @@
   git:
     repo: 'https://github.com/Digipalvelutehdas/MPASSid-proxy'
     dest: /tmp/MPASSid-proxy
-    version: MPASSid-proxy-{{ mfa_version }}
+    version: MPASSid-proxy-{{ mpassid_version }}
     
 - name: MFA | Compile | MPASSid-proxy
   shell: mvn package
@@ -27,7 +27,7 @@
     creates: /tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/checkstyle-checker.xml
 
 - name: IDP | MFA | Copy | idp-authn-impl-socialuser | jars
-  copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/idp-authn-impl-socialuser-{{ mfa_version }}.jar dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
+  copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/idp-authn-impl-socialuser-{{ mpassid_version }}.jar dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
   #- copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/dependency/ dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
 - shell: cp -r /tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/dependency/* {{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/.
 

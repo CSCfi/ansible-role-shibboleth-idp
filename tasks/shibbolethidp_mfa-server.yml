@@ -1,0 +1,180 @@
+---
+# tasks file for CSCfi.shibboleth-idp/shibbolethidp_mfa-server
+- set_fact:
+    stepup_version: "{{ shibbolethidp_stepupversion }}"
+    stepup_src: "/tmp/stepup-proxy"
+
+- set_fact:
+    stepup_version: "{{ shibbolethidp_stepupversion }}"
+    mpassid_version: "{{ shibbolethidp_mpassidversion }}"
+    mpassid_src: "/tmp/MPASSid-proxy"
+    stepup_jars:
+      - 'idp-ssointerceptor-impl-stepup/target/idp-ssointerceptor-impl-stepup-{{ stepup_version }}.jar'
+      - 'idp-ssointerceptor-api-stepup/target/idp-ssointerceptor-api-stepup-{{ stepup_version }}.jar'
+      - 'idp-ssointerceptor-impl-stepup/target/dependency/HikariCP-*.jar'
+      - 'idp-ssointerceptor-impl-stepup/target/dependency/commons-collections*.jar'
+      - 'idp-ssointerceptor-impl-stepup/target/dependency/commons-lang*.jar'
+      - 'idp-ssointerceptor-impl-stepup/target/dependency/googleauth-*.jar'
+      - 'idp-ssointerceptor-impl-stepup/target/dependency/json-smart-*.jar'
+      - 'idp-ssointerceptor-impl-stepup/target/dependency/lang-tag-*.jar'
+      - 'idp-ssointerceptor-impl-stepup/target/dependency/nimbus-jose-jwt-*'
+      - 'idp-ssointerceptor-impl-stepup/target/dependency/oauth2-oidc-sdk-*.jar'
+      - 'idp-ssointerceptor-impl-stepup/target/dependency/spring-security-crypto-*.RELEASE.jar'
+      - 'idp-ssointerceptor-impl-stepup/target/dependency/twilio-*.jar'
+
+- name: IDP | MFA-SERVER | INITIAL PACKAGES | npm, maven
+  yum: name={{ item_mfa }} state=present
+  with_items:
+    - git
+    - maven
+  loop_control:
+    loop_var: item_mfa
+
+- name: IDP | MFA-SERVER | MPASSid | Download | git | MPASSid-proxy
+  git:
+    repo: 'https://github.com/Digipalvelutehdas/MPASSid-proxy'
+    dest: "{{ mpassid_src }}"
+    version: MPASSid-proxy-{{ mpassid_version }}
+    
+- name: IDP | MFA-SERVER | MPASSid | Compile | MPASSid-proxy
+  shell: mvn -f pom.xml clean install -DskipTests=true #mvn package
+  args:
+    chdir: "{{ mpassid_src }}"
+    executable: /bin/bash
+    creates: /tmp/MPASSid-proxy/idp-authn-impl-shibsp/target/checkstyle-checker.xml
+
+- name: IDP | MFA-SERVER | MPASSid | ShipSP | jars
+  copy: src={{ item.src }} dest={{ item.dest }} owner=root group=jetty mode=0750 force=no remote_src=yes
+  with_items:
+    - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_version }}.jar", dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/" }
+    - { src: "{{ mpassid_src }}/idp-authn-api-shibsp/target/idp-authn-api-shibsp-{{ mpassid_version }}.jar", dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/" }
+    - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_version }}-bin/idp-authn-impl-shibsp-{{ mpassid_version }}/conf/shib-authn-config.xml", dest: "{{ shibbolethidp_idp_home }}/conf/authn/" }
+  notify: rebuild shibboleth-idp
+
+- name: IDP | MFA-SERVER | MPASSid | ShipSP | add | flows
+  shell: cp -r "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_version }}-bin/idp-authn-impl-shibsp-{{ mpassid_version }}/flows/" {{ shibbolethidp_idp_home }}/.
+
+- name: IDP | MFA-SERVER | MPASSid | ShipSP | remove | existing flow
+  file:
+    state: absent
+    path: "{{ shibbolethidp_idp_home }}/flows/authn/ShibSP"
+  notify: restart shibboleth-idp
+
+- name: IDP | MFA-SERVER | MPASSid | ShibSP | rename
+  command: mv "{{ shibbolethidp_idp_home }}/{{ item.src }}" "{{ shibbolethidp_idp_home }}/{{ item.dest }}"
+  with_items:
+    - { src: "flows/authn/ShibExample", dest: "flows/authn/ShibSP" }
+    - { src: "flows/authn/ShibSP/shibexample-flow.xml", dest: "flows/authn/ShibSP/shibsp-flow.xml" }
+  notify: restart shibboleth-idp
+
+### STEPUP PROXY Section
+
+- name: IDP | MFA-SERVER | StepUP | Download | git | {{ stepup_src }}
+  git:
+    repo: 'https://github.com/CSCfi/stepup-proxy'
+    dest: "{{ stepup_src }}"
+    version: stepup-v{{ stepup_version }}
+  when: stepup_version != 'master'
+
+- name: IDP | MFA-SERVER | StepUP | Download | git | {{ stepup_src }}
+  git:
+    repo: 'https://github.com/CSCfi/stepup-proxy'
+    dest: "{{ stepup_src }}"
+  when: stepup_version == 'master'
+                      
+- name: IDP | MFA-SERVER | StepUP | Compile | {{ stepup_src }}
+  shell: mvn -f pom.xml clean package #mvn package
+  args:
+    chdir: "{{ stepup_src }}"
+    executable: /bin/bash
+    creates: /tmp/stepup-proxy/idp-ssointerceptor-impl-stepup/target/checkstyle-checker.xml
+  become: yes
+
+- name: IDP | MFA-SERVER | StepUP | Create | Directories (flows/views)
+  file: path="{{ shibbolethidp_idp_home }}/{{ item_stepup.src }}/" state=directory
+  with_items:
+    - { src: "flows/oidc/mfarequest" }
+    - { src: "flows/authn/mfa" }
+    - { src: "flows/intercept/stepup" }
+    - { src: "views/authn" }
+    - { src: "views/oidc" }
+  loop_control:
+    loop_var: item_stepup
+
+- name: Copy stepup flows, overwriting existing ones
+  copy: src="{{ item_stepup.src }}" dest="{{ item_stepup.dest }}" owner=root group=root mode=0644 remote_src=yes
+  with_items:
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/flows/oidc/mfarequest/mfarequest-flow.xml", dest: "{{ shibbolethidp_idp_home }}/flows/oidc/mfarequest/mfarequest-flow.xml" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/flows/authn/mfa/mfa-flow.xml", dest: "{{ shibbolethidp_idp_home }}/flows/authn/mfa/mfa-flow.xml" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/flows/intercept/stepup/stepup-flow.xml", dest: "{{ shibbolethidp_idp_home }}/flows/intercept/stepup/stepup-flow.xml" }
+  loop_control:
+    loop_var: item_stepup
+
+- name: Copy stepup beans, preserving existing ones
+  copy: src="{{ item_stepup.src }}" dest="{{ item_stepup.dest }}" owner=root group=root mode=0644 remote_src=yes force=no
+  with_items:
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/flows/oidc/mfarequest/mfarequest-beans.xml", dest: "{{ shibbolethidp_idp_home }}/flows/oidc/mfarequest/mfarequest-beans.xml" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/flows/authn/mfa/mfa-beans.xml", dest: "{{ shibbolethidp_idp_home }}/flows/authn/mfa/mfa-beans.xml" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/flows/intercept/stepup/stepup-beans.xml", dest: "{{ shibbolethidp_idp_home }}/flows/intercept/stepup/stepup-beans.xml" }
+  loop_control:
+    loop_var: item_stepup
+
+- name: Copy stepup beans as exmple beans, overwriting existing ones
+  copy: src="{{ item_stepup.src }}" dest="{{ item_stepup.dest }}" owner=root group=root mode=0644 remote_src=yes
+  with_items:
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/flows/oidc/mfarequest/mfarequest-beans.xml", dest: "{{ shibbolethidp_idp_home }}/flows/oidc/mfarequest/mfarequest-beans.xml.example" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/flows/authn/mfa/mfa-beans.xml", dest: "{{ shibbolethidp_idp_home }}/flows/authn/mfa/mfa-beans.xml.example" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/flows/intercept/stepup/stepup-beans.xml", dest: "{{ shibbolethidp_idp_home }}/flows/intercept/stepup/stepup-beans.xml.example" }
+  loop_control:
+    loop_var: item_stepup
+
+- name: Copy stepup views, overwriting existing ones
+  copy: src="{{ item_stepup.src }}" dest="{{ item_stepup.dest }}" owner=root group=root mode=0644 remote_src=yes
+  with_items:
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/oidc/mfarequest-error.vm", dest: "{{ shibbolethidp_idp_home }}/views/oidc/mfarequest-error.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/authn/mfa-backend-progress.vm", dest: "{{ shibbolethidp_idp_home }}/views/authn/mfa-backend-progress.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/authn/mfa-backend.vm", dest: "{{ shibbolethidp_idp_home }}/views/authn/mfa-backend.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/authn/mfa-condolences.vm", dest: "{{ shibbolethidp_idp_home }}/views/authn/mfa-condolences.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/authn/mfa-managesimple.vm", dest: "{{ shibbolethidp_idp_home }}/views/authn/mfa-managesimple.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/authn/mfa-manage.vm", dest: "{{ shibbolethidp_idp_home }}/views/authn/mfa-manage.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/authn/mfa-performed.vm", dest: "{{ shibbolethidp_idp_home }}/views/authn/mfa-performed.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/authn/mfa-register.vm", dest: "{{ shibbolethidp_idp_home }}/views/authn/mfa-register.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/authn/mfa-startregister.vm", dest: "{{ shibbolethidp_idp_home }}/views/authn/mfa-startregister.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/authn/mfa.vm", dest: "{{ shibbolethidp_idp_home }}/views/authn/mfa.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/authn/mfa-wrongresponse.vm", dest: "{{ shibbolethidp_idp_home }}/views/authn/mfa-wrongresponse.vm" }
+    - { src: "{{ stepup_src }}/idp-ssointerceptor-impl-stepup/src/main/resources/views/intercept/stepup-error.vm", dest: "{{ shibbolethidp_idp_home }}/views/intercept/stepup-error.vm" }
+  loop_control:
+    loop_var: item_stepup
+
+- name: IDP | MFA-SERVER | StepUP | Delete | httpc*.jar
+  shell: "rm {{ shibbolethidp_idp_home }}/webapp/WEB-INF/lib/httpc*.jar"
+  notify: rebuild shibboleth-idp
+
+- name: IDP | MFA-SERVER | StepUP | Download | httpcore, httpdclient-cache, httpclient
+  get_url: url="{{ item_stepup.src }}" dest="{{ item_stepup.dest }}" mode=0644
+  with_items:
+    - { src: "http://central.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.6/httpcore-4.4.6.jar", dest: "{{ shibbolethidp_idp_home }}/webapp/WEB-INF/lib/" }
+    - { src: "http://central.maven.org/maven2/org/apache/httpcomponents/httpclient-cache/4.5.3/httpclient-cache-4.5.3.jar", dest: "{{ shibbolethidp_idp_home }}/webapp/WEB-INF/lib/" }
+    - { src: "http://central.maven.org/maven2/org/apache/httpcomponents/httpclient/4.5.3/httpclient-4.5.3.jar", dest: "{{ shibbolethidp_idp_home }}/webapp/WEB-INF/lib/" }
+  loop_control:
+    loop_var: item_stepup
+  notify: rebuild shibboleth-idp
+
+
+- name: IDP | MFA-SERVER | StepUP | Delete | jars
+  shell: rm {{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/{{ item_stepup | basename }}
+  ignore_errors: yes
+  with_items:
+    - "{{ stepup_jars }}"
+  loop_control:
+    loop_var: item_stepup
+  notify: rebuild shibboleth-idp
+
+
+- name: IDP | MFA-SERVER | StepUP | Copy | jars
+  shell: cp {{ stepup_src }}/{{ item_stepup }} {{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/.
+  with_items:
+    - "{{ stepup_jars }}"
+  loop_control:
+    loop_var: item_stepup
+  notify: rebuild shibboleth-idp
