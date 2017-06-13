@@ -1,5 +1,5 @@
 ---
-shibboleth_packages:
+shibbolethidp_jars:
   - name: mariadb-java-client
     url: http://central.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/1.5.9/mariadb-java-client-1.5.9.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
@@ -10,7 +10,7 @@ shibboleth_packages:
     url: http://central.maven.org/maven2/org/apache/commons/commons-pool2/2.4.2/commons-pool2-2.4.2.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
 
-jetty_packages:
+jetty_jars:
   - name: logback-classic
     url: http://central.maven.org/maven2/ch/qos/logback/logback-classic/1.2.1/logback-classic-1.2.1.jar
     dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
