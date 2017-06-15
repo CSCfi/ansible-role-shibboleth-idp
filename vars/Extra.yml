@@ -50,10 +50,10 @@ jetty_files:
 jetty_configurator:
   - name: jetty.ssl.port
     dst: "{{ shibbolethidp_jetty_base }}/start.d/ssl.ini"
-    value: "{{ shibbolethidp_jetty_secure_port }}"
-  - name: jetty.secure.port
-    dst: "{{ shibbolethidp_jetty_base }}/start.d/server.ini"
-    value: "{{ shibbolethidp_jetty_secure_port }}"
+    value: "{{ shibbolethidp_jetty_secure_port }}"
+    #  - name: jetty.secure.port
+    #    dst: "{{ shibbolethidp_jetty_base }}/start.d/server.ini"
+    #    value: "{{ shibbolethidp_jetty_secure_port }}"
   # shibbolethidp_jetty_backchannel_port: 8443
   # shibbolethidp_jetty_backchannel_keystore_path: ../credentials/keystore.jks
   # shibbolethidp_jetty_backchannel_keystore_password: defaultpassword
