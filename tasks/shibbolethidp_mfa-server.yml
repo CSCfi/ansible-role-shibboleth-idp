@@ -44,11 +44,13 @@
     creates: /tmp/MPASSid-proxy/idp-authn-impl-shibsp/target/checkstyle-checker.xml
 
 - name: IDP | MFA-SERVER | MPASSid | ShipSP | jars
-  copy: src={{ item.src }} dest={{ item.dest }} owner=root group=jetty mode=0750 force=no remote_src=yes
+  copy: src={{ item_stepup.src }} dest={{ item_stepup.dest }} owner=root group=jetty mode=0750 force=no remote_src=yes
   with_items:
     - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_version }}.jar", dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/" }
     - { src: "{{ mpassid_src }}/idp-authn-api-shibsp/target/idp-authn-api-shibsp-{{ mpassid_version }}.jar", dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/" }
     - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_version }}-bin/idp-authn-impl-shibsp-{{ mpassid_version }}/conf/shib-authn-config.xml", dest: "{{ shibbolethidp_idp_home }}/conf/authn/" }
+  loop_control:
+    loop_var: item_stepup
   notify: rebuild shibboleth-idp
 
 - name: IDP | MFA-SERVER | MPASSid | ShipSP | add | flows
@@ -61,10 +63,12 @@
   notify: restart shibboleth-idp
 
 - name: IDP | MFA-SERVER | MPASSid | ShibSP | rename
-  command: mv "{{ shibbolethidp_idp_home }}/{{ item.src }}" "{{ shibbolethidp_idp_home }}/{{ item.dest }}"
+  command: mv "{{ shibbolethidp_idp_home }}/{{ item_stepup.src }}" "{{ shibbolethidp_idp_home }}/{{ item_stepup.dest }}"
   with_items:
     - { src: "flows/authn/ShibExample", dest: "flows/authn/ShibSP" }
     - { src: "flows/authn/ShibSP/shibexample-flow.xml", dest: "flows/authn/ShibSP/shibsp-flow.xml" }
+  loop_control:
+    loop_var: item_stepup
   notify: restart shibboleth-idp
 
 ### STEPUP PROXY Section
