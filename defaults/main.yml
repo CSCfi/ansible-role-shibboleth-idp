@@ -15,9 +15,14 @@ shibbolethidp_root: dc={{ shibbolethidp_fqdn.split('.')[-2] }},dc={{ shibboleth
 shibbolethidp_keystore_password: changemepl3453
 
 # CONFIGURABLES
+### Haka-test
+shibbolethidp_hakatestcrt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2015_sha2.crt?version=1&modificationDate=1430212953940&api=v2"
+
+### nameId
 shibbolethidp_dbuser: idp
 shibbolethidp_dbpassword: not_set_yet
 
+### ldap
 shibbolethidp_ldapuser: "cn=Directory Manager"
 shibbolethidp_ldappassword: not_set_yet
 shibbolethidp_ldapsuffix: "{{ shibbolethidp_root }}"
