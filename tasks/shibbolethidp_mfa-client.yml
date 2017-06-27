@@ -207,7 +207,7 @@
       <AttributeDefinition xsi:type="Simple" id="stepupEPPN" sourceAttributeID="eduPersonPrincipalName">
         <Dependency ref="myLDAP" />
       <AttributeDefinition>
-  with_item:
+  with_items:
     - attribute-resolver.xml
     - attribute-resolver-haka.xml
   loop_control:
