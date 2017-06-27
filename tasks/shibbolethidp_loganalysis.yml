@@ -2,10 +2,12 @@
 # tasks file for CSCfi.shibboleth-idp
 
 - name: Shibboleth IdP | Loganalysis | Templates | copy
-  template: src={{ item.src }} dest={{ item.dst }} mode=0755
+  template: src={{ item_log.src }} dest={{ item_log.dst }} mode=0755
   with_items:
   - { src: loganalysis.py, dst: "{{ shibbolethidp_idp_home }}" }
   - { src: loganalysis.cron.daily, dst: "{{ shibbolethidp_idp_home }}" }
+  loop_control:
+    loop_var: item_log
 
 - name: Shibboleth IdP | Loganalysis | Symlink | cron.daily
   file:

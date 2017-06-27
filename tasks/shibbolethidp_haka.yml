@@ -21,10 +21,10 @@
 
 - name: Configure /opt/shibboleth-idp/conf/relaying-party.xml Configure Encryption / Signing
   xml:
-    xpath: "{{ item.xpath }}"
-    attribute: "{{ item.attribute }}"
-    value: "{{ item.value }}"
-    ensure: "{{ item.ensure }}"
+    xpath: "{{ item_haka.xpath }}"
+    attribute: "{{ item_haka.attribute }}"
+    value: "{{ item_haka.value }}"
+    ensure: "{{ item_haka.ensure }}"
     file: /opt/shibboleth-idp/conf/relying-party.xml
     namespaces:
       x: http://www.springframework.org/schema/beans
@@ -33,4 +33,6 @@
     - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:signResponses", value: "false", ensure: present }
     - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:signAssertions", value: "true", ensure: present }
     - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:encryptAssertions", value: "false", ensure: present }
+  loop_control:
+    loop_var: item_haka
   notify: restart shibboleth-idp
