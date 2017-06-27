@@ -1,7 +1,4 @@
-- set_fact:
-    haka_test_crt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2015_sha2.crt?version=1&modificationDate=1430212953940&api=v2"
-
-- get_url: url="{{ haka_test_crt }}" dest="{{ shibbolethidp_idp_home }}/credentials//haka_testi_2015_sha2.crt" mode=0755
+- get_url: url="{{ shibbolethidp_hakatestcrt }}" dest="{{ shibbolethidp_idp_home }}/credentials//haka_testi_2015_sha2.crt" mode=0755
 
 - file: path={{ shibbolethidp_idp_home }}/metadata/backingFiles state=directory owner=jetty group=jetty recurse=yes mode=0750
  
@@ -20,3 +17,18 @@
           <RetainedRole>md:SPSSODescriptor</RetainedRole>
         </MetadataFilter>
       </MetadataProvider>
+
+- name: Configure /opt/shibboleth-idp/conf/relaying-party.xml Configure Encryption / Signing
+  xml:
+    xpath: "{{item.xpath}}"
+      attribute: "{{item.attribute}}"
+      value: "{{item.value}}"
+      ensure: "{{item.ensure}}"
+      file: /opt/shibboleth-idp/conf/relying-party.xml
+      namespaces:
+         x: http://www.springframework.org/schema/beans
+         p: http://www.springframework.org/schema/p
+    with_items:
+      - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:signResponses", value: "false", ensure: present }
+      - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:signAssertions", value: "true", ensure: present }
+      - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:encryptAssertions", value: "false", ensure: present }
