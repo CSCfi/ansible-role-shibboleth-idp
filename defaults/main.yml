@@ -24,6 +24,9 @@ shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297775/hak
 ### nameId
 shibbolethidp_dbuser: idp
 shibbolethidp_dbpassword: not_set_yet
+shibbolethidp_dbhost: localhost
+shibbolethidp_dbport: 3306
+shibbolethidp_dbname: idp
 
 ### ldap
 shibbolethidp_ldapuser: "cn=Directory Manager"
