@@ -2,7 +2,7 @@
 
 - file: path={{ shibbolethidp_idp_home }}/metadata/backingFiles state=directory owner=jetty group=jetty recurse=yes mode=0750
  
-- name: Add Haka-metadata provider (Haka)
+- name: Add metadata provider (Virtu-test)
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
     marker: "<!-- {mark} ANSIBLE MANAGED VIRTU-TEST METADATA -->"
