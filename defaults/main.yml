@@ -16,7 +16,10 @@ shibbolethidp_keystore_password: changemepl3453
 
 # CONFIGURABLES
 ### Haka-test
-shibbolethidp_hakatestcrt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2015_sha2.crt?version=1&modificationDate=1430212953940&api=v2"
+shibbolethidp_hakatestcrt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2015_sha2.crt"
+
+### Haka
+shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297775/haka-sign-v3.pem"
 
 ### nameId
 shibbolethidp_dbuser: idp

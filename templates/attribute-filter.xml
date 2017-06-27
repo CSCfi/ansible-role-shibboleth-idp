@@ -9,9 +9,16 @@
                             urn:mace:shibboleth:2.0:afp:mf:basic http://shibboleth.net/schema/idp/shibboleth-afp-mf-basic.xsd
                             urn:mace:shibboleth:2.0:afp:mf:saml http://shibboleth.net/schema/idp/shibboleth-afp-mf-saml.xsd">
 
-    <afp:AttributeFilterPolicy id="Haka">
-      <afp:PolicyRequirementRule xsi:type="basic:ANY" />
+    <afp:AttributeFilterPolicy id="haka-onlyifrequired">
 
+      <afp:PolicyRequirementRule xsi:type="OR">
+        <afp:Rule xsi:type="InEntityGroup" groupID="urn:mace:funet.fi:haka" />
+        <afp:Rule xsi:type="InEntityGroup" groupID="CSC testipalvelut" />
+      </afp:PolicyRequirementRule>
+
+      <afp:AttributeRule attributeID="eduPersonOrcid">
+        <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
+      </afp:AttributeRule>
       <afp:AttributeRule attributeID="eduPersonTargetedID">
         <afp:PermitValueRule xsi:type="saml:AttributeInMetadata" onlyIfRequired="false"/>
       </afp:AttributeRule>

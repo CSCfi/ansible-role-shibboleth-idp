@@ -1,19 +1,19 @@
-- get_url: url="{{ shibbolethidp_hakatestcrt }}" dest="{{ shibbolethidp_idp_home }}/credentials//haka_testi_2015_sha2.crt" mode=0755
+- get_url: url="{{ shibbolethidp_hakacrt }}" dest="{{ shibbolethidp_idp_home }}/credentials/haka-sign-v3.pem" mode=0755
 
 - file: path={{ shibbolethidp_idp_home }}/metadata/backingFiles state=directory owner=jetty group=jetty recurse=yes mode=0750
  
-- name: Add Haka-metadata provider (Haka-test)
+- name: Add Haka-metadata provider (Haka)
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
-    marker: "<!-- {mark} ANSIBLE MANAGED HAKA-TEST -->"
+    marker: "<!-- {mark} ANSIBLE MANAGED HAKA METADATA -->"
     insertafter: "<!-- ========================================================================================== -->"
     content: |
-      <!-- Metadata is refreshed every 15 minutes -->
+      <!-- Metadata is refreshed every hour -->
       <MetadataProvider id="HTTPMetadata" xsi:type="FileBackedHTTPMetadataProvider" 
-        refreshDelayFactor="0.125" maxRefreshDelay="PT2H" httpCaching="memory" 
-        backingFile="%{idp.home}/metadata/backingFiles/haka-test-metadata.xml" 
-        metadataURL="https://haka.funet.fi/metadata/haka_test_metadata_signed.xml">
-        <MetadataFilter xsi:type="SignatureValidation" certificateFile="%{idp.home}/credentials/haka_testi_2015_sha2.crt" />
+        refreshDelayFactor="0.5" maxRefreshDelay="PT2H" httpCaching="memory" 
+        backingFile="%{idp.home}/metadata/backingFiles/haka-metadata.xml" 
+        metadataURL="https://haka.funet.fi/metadata/haka-metadata.xml">
+        <MetadataFilter xsi:type="SignatureValidation" certificateFile="%{idp.home}/credentials/haka-sign-v3.pem" />
         <MetadataFilter xsi:type="EntityRoleWhiteList">
           <RetainedRole>md:SPSSODescriptor</RetainedRole>
         </MetadataFilter>
