@@ -17,22 +17,24 @@ shibbolethidp_keystore_password: changemepl3453
 # CONFIGURABLES
 ### Haka-test
 shibbolethidp_hakatestcrt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2015_sha2.crt"
-
 ### Haka
 shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297775/haka-sign-v3.pem"
+### Edugain
+shibbolethidp_edugaincrt: "https://wiki.eduuni.fi/download/attachments/27297885/haka-edugain-sign.csc.fi.pem"
+shibbolethidp_idprrid: "{{ vault_shibbolethidp_idprrid | default('NOT_SET_YET') }}"
 
 ### nameId
-shibbolethidp_dbuser: idp
-shibbolethidp_dbpassword: not_set_yet
-shibbolethidp_dbhost: localhost
-shibbolethidp_dbport: 3306
-shibbolethidp_dbname: idp
+shibbolethidp_dbuser: "{{ vault_shibbolethidp_dbuser | default('idp') }}"
+shibbolethidp_dbpassword: "{{ vault_shibbolethidp_dbpassword | default('not_set_yet') }}"
+shibbolethidp_dbhost: "{{ vault_shibbolethidp_dbhost | default('localhost') }}"
+shibbolethidp_dbport: "{{ vault_shibbolethidp_dbport | default('3306') }}"
+shibbolethidp_dbname: "{{ vault_shibbolethidp_dbname | default('idp') }}"
 
 ### ldap
-shibbolethidp_ldapuser: "cn=Directory Manager"
-shibbolethidp_ldappassword: not_set_yet
-shibbolethidp_ldapsuffix: "{{ shibbolethidp_root }}"
-shibbolethidp_ldapurl: "ldap://{{ ansible_fqdn }}:389"
+shibbolethidp_ldapuser: "{{ dirsrv_rootdn | default('cn=Directory Manager') }}"
+shibbolethidp_ldappassword: "{{ dirsrv_password | default('not_set_yet') }}"
+shibbolethidp_ldapsuffix: "{{ dirsrv_suffix | deafault(shibbolethidp_root) }}"
+shibbolethidp_ldapurl: "ldap://localhost:389"
 shibbolethidp_ldapbasedn: "ou=People,{{ shibbolethidp_ldapsuffix }}"
 
 ### NameID configuration
