@@ -9,7 +9,7 @@
     insertafter: "<!-- ========================================================================================== -->"
     content: |
       <!-- Metadata is refreshed every hour -->
-      <MetadataProvider id="HTTPMetadata" xsi:type="FileBackedHTTPMetadataProvider" 
+      <MetadataProvider id="HTTPEdugainMetadata" xsi:type="FileBackedHTTPMetadataProvider" 
         refreshDelayFactor="0.5" maxRefreshDelay="PT2H" httpCaching="memory" 
         backingFile="%{idp.home}/metadata/backingFiles/edugain-metadata.xml" 
         metadataURL="https://haka.funet.fi/edugain-nightly/gen-edugain/idp-{{ shibbolethidp_idprrid }}-metadata-eduGain.xml">

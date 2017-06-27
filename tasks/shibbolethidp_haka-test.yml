@@ -9,7 +9,7 @@
     insertafter: "<!-- ========================================================================================== -->"
     content: |
       <!-- Metadata is refreshed every 15 minutes -->
-      <MetadataProvider id="HTTPMetadata" xsi:type="FileBackedHTTPMetadataProvider" 
+      <MetadataProvider id="HTTPHakaTestMetadata" xsi:type="FileBackedHTTPMetadataProvider" 
         refreshDelayFactor="0.125" maxRefreshDelay="PT2H" httpCaching="memory" 
         backingFile="%{idp.home}/metadata/backingFiles/haka-test-metadata.xml" 
         metadataURL="https://haka.funet.fi/metadata/haka_test_metadata_signed.xml">
