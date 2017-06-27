@@ -1,0 +1,36 @@
+- get_url: url="{{ shibbolethidp_virtutestcrt }}" dest="{{ shibbolethidp_idp_home }}/credentials/virtu-test-metadata-signing-crt-2015.pem" mode=0755
+
+- file: path={{ shibbolethidp_idp_home }}/metadata/backingFiles state=directory owner=jetty group=jetty recurse=yes mode=0750
+ 
+- name: Add Haka-metadata provider (Haka)
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
+    marker: "<!-- {mark} ANSIBLE MANAGED VIRTU-TEST METADATA -->"
+    insertafter: "<!-- ========================================================================================== -->"
+    content: |
+      <!-- Metadata is refreshed every hour -->
+      <MetadataProvider id="HTTPVirtuTestMetadata" xsi:type="FileBackedHTTPMetadataProvider" 
+        refreshDelayFactor="0.5" maxRefreshDelay="PT2H" httpCaching="memory" 
+        backingFile="%{idp.home}/metadata/backingFiles/virtu-test-metadata.xml" 
+        metadataURL="https://virtu-ds.csc.fi/fed/virtu-test/CSC_Virtu_Test_Servers-metadata.xml">
+        <MetadataFilter xsi:type="SignatureValidation" certificateFile="%{idp.home}/credentials/virtu-test-metadata-signing-crt-2015.pem" />
+        <MetadataFilter xsi:type="EntityRoleWhiteList">
+          <RetainedRole>md:SPSSODescriptor</RetainedRole>
+        </MetadataFilter>
+      </MetadataProvider>
+
+- name: Configure /opt/shibboleth-idp/conf/relaying-party.xml Configure Encryption / Signing
+  xml:
+    xpath: "{{ item.xpath }}"
+    attribute: "{{ item.attribute }}"
+    value: "{{ item.value }}"
+    ensure: "{{ item.ensure }}"
+    file: /opt/shibboleth-idp/conf/relying-party.xml
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+  with_items:
+    - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:signResponses", value: "false", ensure: present }
+    - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:signAssertions", value: "true", ensure: present }
+    - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:encryptAssertions", value: "false", ensure: present }
+  notify: restart shibboleth-idp

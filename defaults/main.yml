@@ -22,6 +22,8 @@ shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297775/hak
 ### Edugain
 shibbolethidp_edugaincrt: "https://wiki.eduuni.fi/download/attachments/27297885/haka-edugain-sign.csc.fi.pem"
 shibbolethidp_idprrid: "{{ vault_shibbolethidp_idprrid | default('NOT_SET_YET') }}"
+### Virtu-test
+shibbolethidp_virtutestcrt: "https://wiki.eduuni.fi/download/attachments/28345566/virtu-test-metadata-signing-crt-2015.pem"
 
 ### nameId
 shibbolethidp_dbuser: "{{ vault_shibbolethidp_dbuser | default('idp') }}"
