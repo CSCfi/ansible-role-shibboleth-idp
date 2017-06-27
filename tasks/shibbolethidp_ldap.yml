@@ -3,12 +3,12 @@
   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/ldap.properties regexp="^#?\s*({{ item_ldap.option }}\s*=)" backrefs=yes  line="\\1 {{ item_ldap.value }}"
   with_items:
     - { option: 'idp.authn.LDAP.authenticator', value: 'bindSearchAuthenticator'}
-    - { option: 'idp.authn.LDAP.ldapURL', value: 'ldap://{{ ansible_fqdn }}:389'}
+    - { option: 'idp.authn.LDAP.ldapURL', value: '{{ shibbolethidp_ldapurl }}'}
     - { option: 'idp.authn.LDAP.useStartTLS', value: 'false' }
     - { option: 'idp.authn.LDAP.useSSL', value: 'false' }
       #    - { option: 'idp.authn.LDAP.sslConfig ', value: 'certificateTrust' }
       #    - { option: 'idp.authn.LDAP.trustCertificates', value: '/etc/pki/tls/certs/{{ ansible_fqdn }}.crt' }
-    - { option: 'idp.authn.LDAP.baseDN', value: 'ou=People,{{ shibbolethidp_ldapsuffix }}' }
+    - { option: 'idp.authn.LDAP.baseDN', value: '{{ shibbolethidp_ldapdn }}' }
     - { option: 'idp.authn.LDAP.bindDN', value: '{{ shibbolethidp_ldapuser }}' }
     - { option: 'idp.authn.LDAP.bindDNCredential', value: '{{ shibbolethidp_ldappassword }}' }
   loop_control:
