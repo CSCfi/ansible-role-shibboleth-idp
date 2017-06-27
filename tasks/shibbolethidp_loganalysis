@@ -1,0 +1,18 @@
+---
+# tasks file for CSCfi.shibboleth-idp
+
+- name: Shibboleth IdP | Loganalysis | Templates | copy
+  template: src={{ item.src }} dest={{ item.dst }} mode=0755
+  with_items:
+  - { src: loganalysis.py dst: {{ shibbolethidp_idp_home }} }
+  - { src: loganalysis.cron.daily dst: {{ shibbolethidp_idp_home }} }
+
+- name: Shibboleth IdP | Loganalysis | Symlink | cron.daily
+  file:
+    src="{{ shibbolethidp_idp_home }}/loganalysis.cron.daily"
+    dest=/etc/cron.daily/shibboleth_loganalysis
+    state=link
+
+- name: Shibboleth IdP | Loganalysis | directory | create
+  file: path={{ shibbolethidp_jetty_base }}/webapps/root/statistics state=directory mode=0775 owner=jetty group=jetty
+
