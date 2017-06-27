@@ -22,13 +22,13 @@
 - name: Configure /opt/shibboleth-idp/conf/relaying-party.xml Configure Encryption / Signing
   xml:
     xpath: "{{item.xpath}}"
-      attribute: "{{item.attribute}}"
-      value: "{{item.value}}"
-      ensure: "{{item.ensure}}"
-      file: /opt/shibboleth-idp/conf/relying-party.xml
-      namespaces:
-         x: http://www.springframework.org/schema/beans
-         p: http://www.springframework.org/schema/p
+    attribute: "{{item.attribute}}"
+    value: "{{item.value}}"
+    ensure: "{{item.ensure}}"
+    file: /opt/shibboleth-idp/conf/relying-party.xml
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
     with_items:
       - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:signResponses", value: "false", ensure: present }
       - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:signAssertions", value: "true", ensure: present }
