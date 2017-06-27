@@ -30,7 +30,7 @@ shibbolethidp_ldapuser: "cn=Directory Manager"
 shibbolethidp_ldappassword: not_set_yet
 shibbolethidp_ldapsuffix: "{{ shibbolethidp_root }}"
 shibbolethidp_ldapurl: "ldap://{{ ansible_fqdn }}:389"
-shibbolethidp_basedn: "ou=People,{{ shibbolethidp_ldapsuffix }}"
+shibbolethidp_ldapbasedn: "ou=People,{{ shibbolethidp_ldapsuffix }}"
 
 ### NameID configuration
 shibbolethidp_persistentid_sourceattribute: uid
