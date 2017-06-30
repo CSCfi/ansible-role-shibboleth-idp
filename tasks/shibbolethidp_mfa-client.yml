@@ -214,7 +214,7 @@
     loop_var: mfa_item
 
 - name: IDP | MFA | credentials
-  file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys state=directory mode=0755
+  file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset state=directory mode=0755
 - shell: openssl genrsa -out {{ shibbolethidp_idp_home }}/credentials/mfaclient.pem 2048
   args:
     creates: "{{ shibbolethidp_idp_home }}/credentials/mfaclient.pem"
@@ -223,9 +223,9 @@
     creates: "{{ shibbolethidp_idp_home }}/credentials/mfaclientpublic.pem"
 - file: path={{ shibbolethidp_idp_home }}//credentials/mfaclient.pem mode=0750 group=jetty owner=root
 - shell: npm install -g pem-jwk
-- shell: pem-jwk {{ shibbolethidp_idp_home }}/credentials/mfaclientpublic.pem > {{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys/mfaclientkeyset.jwk
+- shell: pem-jwk {{ shibbolethidp_idp_home }}/credentials/mfaclientpublic.pem > {{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset/mfaclientkeyset.jwk
   args:
-    creates: "{{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys/mfaclientkeyset.jwk"
+    creates: "{{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset/mfaclientkeyset.jwk"
 
 - name: IDP | MFA | Configure | AUTH flows
   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ item_mfa.option }}\s*=)" backrefs=yes  line="\\1{{ item_mfa.value }}"
@@ -235,5 +235,5 @@
     loop_var: item_mfa
 
 - file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/index.html state=touch
-- file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keys/index.html state=touch
+- file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset/index.html state=touch
   notify: rebuild shibboleth-idp
