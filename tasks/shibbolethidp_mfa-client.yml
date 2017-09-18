@@ -83,7 +83,7 @@
         <property name="requestClaims">
           <map>
             <entry key="sub" value="uid" />
-            <entry key="eppn" value="stepupEPPN" />
+            <entry key="eppn" value="eduPersonPrincipalName" />
             <entry key="mobile" value="mobile" />
           </map>
         </property>
@@ -184,7 +184,7 @@
               usernameLookupStrategy = new usernameLookupStrategyClass();
               resCtx.setPrincipal(usernameLookupStrategy.apply(input));
               resCtx.getRequestedIdPAttributeNames().add("uid");
-              resCtx.getRequestedIdPAttributeNames().add("stepupEPPN");
+              resCtx.getRequestedIdPAttributeNames().add("eduPersonPrincipalName");
               resCtx.getRequestedIdPAttributeNames().add("mobile");
               resCtx.resolveAttributes(custom);
             
@@ -197,21 +197,6 @@
           </value>
         </constructor-arg>
       </bean>
-
-- name: IDP | MFA | Configure | STEPUPePPN | attribute-resolver-haka.xml
-  blockinfile:
-    dest: "{{ shibbolethidp_idp_home }}/conf/{{ mfa_item }}"
-    marker: "<!-- {mark} ANSIBLE MANAGED stepupeppn-->"
-    insertbefore: '<AttributeDefinition id="eduPersonPrincipalName" xsi:type="Scoped" scope="%{idp.scope}" sourceAttributeID="uid">'
-    content: |
-      <AttributeDefinition xsi:type="Simple" id="stepupEPPN" sourceAttributeID="eduPersonPrincipalName">
-        <Dependency ref="myLDAP" />
-      <AttributeDefinition>
-  with_items:
-    - attribute-resolver.xml
-    - attribute-resolver-haka.xml
-  loop_control:
-    loop_var: mfa_item
 
 - name: IDP | MFA | credentials
   file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset state=directory mode=0755
