@@ -63,8 +63,8 @@
     chdir: "{{ shibbolethidp_jetty_base }}"
     creates: "{{ shibbolethidp_jetty_base }}/start.d"
 
-- name: Shibboleth IdP | jetty_base | configure | modules
-  shell: . /etc/default/shibboleth-idp && java -jar $JETTY_HOME/start.jar --add-to-start="{{ shibbolethidp_jetty_modules | join(', ' }}"
+- name: Shibboleth IdP | jetty_base | configure | modules | {{ shibbolethidp_jetty_modules }}
+  shell: . /etc/default/shibboleth-idp && java -jar $JETTY_HOME/start.jar --add-to-start="{{ shibbolethidp_jetty_modules | join(',') }}"
   args:
     chdir: "{{ shibbolethidp_jetty_base }}"
     creates: "{{ shibbolethidp_jetty_base }}/start.d/ssl.ini"
