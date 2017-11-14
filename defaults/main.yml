@@ -8,6 +8,7 @@ shibbolethidp_version: 3.3.1
 shibbolethidp_dst_dir: /opt
 shibbolethidp_jetty_base: /opt/shibboleth-idp/jetty-base
 shibbolethidp_jetty_home: /opt/jetty
+shibbolethidp_jetty_modules: ['server','https','http','deploy','annotations','resources','console-capture','requestlog','servlets','jsp','jstl','ext','plus','ssl','setuid','security']
 shibbolethidp_idp_home: /opt/shibboleth-idp
 shibbolethidp_entityid: https://{{ shibbolethidp_fqdn }}/idp/shibboleth
 shibbolethidp_scope: "{{ shibbolethidp_fqdn.split('.')[1:] | join('.') }}"
