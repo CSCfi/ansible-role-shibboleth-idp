@@ -10,7 +10,7 @@ env:
   - container_id: $(mktemp)
     distribution: debian
     version: 8
-    init: /usr/lib/systemd/systemd
+    init: /lib/systemd/systemd
     run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 
 before_install:
