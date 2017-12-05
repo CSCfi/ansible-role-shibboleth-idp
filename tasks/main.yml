@@ -124,7 +124,16 @@
     state=link
     force=yes
 
-- name: Set logging on debug if configured | shibholethidp_debug = {{ shibholethidp_debug }}
+- name: Enable service shibboleth
+  service: name=shibboleth-idp enabled=yes state=started
+
+- name: Shibboleth IdP | Rebuild
+  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh"
+  args:
+    executable: /bin/bash
+  notify: restart shibboleth-idp
+
+- name: Set logging to debug if configured | shibholethidp_debug = {{ shibholethidp_debug }}
   xml:
     xpath: "//configuration/variable[@name='idp.loglevel.idp']"
     ensure: present
@@ -139,16 +148,7 @@
     file: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
   when: shibbolethidp_debug == true
 
-- name: Enable service shibboleth
-  service: name=shibboleth-idp enabled=yes state=started
-
 - include: shibbolethidp_{{ item }}.yml
   with_items: "{{ configurables }}"
   when: configurables is defined
-
-- name: Shibboleth IdP | Rebuild
-  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh"
-  args:
-    executable: /bin/bash
-  notify: restart shibboleth-idp
 
