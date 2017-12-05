@@ -140,13 +140,13 @@
     attribute: value
     value: "DEBUG"
     file: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
-  when: shibbolethidp_debug == true
+  when: shibbolethidp_debug is defined and shibbolethidp_debug == true
 
 - xml:
     xpath: "//configuration/logger[@name='fi.csc' and @level='debug']"
     ensure: present
     file: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
-  when: shibbolethidp_debug == true
+  when: shibbolethidp_debug is defined and shibbolethidp_debug == true
 
 - include: shibbolethidp_{{ item }}.yml
   with_items: "{{ configurables }}"
