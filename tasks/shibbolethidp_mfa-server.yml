@@ -7,6 +7,7 @@
 - set_fact:
     stepup_version: "{{ shibbolethidp_stepupversion }}"
     mpassid_version: "{{ shibbolethidp_mpassidversion }}"
+    mpassid_release: "{{ shibbolethidp_mpassidrelease }}"
     mpassid_src: "/tmp/MPASSid-proxy"
     stepup_jars:
       - 'idp-ssointerceptor-impl-stepup/target/idp-ssointerceptor-impl-stepup-{{ stepup_version }}.jar'
@@ -30,11 +31,11 @@
   loop_control:
     loop_var: item_mfa
 
-- name: IDP | MFA-SERVER | MPASSid | Download | git | MPASSid-proxy
+- name: IDP | MFA-SERVER | MPASSid | Download | git | MPASSid-proxy {{ mpassid_version }}
   git:
     repo: 'https://github.com/Digipalvelutehdas/MPASSid-proxy'
     dest: "{{ mpassid_src }}"
-    version: MPASSid-proxy-{{ mpassid_version }}
+    version: "{{ mpassid_version }}"
     
 - name: IDP | MFA-SERVER | MPASSid | Compile | MPASSid-proxy
   shell: mvn -f pom.xml clean install -DskipTests=true #mvn package
@@ -46,15 +47,15 @@
 - name: IDP | MFA-SERVER | MPASSid | ShipSP | jars
   copy: src={{ item_stepup.src }} dest={{ item_stepup.dest }} owner=root group=jetty mode=0750 force=no remote_src=yes
   with_items:
-    - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_version }}.jar", dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/" }
-    - { src: "{{ mpassid_src }}/idp-authn-api-shibsp/target/idp-authn-api-shibsp-{{ mpassid_version }}.jar", dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/" }
-    - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_version }}-bin/idp-authn-impl-shibsp-{{ mpassid_version }}/conf/shib-authn-config.xml", dest: "{{ shibbolethidp_idp_home }}/conf/authn/" }
+    - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_release }}.jar", dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/" }
+    - { src: "{{ mpassid_src }}/idp-authn-api-shibsp/target/idp-authn-api-shibsp-{{ mpassid_release }}.jar", dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/" }
+    - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_release }}-bin/idp-authn-impl-shibsp-{{ mpassid_release }}/conf/shib-authn-config.xml", dest: "{{ shibbolethidp_idp_home }}/conf/authn/" }
   loop_control:
     loop_var: item_stepup
   notify: rebuild shibboleth-idp
 
 - name: IDP | MFA-SERVER | MPASSid | ShipSP | add | flows
-  shell: cp -r "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_version }}-bin/idp-authn-impl-shibsp-{{ mpassid_version }}/flows/" {{ shibbolethidp_idp_home }}/.
+  shell: cp -r "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_release }}-bin/idp-authn-impl-shibsp-{{ mpassid_release }}/flows/" {{ shibbolethidp_idp_home }}/.
 
 - name: IDP | MFA-SERVER | MPASSid | ShipSP | remove | existing flow
   file:

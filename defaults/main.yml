@@ -48,7 +48,8 @@ shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
 
 ### MFA
 shibbolethidp_mfaprovider: https://mfapilot.funet.fi
-shibbolethidp_mpassidversion: 0.9.1
+shibbolethidp_mpassidrelease: 0.9.1
+shibbolethidp_mpassidversion: "MPASSid-proxy-{{ shibbolethidp_mpassidrelease }}"
 shibbolethidp_stepupversion: 0.9.0 #master
 
 shibbolethidp_jetty_secure_port: 443
