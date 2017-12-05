@@ -124,6 +124,21 @@
     state=link
     force=yes
 
+- name: Set logging on debug if configured | shibholethidp_debug = {{ shibholethidp_debug }}
+  xml:
+    xpath: "//configuration/variable[@name='idp.loglevel.idp']"
+    ensure: present
+    attribute: value
+    value: "DEBUG"
+    file: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
+  when: shibbolethidp_debug == true
+
+- xml:
+    xpath: "//configuration/logger[@name='fi.csc' and @level='debug']"
+    ensure: present
+    file: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
+  when: shibbolethidp_debug == true
+
 - name: Enable service shibboleth
   service: name=shibboleth-idp enabled=yes state=started
 
