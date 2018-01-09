@@ -44,7 +44,7 @@ def parseFiles(files,options):
 
     for event in lines:
         try:
-            datetime,reqBind,reqId,rp,msgProfile,idp,respBind,respId,user,authnMeth,relAttribs,nameId,assertIds = event
+            datetime,reqBind,reqId,rp,msgProfile,idp,respBind,respId,user,authnMeth,relAttribs,nameId,assertIds,EOL = event
         except ValueError:
             print """ERROR: Unsupported log file format or using compressed log files with Python < 2.5.%sSee the documentation in the Shibboleth wiki.""" % os.linesep
             sys.exit(-1)
