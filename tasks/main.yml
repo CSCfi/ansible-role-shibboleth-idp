@@ -16,11 +16,24 @@
   package: name={{ item }} state={{ shibbolethidp_state }}
   with_items: "{{ shibbolethidp_packages }}"
 
-- name: Shibboleth IdP | Download | Unarchive
+- name: Shibboleth IdP | Existing copy | Check if local copy of distribution archive exists in /tmp
+  stat:
+    path: /tmp/shibboleth-identity-provider-{{ shibbolethidp_version }}.tar.gz
+  register: snapshot_result
+
+- name: Shibboleth IdP | Download | Unarchive
   unarchive:
-    src: https://shibboleth.net/downloads/identity-provider/{{ shibbolethidp_version }}/shibboleth-identity-provider-{{ shibbolethidp_version }}.tar.gz
-    dest: "{{ shibbolethidp_dst_dir }}"
+    src: https://shibboleth.net/downloads/identity-provider/{{ shibbolethidp_version }}/shibboleth-identity-provider-{{ shibbolethidp_version }}.tar.gz
+    dest: "{{ shibbolethidp_dst_dir }}"
     remote_src: True
+  when: snapshot_result.stat.exists == False
+
+- name: Shibboleth IdP | Existing copy | Unarchive
+  unarchive:
+    src: /tmp/shibboleth-identity-provider-{{ shibbolethidp_version }}.tar.gz
+    dest: "{{ shibbolethidp_dst_dir }}"
+    remote_src: True
+  when: snapshot_result.stat.exists == True
 
 - name: Shibboleth IdP | Templates | copy
   template: src={{ item.src }} dest={{ item.dst }}/{{ item.src }}
