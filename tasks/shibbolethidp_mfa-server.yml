@@ -33,7 +33,7 @@
 
 - name: IDP | MFA-SERVER | MPASSid | Download | git | MPASSid-proxy {{ mpassid_version }}
   git:
-    repo: 'https://github.com/Digipalvelutehdas/MPASSid-proxy'
+    repo: 'https://github.com/mpassid/MPASSid-proxy'
     dest: "{{ mpassid_src }}"
     version: "{{ mpassid_version }}"
     
