@@ -8,7 +8,7 @@
     stepup_version: "{{ shibbolethidp_stepupversion }}"
     mpassid_version: "{{ shibbolethidp_mpassidversion }}"
     mpassid_release: "{{ shibbolethidp_mpassidrelease }}"
-    mpassid_src: "/tmp/MPASSid-proxy"
+    mpassid_src: "/tmp/shibboleth-idp-authn-shibsp"
     stepup_jars:
       - 'idp-ssointerceptor-impl-stepup/target/idp-ssointerceptor-impl-stepup-{{ stepup_version }}.jar'
       - 'idp-ssointerceptor-api-stepup/target/idp-ssointerceptor-api-stepup-{{ stepup_version }}.jar'
@@ -33,7 +33,7 @@
 
 - name: IDP | MFA-SERVER | MPASSid | Download | git | MPASSid-proxy {{ mpassid_version }}
   git:
-    repo: 'https://github.com/mpassid/MPASSid-proxy'
+    repo: 'https://github.com/mpassid/shibboleth-idp-authn-shibsp'
     dest: "{{ mpassid_src }}"
     version: "{{ mpassid_version }}"
     
@@ -42,20 +42,20 @@
   args:
     chdir: "{{ mpassid_src }}"
     executable: /bin/bash
-    creates: /tmp/MPASSid-proxy/idp-authn-impl-shibsp/target/checkstyle-checker.xml
+    creates: /tmp/shibboleth-idp-authn-shibsp/idp-authn-impl-shibsp/target/checkstyle-checker.xml
 
 - name: IDP | MFA-SERVER | MPASSid | ShipSP | jars
   copy: src={{ item_stepup.src }} dest={{ item_stepup.dest }} owner=root group=jetty mode=0750 force=no remote_src=yes
   with_items:
     - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_release }}.jar", dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/" }
     - { src: "{{ mpassid_src }}/idp-authn-api-shibsp/target/idp-authn-api-shibsp-{{ mpassid_release }}.jar", dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/" }
-    - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_release }}-bin/idp-authn-impl-shibsp-{{ mpassid_release }}/conf/shib-authn-config.xml", dest: "{{ shibbolethidp_idp_home }}/conf/authn/" }
+    - { src: "{{ mpassid_src }}/idp-authn-impl-shibsp/src/main/resources/conf/shib-authn-config.xml", dest: "{{ shibbolethidp_idp_home }}/conf/authn/" }
   loop_control:
     loop_var: item_stepup
   notify: rebuild shibboleth-idp
 
 - name: IDP | MFA-SERVER | MPASSid | ShipSP | add | flows
-  shell: cp -r "{{ mpassid_src }}/idp-authn-impl-shibsp/target/idp-authn-impl-shibsp-{{ mpassid_release }}-bin/idp-authn-impl-shibsp-{{ mpassid_release }}/flows/" {{ shibbolethidp_idp_home }}/.
+  shell: cp -r "{{ mpassid_src }}/idp-authn-impl-shibsp/src/main/resources/flows/" {{ shibbolethidp_idp_home }}/.
 
 - name: IDP | MFA-SERVER | MPASSid | ShipSP | remove | existing flow
   file:
