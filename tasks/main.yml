@@ -55,7 +55,9 @@
   file: path={{ item.dst }} state=directory owner=jetty group=jetty mode=0755
   with_items:
     - "{{ jetty_jars }}"
-    - "{{ shibbolethidp_jars }}"
+    - "{{ shibbolethidp_jars }}"
+  when: (jetty_jars is defined and jetty_jars|length>0) and (shibbolethidp_jars is defined and shibbolethidp_jars|length>0)
+
 
 - name: Shibboleth IdP | jetty_base | create | system.d
   shell: . /etc/default/shibboleth-idp && java -jar $JETTY_HOME/start.jar --create-startd
@@ -81,6 +83,8 @@
   with_items:
     - "{{ jetty_jars }}"
     - "{{ shibbolethidp_jars }}"
+  when: (jetty_jars is defined and jetty_jars|length>0) and (shibbolethidp_jars is defined and shibbolethidp_jars|length>0)
+
 
 - name: Shibboleth IdP | Templates | copy
   template: src={{ item.src }} dest={{ item.dst }}
@@ -128,7 +132,7 @@
   service: name=shibboleth-idp enabled=yes state=started
 
 - name: Shibboleth IdP | Rebuild
-  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh"
+  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh -Didp.target.dir={{ shibbolethidp_idp_home }}"
   args:
     executable: /bin/bash
   notify: restart shibboleth-idp
