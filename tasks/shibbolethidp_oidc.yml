@@ -1,0 +1,101 @@
+- set_fact:
+    oidcplugin_version: "{{ shibbolethidp_oidcpluginversion }}"
+    oidcplugin_location: 'https://github.com/CSCfi/shibboleth-idp-oidc-extension'
+
+- name: Shibboleth IdP | OIDC | Download | Plugin v{{ oidcplugin_version }}
+  unarchive:
+    extra_opts: ['--strip-components=1']
+    src: 'https://github.com/CSCfi/shibboleth-idp-oidc-extension/archive/v{{ oidcplugin_version }}.tar.gz'
+    remote_src: yes
+    dest: "{{ shibbolethidp_idp_home }}"
+    creates: "{{ shibbolethidp_idp_home }}/idp-oidc-extension-distribution/pom.xml"
+  notify: rebuild shibboleth-idp
+
+#- name: Shibboleth IdP | OIDC | Configure
+#  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp-oidc.properties regexp="^#?\s*({{ item_oidc.option }}\s*=)" backrefs=yes  line="\\1 {{ item_oidc.value }}"
+#  with_items:
+#    - { option: 'idp.oidc.issuer', value: "https://{{ shibbolethidp_fqdn }}", state: present }
+#  loop_control:
+#    loop_var: item_oidc
+
+#- name: Shibboleth IdP | OIDC | Import OIDC extension configuration files
+# =======================================================================
+
+- name: Shibboleth IdP | OIDC | Configure | global.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/global.xml"
+    marker: "<!-- {mark} ansible managed -- OIDC extension global bean definitions-->"
+    insertafter: "<!-- Use this file to define any custom beans needed globally. -->"
+    block: |2
+      <import resource="global-oidc.xml" />
+
+- name: Shibboleth IdP | OIDC | Configure | credentials.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/credentials.xml"
+    marker: "<!-- {mark} ansible managed -- OIDC extension default credential definition -->"
+    insertafter: "default-destroy-method"
+    content: |2
+      <import resource="credentials-oidc.xml" />
+
+- name: Shibboleth IdP | OIDC | Configure | services.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/services.xml"
+    marker: "<!-- {mark} ansible managed -- OIDC extension service definitions -->"
+    insertafter: "default-destroy-method"
+    content: |2
+      <import resource="services-oidc.xml" />
+
+- name: Shibboleth IdP | OIDC | Configure | relying-party.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    marker: "<!-- {mark} ansible managed -- OIDC extension relying party definitions -->"
+    insertafter: "default-destroy-method"
+    content: |2
+      <import resource="oidc-relying-party.xml" />
+
+- name: Shibboleth IdP | OIDC | Configure | idp.properties | (to include oidc-subject.properties and idp-oidc.properties) FIX!!! adds everytime
+  lineinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
+    regexp: '(idp.additionalProperties.*)'
+    line: '\1, /conf/oidc-subject.properties, /conf/idp-oidc.properties'
+    backrefs: yes
+
+# - Name: Shibboleth IdP | OIDC | Generate and set default keys
+# ===========================================================
+
+- name: Shibboleth IdP | OIDC | Generate | Keys | RSA !!! FIX PATH !!!
+  shell: java -jar /opt/shibboleth-idp/idp-oidc-extension-distribution/src/main/resources/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSA -p > {{ shibbolethidp_idp_home }}/credentials/fullRSA
+  args:
+    creates: "{{ shibbolethidp_idp_home }}/credentials/fullRSA"
+
+- name: Shibboleth IdP | OIDC | Generate | Keys | RSA -> jwk
+  shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/fullRSA > {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
+  args:
+    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
+
+- name: Shibboleth IdP | OIDC | Generate | Keys | EC !!! FIX PATH !!!
+  shell: java -jar /opt/shibboleth-idp/idp-oidc-extension-distribution/src/main/resources/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultEC -p > {{ shibbolethidp_idp_home }}/credentials/fullEC
+  args:
+    creates: "{{ shibbolethidp_idp_home }}/credentials/fullEC"
+
+- name: Shibboleth IdP | OIDC | Generate | Keys | EC -> jwk
+  shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/fullEC > {{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
+  args:
+   creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
+
+- name: Shibboleth IdP | OIDC | Create | Directory | .well-known
+  file: path={{ shibbolethidp_jetty_base }}/webapps/root/.well-known state=directory mode=0775 owner=jetty group=jetty
+
+- name: Shibboleth IdP | OIDC | Generate | Keys | openid-configuration
+  shell: |
+    echo '{"keys": [' > {{ shibbolethidp_jetty_base }}/webapps/root/.well-known/openid-configuration;
+    grep Public -A10 fullRSA |awk '/{/{a=1} a; /}/{exit}' >> {{ shibbolethidp_jetty_base }}/webapps/root/.well-known/openid-configuration;
+    grep Public -A10 fullEC |awk '/{/{a=1} a; /}/{exit}' >> {{ shibbolethidp_jetty_base }}/webapps/root/.well-known/openid-configuration;
+    echo ']}' >> {{ shibbolethidp_jetty_base }}/webapps/root/.well-known/openid-configuration;
+#    "grep -Pzo '.*Public(.*\n)*' fullRSA |awk '/{/{a=1} a; /}/{exit}' >> s"
+#    "grep -Pzo '.*Public(.*\n)*' fullEC |awk '/{/{a=1} a; /}/{exit}' >> s"
+  args:
+    chdir: "{{ shibbolethidp_idp_home }}/credentials"
+    executable: /bin/bash
+#   creates: "{{ shibbolethidp_idp_home }}/credentials/openid-configuration"
+
