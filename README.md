@@ -18,7 +18,7 @@ Role Variables
 See defaults/main.yml for the variables you can overwrite via role call via parameter
 You can also pass configurables array for role. This array contains extra configurable items for shibboleth IdP such as
 
-For federations
+For federations ( Configures metadata source and certificates for IdP)
 * haka-test
 * edugain
 * haka
@@ -36,6 +36,8 @@ For extra functionality
 * ldap.yml ( Configure LDAP backend for shibboleth IdP, TLS only with overwritable parameters from defaults/main.yml )
 * oidc ( Installs OIDC extension for shibboleth-IdP )
 
+See Example playbook for calling role with configurable array and overwritten attribute
+
 Dependencies
 ------------
 
@@ -50,5 +52,9 @@ Example Playbook
     - hosts: all
       roles:
         - { role: CSCfi.jetty }
-        - { role: CSCfi.shibboleth-idp, configurables: ['slo','consent'] }
+        - role: CSCfi.shibboleth-idp
+					configurables: ['slo','consent']
+					shibbolethidp_jetty_secure_port: 8443
+		      shibbolethidp_debug: true
+
 
