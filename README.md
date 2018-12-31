@@ -26,17 +26,15 @@ For federations
 
 For extra functionality
 * consent ( Configure default consent module parameters, currently contains static predefined values )
-* loganalysis ( Install loganalsys.py script and configure it to cron, with monthly values in Jetty webroot )
-* mfa-stepup-server
+* loganalysis ( Install loganalysis.py script and configure it to cron, with monthly report in Jetty webroot )
 * slo ( Single logout configuration with predefined static values )
 * mfa-client
-* nameid ( Configure nameid, some parameters can be set overwritten with given parameters. See defaults/main.yml [ Requires Mariadb ] )
-* fticks ( Configure F-ticks, untested work in progress )
+* mfa-server
+* mfa-stepup-server
+* nameid ( Configure nameid, Currently utilizes uid. Some parameters (eg: uid, can be overwritten by passing parameters. See defaults/main.yml [ Requires Mariadb ] )
+* fticks ( Configure F-ticks, untested... work in progress )
 * ldap.yml ( Configure LDAP backend for shibboleth IdP, TLS only with overwritable parameters from defaults/main.yml )
-* mfa-server.yml
 * oidc ( Installs OIDC extension for shibboleth-IdP )
-
-Nameid currently utilizes uid, but it can be overwritten during role call.
 
 Dependencies
 ------------
