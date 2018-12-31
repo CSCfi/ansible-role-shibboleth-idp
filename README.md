@@ -36,7 +36,7 @@ For extra functionality
 * ldap.yml ( Configure LDAP backend for shibboleth IdP, TLS only with overwritable parameters from defaults/main.yml )
 * oidc ( Installs OIDC extension for shibboleth-IdP )
 
-See Example playbook for calling role with configurable array and overwritten attribute
+See example playbook for calling role with configurable array and overwritable attributes
 
 Dependencies
 ------------
@@ -53,6 +53,6 @@ Example Playbook
       roles:
         - { role: CSCfi.jetty }
         - role: CSCfi.shibboleth-idp
-	      configurables: ['slo','consent']
-	      shibbolethidp_jetty_secure_port: 8443
-	      shibbolethidp_debug: true
+  	      configurables: ['slo','consent']
+	        shibbolethidp_jetty_secure_port: 8443
+	        shibbolethidp_debug: true
