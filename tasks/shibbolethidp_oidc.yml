@@ -53,10 +53,10 @@
     content: |2
       <import resource="oidc-relying-party.xml" />
 
-- name: Shibboleth IdP | OIDC | Configure | idp.properties | (to include oidc-subject.properties and idp-oidc.properties) FIX!!! adds everytime
+- name: Shibboleth IdP | OIDC | Configure | idp.properties | (to include oidc-subject.properties and idp-oidc.properties) 
   lineinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
-    regexp: '(idp.additionalProperties.*)'
+    regexp: ^(?!.*oidc)(idp.additionalProperties.*)$
     line: '\1, /conf/oidc-subject.properties, /conf/idp-oidc.properties'
     backrefs: yes
 
@@ -143,7 +143,24 @@
         <Dependency ref="%{idp.oidc.subject.sourceAttribute}"/>
       </DataConnector> 
 
-- name: Shibboleth IdP | OIDC | Configure | attribute-filter.xml FIX NAMESPACES MISSING
+- name: Shibboleth IdP | OIDC | Configure | attribute-filter.xml | Namespaces
+  xml:
+    xpath: "{{ item_oidc.xpath }}"
+    attribute: "{{ item_oidc.attribute }}"
+    value: "{{ item_oidc.value }}"
+    ensure: "{{ item_oidc.ensure }}"
+    file: /opt/shibboleth-idp/conf/attribute-filter.xml
+    namespaces:
+      xmlns: urn:mace:shibboleth:2.0:afp
+      xsi: http://www.w3.org/2001/XMLSchema-instance
+  with_items:
+    - { xpath: "/xmlns:AttributeFilterPolicyGroup", attribute: "xmlns:oidcext", value: "org.geant.idpextension.oidc.attribute.encoder", ensure: present }
+    - { xpath: "/xmlns:AttributeFilterPolicyGroup", attribute: "xsi:schemaLocation", value: "urn:mace:shibboleth:2.0:resolver http://shibboleth.net/schema/idp/shibboleth-attribute-resolver.xsd org.geant.idpextension.oidc.attribute.encoder classpath:/schema/idp-oidc-extension-attribute-encoder.xsd", ensure: present }
+  loop_control:
+    loop_var: item_oidc
+  notify: restart shibboleth-idp
+
+- name: Shibboleth IdP | OIDC | Configure | attribute-filter.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/attribute-filter.xml"
     marker: "<!-- {mark} ansible managed - OIDC filter configuration  -->"
