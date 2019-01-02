@@ -5,18 +5,18 @@
 - name: Shibboleth IdP | OIDC | Download | Plugin v{{ oidcplugin_version }}
   unarchive:
     extra_opts: ['--strip-components=1']
-    src: 'https://github.com/CSCfi/shibboleth-idp-oidc-extension/archive/v{{ oidcplugin_version }}.tar.gz'
+    src: "https://github.com/CSCfi/shibboleth-idp-oidc-extension/releases/download/v{{ oidcplugin_version }}/idp-oidc-extension-distribution-{{ oidcplugin_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
     remote_src: yes
     dest: "{{ shibbolethidp_idp_home }}"
     creates: "{{ shibbolethidp_idp_home }}/idp-oidc-extension-distribution/pom.xml"
   notify: rebuild shibboleth-idp
 
-#- name: Shibboleth IdP | OIDC | Configure
-#  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp-oidc.properties regexp="^#?\s*({{ item_oidc.option }}\s*=)" backrefs=yes  line="\\1 {{ item_oidc.value }}"
-#  with_items:
-#    - { option: 'idp.oidc.issuer', value: "https://{{ shibbolethidp_fqdn }}", state: present }
-#  loop_control:
-#    loop_var: item_oidc
+- name: Shibboleth IdP | OIDC | Configure | idp-oidc.properties
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp-oidc.properties regexp="^#?\s*({{ item_oidc.option }}\s*=)" backrefs=yes line="\\1 {{ item_oidc.value }}"
+  with_items:
+    - { option: 'idp.oidc.issuer', value: "https://{{ shibbolethidp_fqdn }}", state: present }
+  loop_control:
+    loop_var: item_oidc
 
 #- name: Shibboleth IdP | OIDC | Import OIDC extension configuration files
 # =======================================================================
@@ -63,8 +63,8 @@
 # - name: Shibboleth IdP | OIDC | Generate and set default keys
 # ===========================================================
 
-- name: Shibboleth IdP | OIDC | Generate | Keys | RSA !!! FIX PATH !!!
-  shell: java -jar /opt/shibboleth-idp/idp-oidc-extension-distribution/src/main/resources/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSA -p > {{ shibbolethidp_idp_home }}/credentials/fullRSA
+- name: Shibboleth IdP | OIDC | Generate | Keys | RSA
+  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSA -p > {{ shibbolethidp_idp_home }}/credentials/fullRSA
   args:
     creates: "{{ shibbolethidp_idp_home }}/credentials/fullRSA"
 
@@ -73,8 +73,8 @@
   args:
     creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
 
-- name: Shibboleth IdP | OIDC | Generate | Keys | EC !!! FIX PATH !!!
-  shell: java -jar /opt/shibboleth-idp/idp-oidc-extension-distribution/src/main/resources/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultEC -p > {{ shibbolethidp_idp_home }}/credentials/fullEC
+- name: Shibboleth IdP | OIDC | Generate | Keys | EC
+  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultEC -p > {{ shibbolethidp_idp_home }}/credentials/fullEC
   args:
     creates: "{{ shibbolethidp_idp_home }}/credentials/fullEC"
 
