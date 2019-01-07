@@ -1,11 +1,7 @@
-- set_fact:
-    oidcplugin_version: "{{ shibbolethidp_oidcpluginversion }}"
-    oidcplugin_location: 'https://github.com/CSCfi/shibboleth-idp-oidc-extension'
-
-- name: Shibboleth IdP | OIDC | Download | Plugin v{{ oidcplugin_version }}
+- name: Shibboleth IdP | OIDC | Download | Plugin v{{ shibbolethidp_oidcplugin_version }}
   unarchive:
     extra_opts: ['--strip-components=1']
-    src: "https://github.com/CSCfi/shibboleth-idp-oidc-extension/releases/download/v{{ oidcplugin_version }}/idp-oidc-extension-distribution-{{ oidcplugin_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
+    src: "{{ shibbolethidp_oidcplugin_location }}/releases/download/v{{ shibbolethidp_oidcplugin_version }}/idp-oidc-extension-distribution-{{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
     remote_src: yes
     dest: "{{ shibbolethidp_idp_home }}"
     creates: "{{ shibbolethidp_idp_home }}/idp-oidc-extension-distribution/pom.xml"

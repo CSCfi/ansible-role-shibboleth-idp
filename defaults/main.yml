@@ -46,6 +46,14 @@ shibbolethidp_persistentid_sourceattribute: uid
 shibbolethidp_persistentid_salt: this_should_be_ch4ng3d
 shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
 
+### ShibSP Shibboleth SP authentication
+shibbolethidp_shibspplugin_version: 0.9.5
+shibbolethidp_shibspplugin_location: 'https://github.com/mpassid/shibboleth-idp-authn-shibsp'
+
+### OIDC shibboleth-idp-oidc-extension
+shibbolethidp_oidcplugin_version: 0.8.0b
+shibbolethidp_oidcplugin_location: 'https://github.com/CSCfi/shibboleth-idp-oidc-extension'
+
 ### MFA
 shibbolethidp_mfaprovider: https://mfapilot.funet.fi
 shibbolethidp_mpassidrelease: 0.9.5
