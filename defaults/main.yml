@@ -4,7 +4,7 @@
 shibbolethidp_state: latest
 shibbolethidp_fqdn: "{{ ansible_fqdn }}"
 
-shibbolethidp_version: 3.3.3
+shibbolethidp_version: 3.4.2
 shibbolethidp_dst_dir: /opt
 shibbolethidp_jetty_base: /opt/shibboleth-idp/jetty-base
 shibbolethidp_jetty_home: /opt/jetty
@@ -53,6 +53,10 @@ shibbolethidp_shibspplugin_location: 'https://github.com/mpassid/shibboleth-idp-
 ### OIDC shibboleth-idp-oidc-extension
 shibbolethidp_oidcplugin_version: 0.8.0b
 shibbolethidp_oidcplugin_location: 'https://github.com/CSCfi/shibboleth-idp-oidc-extension'
+
+### DISCO shibboleth-idp-authn-discovery
+shibbolethidp_discoplugin_version: 0.9.5
+shibbolethidp_discoplugin_location: 'https://github.com/mpassid/shibboleth-idp-authn-discovery'
 
 ### MFA
 shibbolethidp_mfaprovider: https://mfapilot.funet.fi

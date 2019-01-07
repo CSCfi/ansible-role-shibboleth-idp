@@ -98,6 +98,18 @@
 # - name: Prepare for first relying party
 # =======================================
 
+- name: Shibboleth IdP | OIDC | Configure | relaying-party.xml | enable oidc profile
+  xml:
+    xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']"
+    attribute: "p:responderIdLookupStrategy-ref"
+    value: "profileResponderIdLookupFunction"
+    ensure: "present"
+    file: /opt/shibboleth-idp/conf/relying-party.xml
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+  notify: restart shibboleth-idp
+
 - name: Shibboleth IdP | OIDC | Configure | relying-party.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"

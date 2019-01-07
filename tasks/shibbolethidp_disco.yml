@@ -1,0 +1,7 @@
+- name: Shibboleth IdP | Disco | Download | Plugin v{{ shibbolethidp_discoplugin_version }}
+  unarchive:
+    extra_opts: ['--strip-components=1']
+    src: "{{ shibbolethidp_discoplugin_location }}/releases/download/{{ shibbolethidp_discoplugin_version }}/shibboleth-idp-authn-discovery-{{ shibbolethidp_discoplugin_version | regex_replace('[^0-9.]', '') }}.tar.gz"
+    remote_src: yes
+    dest: "{{ shibbolethidp_idp_home }}"
+  notify: rebuild shibboleth-idp
