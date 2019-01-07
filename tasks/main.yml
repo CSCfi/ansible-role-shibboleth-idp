@@ -142,11 +142,12 @@
     file: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
   when: shibbolethidp_debug is defined and shibbolethidp_debug == true
 
-- include: shibbolethidp_{{ item }}.yml
+- name: Shibboleth IdP | Configurables 
+  include: shibbolethidp_{{ item }}.yml
   with_items: "{{ configurables }}"
   when: configurables is defined
 
-- name: 'Shibboleth IdP | Complete'
+- name: Shibboleth IdP | Complete
   debug: msg='Dummy action for handler triggering'
   notify: restart shibboleth-idp
 
