@@ -127,12 +127,6 @@
 - name: Enable service shibboleth
   service: name=shibboleth-idp enabled=yes state=started
 
-- name: Shibboleth IdP | Rebuild
-  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh"
-  args:
-    executable: /bin/bash
-  notify: restart shibboleth-idp
-
 - name: Set logging to debug if configured | shibholethidp_debug = {{ shibbolethidp_debug }}
   xml:
     xpath: "//configuration/variable[@name='idp.loglevel.idp']"
@@ -152,3 +146,9 @@
   with_items: "{{ configurables }}"
   when: configurables is defined
 
+- name: 'Shibboleth IdP | Complete'
+  debug: msg='Dummy action for handler triggering'
+  notify: restart shibboleth-idp
+
+- name: Shibboleth IdP | Restart | flush handlers
+  meta: flush_handlers

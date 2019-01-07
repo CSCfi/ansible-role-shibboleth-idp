@@ -7,7 +7,7 @@
   service: name=shibboleth-idp state=restarted
 
 - name: rebuild shibboleth-idp
-  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh"
+  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh -Didp.target.dir={{ shibbolethidp_idp_home }}"
   args:
     executable: /bin/bash
   notify: restart shibboleth-idp
