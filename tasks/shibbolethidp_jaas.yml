@@ -1,0 +1,39 @@
+- name: Shibboleth IdP | JAAS_relational_login | Copy | Plugin
+  copy:
+    src: "{{ role_path }}/files/configurables/jaas/JAAS_relational_login.jar"
+    dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/JAAS_relational_login.jar"
+  notify: rebuild shibboleth-idp
+
+- name: Shibboleth IdP | JAAS_relational_login | Disable | ldap-auth | password-authn-config.xml
+  lineinfile:
+    path: "{{ shibbolethidp_idp_home }}/conf/authn/password-authn-config.xml"
+    regexp: 'ldap-authn-config.xml'
+    line: '    <!-- <import resource="ldap-authn-config.xml" /> -->'
+
+- name: Shibboleth IdP | JAAS_relational_login | Configure | services.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/authn/password-authn-config.xml"
+    marker: "    <!-- {mark} ansible managed - JAAS extension service definitions -->"
+    insertafter: "ldap-authn-config"
+    block: |2
+          <import resource="jaas-authn-config.xml" />
+
+- name: Copy using the 'content' for inline data
+  copy:
+    dest: "{{ shibbolethidp_idp_home }}/conf/authn/jaas.config" 
+    content: |
+      /** Login Configuration for the JAAS Sample Application **/
+
+      ShibUserPassAuth {
+        relationalLogin.DBLogin required debug=true
+        dbDriver="{{ shibbolethidp_jaas_dbdriver }}"
+        userTable="{{ shibbolethidp_jaas_usertable }}"
+        userColumn="{{ shibbolethidp_jaas_usercolumn }}"
+        passColumn="{{ shibbolethidp_jaas_passcolumn }}"
+        dbURL="{{ shibbolethidp_jaas_dburl }}"
+        dbUser="{{ shibbolethidp_jaas_dbuser }}"
+        dbPassword="{{ shibbolethidp_jaas_dbpassword }}"
+        hashAlgorithm="{{ shibbolethidp_jaas_hash }}"
+        saltColumn=""
+        errorMessage="Invalid password";
+      };

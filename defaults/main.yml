@@ -4,7 +4,7 @@
 shibbolethidp_state: latest
 shibbolethidp_fqdn: "{{ ansible_fqdn }}"
 
-shibbolethidp_version: 3.4.2
+shibbolethidp_version: 3.4.3
 shibbolethidp_dst_dir: /opt
 shibbolethidp_jetty_base: /opt/shibboleth-idp/jetty-base
 shibbolethidp_jetty_home: /opt/jetty
@@ -40,6 +40,16 @@ shibbolethidp_ldapsuffix: "{{ dirsrv_suffix | deafault(shibbolethidp_root) }}
 shibbolethidp_ldapurl: "ldap://localhost:389"
 shibbolethidp_ldapbasedn: "ou=People,{{ shibbolethidp_ldapsuffix }}"
 shibbolethidp_ldapuserfilter: uid
+
+### JAAS relational login
+shibbolethidp_jaas_dbdriver: "com.mysql.jdbc.Driver"
+shibbolethidp_jaas_usertable: "users"
+shibbolethidp_jaas_usercolumn: "username"
+shibbolethidp_jaas_passcolumn: "password"
+shibbolethidp_jaas_dburl: "jdbc:mysql://{{ shibbolethidp_dbhost }}:3306/{{ shibbolethidp_dbname }}"
+shibbolethidp_jaas_dbuser: "{{ shibbolethidp_dbuser }}"
+shibbolethidp_jaas_dbpassword: "{{ shibbolethidp_dbpassword }}"
+shibbolethidp_jaas_hash: "SHA-512"
 
 ### NameID configuration
 shibbolethidp_persistentid_sourceattribute: uid

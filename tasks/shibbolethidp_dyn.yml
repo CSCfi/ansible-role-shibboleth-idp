@@ -1,0 +1,18 @@
+- name: Configurable | LocalDynamicMetadataProvider | Create | Directory | {{ shibbolethidp_idp_home }}/metadata/dyn
+  file: path={{ shibbolethidp_idp_home }}/metadata/dyn state=directory owner=jetty group=jetty recurse=yes mode=0750
+
+- name: Configurable | LocalDynamicMetadataProvider | Copy | Makefile | For creating has symlinks
+  copy:
+    src: "{{ role_path }}/files/configurables/dyn/Makefile"
+    dest: "{{ shibbolethidp_idp_home }}/metadata/dyn/Makefile"
+    force: yes
+  notify: restart shibboleth-idp
+ 
+- name: Configurable | LocalDynamicMetadataProvider | configure | metadata-providers.xml 
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
+    marker: "    <!-- {mark} Ansible managed - Dynamic metadata folder -->"
+    insertbefore: "</MetadataProvider>"
+    block: |2
+          <MetadataProvider id="LocalDynamic" xsi:type="LocalDynamicMetadataProvider" sourceDirectory="%{idp.home}/metadata/dyn" />
+  notify: generate hashlinks

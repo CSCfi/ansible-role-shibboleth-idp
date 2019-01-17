@@ -5,19 +5,19 @@
 - name: Add Haka-metadata provider (Haka-test)
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
-    marker: "<!-- {mark} ANSIBLE MANAGED HAKA-TEST -->"
+    marker: "    <!-- {mark} Ansible managed - Haka-test metadata -->"
     insertafter: "<!-- ========================================================================================== -->"
-    content: |
-      <!-- Metadata is refreshed every 15 minutes -->
-      <MetadataProvider id="HTTPHakaTestMetadata" xsi:type="FileBackedHTTPMetadataProvider" 
-        refreshDelayFactor="0.125" maxRefreshDelay="PT2H" httpCaching="memory" 
-        backingFile="%{idp.home}/metadata/backingFiles/haka-test-metadata.xml" 
-        metadataURL="https://haka.funet.fi/metadata/haka_test_metadata_signed.xml">
-        <MetadataFilter xsi:type="SignatureValidation" certificateFile="%{idp.home}/credentials/{{ shibbolethidp_hakatestcrt | basename }}" />
-        <MetadataFilter xsi:type="EntityRoleWhiteList">
-          <RetainedRole>md:SPSSODescriptor</RetainedRole>
-        </MetadataFilter>
-      </MetadataProvider>
+    block: |2
+          <!-- Metadata is refreshed every 15 minutes -->
+          <MetadataProvider id="HTTPHakaTestMetadata" xsi:type="FileBackedHTTPMetadataProvider" 
+            refreshDelayFactor="0.125" maxRefreshDelay="PT2H" httpCaching="memory" 
+            backingFile="%{idp.home}/metadata/backingFiles/haka-test-metadata.xml" 
+            metadataURL="https://haka.funet.fi/metadata/haka_test_metadata_signed.xml">
+            <MetadataFilter xsi:type="SignatureValidation" certificateFile="%{idp.home}/credentials/{{ shibbolethidp_hakatestcrt | basename }}" />
+            <MetadataFilter xsi:type="EntityRoleWhiteList">
+              <RetainedRole>md:SPSSODescriptor</RetainedRole>
+            </MetadataFilter>
+          </MetadataProvider>
 
 - name: Configure /opt/shibboleth-idp/conf/relaying-party.xml Configure Encryption / Signing
   xml:

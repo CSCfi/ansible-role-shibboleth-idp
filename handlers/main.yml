@@ -12,6 +12,9 @@
     executable: /bin/bash
   notify: restart shibboleth-idp
 
-
-
-
+- name: generate hashlinks
+  shell: "make"
+  args:
+    chdir: "{{ shibbolethidp_idp_home }}/metadata/dyn"
+    executable: /bin/bash
+  notify: restart shibboleth-idp
