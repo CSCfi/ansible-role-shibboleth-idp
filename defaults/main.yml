@@ -50,6 +50,7 @@ shibbolethidp_jaas_dburl: "jdbc:mysql://{{ shibbolethidp_dbhost }}:3306/{{ shibb
 shibbolethidp_jaas_dbuser: "{{ shibbolethidp_dbuser }}"
 shibbolethidp_jaas_dbpassword: "{{ shibbolethidp_dbpassword }}"
 shibbolethidp_jaas_hash: "SHA-512"
+shibbolethidp_jaas_springsecuritycrypto_version: 5.1.3
 
 ### NameID configuration
 shibbolethidp_persistentid_sourceattribute: uid

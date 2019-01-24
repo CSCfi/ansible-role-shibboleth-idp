@@ -4,6 +4,9 @@
     dest: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/JAAS_relational_login.jar"
   notify: rebuild shibboleth-idp
 
+- name: Shibboleth IdP | JAAS_relational_login | Download | Spring-security-crypto-{{ shibbolethidp_jaas_springsecuritycrypto_version }}.RELEASE.jar
+  get_url: url="http://central.maven.org/maven2/org/springframework/security/spring-security-crypto/{{ shibbolethidp_jaas_springsecuritycrypto_version }}.RELEASE/spring-security-crypto-{{ shibbolethidp_jaas_springsecuritycrypto_version }}.RELEASE.jar" dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/spring-security-crypto-{{ shibbolethidp_jaas_springsecuritycrypto_version }}.RELEASE.jar" mode=0644
+
 - name: Shibboleth IdP | JAAS_relational_login | Disable | ldap-auth | password-authn-config.xml
   lineinfile:
     path: "{{ shibbolethidp_idp_home }}/conf/authn/password-authn-config.xml"
