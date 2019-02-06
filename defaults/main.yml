@@ -84,3 +84,17 @@ shibbolethidp_jetty_ssl_port: "{{ shibbolethidp_jetty_secure_port }}"
 shibbolethidp_jetty_sslcontext_keystorepath: ../credentials/keystore.jks
 shibbolethidp_jetty_sslcontext_keystorepassword: changemepl3453
 
+### Certs 
+idp_ssl_crt: not_set_yet
+idp_ssl_key: not_set_yet
+idp_ssl_cabundle: not_set_yet
+sslkeystore_password: not_set_yet
+
+idp_saml_sig_crt: not_set_yet
+idp_saml_sig_key: not_set_yet
+
+idp_saml_enc_crt: not_set_yet
+idp_saml_enc_key: not_set_yet
+
+idp_saml_crt: not_set_yet
+idp_saml_key: not_set_yet
