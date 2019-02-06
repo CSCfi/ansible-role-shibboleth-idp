@@ -36,9 +36,9 @@ For extra functionality
 * ldap.yml ( Configure LDAP backend for shibboleth IdP, TLS only with overwritable parameters from defaults/main.yml )
 * oidc ( Installs OIDC extension for shibboleth-IdP )
 * certs ( will be copied under /etc/pki/tls/[certs|private] and proper configuration performed)
-* * define SSL certs for shibboleth-IdP jetty installation will be created (needed: idp_ssl_crt, idp_ssl_key, idp_ssl_cabundle, sslkeystore_password)
-* * define SAML certificates which will be configured as a encryption and signing certificate (needed: idp_saml_crt, idp_saml_key )
-* * define SAML separate certificates for encryption and signing (needed: idp_saml_sig_crt, idp_saml_sig_key, idp_saml_enc_crt, idp_saml_enc_key )
+  * define SSL certs for shibboleth-IdP jetty installation will be created (needed: idp_ssl_crt, idp_ssl_key, idp_ssl_cabundle, sslkeystore_password)
+  * define SAML certificates which will be configured as a encryption and signing certificate (needed: idp_saml_crt, idp_saml_key )
+  * define SAML separate certificates for encryption and signing (needed: idp_saml_sig_crt, idp_saml_sig_key, idp_saml_enc_crt, idp_saml_enc_key )
 
 See example playbook for calling role with configurable array and overwritable attributes
 
