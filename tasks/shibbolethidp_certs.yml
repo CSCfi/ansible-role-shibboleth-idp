@@ -126,14 +126,14 @@
   notify: restart shibboleth-idp
 
 - name: Shibboleth-IdP | Generate | /tmp/ssl-keystore.p12
-  command: openssl pkcs12 -export -out /tmp/ssl-keystore.p12 -inkey /etc/pki/tls/private/{{ shibbolethidp_fqdn }}.key -in /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.crt -certfile /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.cabundle.crt -name 'Server-Cert' -password 'pass:{{ sslkeystore_password }}' creates=/tmp/ssl-keystore.p12
+  command: openssl pkcs12 -export -out /tmp/ssl-keystore.p12 -inkey /etc/pki/tls/private/{{ shibbolethidp_fqdn }}.key -in /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.crt -certfile /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.cabundle.crt -name 'Server-Cert' -password 'pass:{{ shibbolethidp_keystore_password }}' creates=/tmp/ssl-keystore.p12
   when:
     - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
     - ( shibbolethidp_ssl_crt != "not_set_yet" )
     - ( shibbolethidp_ssl_key != "not_set_yet" )
 
 - name: "Shibboleth-IdP | Generate | {{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks"
-  command: "keytool -importkeystore -srckeystore /tmp/ssl-keystore.p12 -srcstoretype PKCS12 -destkeystore {{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks -srcstorepass {{ sslkeystore_password }} -deststorepass {{ sslkeystore_password }} creates={{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks"
+  command: "keytool -importkeystore -srckeystore /tmp/ssl-keystore.p12 -srcstoretype PKCS12 -destkeystore {{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks -srcstorepass {{ shibbolethidp_keystore_password }} -deststorepass {{ shibbolethidp_keystore_password }} creates={{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks"
   when:
     - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
     - ( shibbolethidp_ssl_crt != "not_set_yet" )
@@ -155,9 +155,9 @@
   with_items:
     - { option: "jetty.sslContext.keyStorePath", value: "../credentials/ssl-keystore.jks" }
     - { option: "jetty.sslContext.trustStorePath", value: "../credentials/ssl-keystore.jks" }
-    - { option: "jetty.sslContext.keyStorePassword", value: "{{ sslkeystore_password }}" }
-    - { option: "jetty.sslContext.trustStorePassword", value: "{{ sslkeystore_password }}" }
-    - { option: "jetty.sslContext.keyManagerPassword", value: "{{ sslkeystore_password }}" }
+    - { option: "jetty.sslContext.keyStorePassword", value: "{{ shibbolethidp_keystore_password }}" }
+    - { option: "jetty.sslContext.trustStorePassword", value: "{{ shibbolethidp_keystore_password }}" }
+    - { option: "jetty.sslContext.keyManagerPassword", value: "{{ shibbolethidp_keystore_password }}" }
     - { option: "jetty.ssl.stsMaxAgeSeconds", value: "31536000" }
   loop_control:
     loop_var: item_certs
