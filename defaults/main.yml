@@ -9,11 +9,12 @@ shibbolethidp_dst_dir: /opt
 shibbolethidp_jetty_base: /opt/shibboleth-idp/jetty-base
 shibbolethidp_jetty_home: /opt/jetty
 shibbolethidp_jetty_modules: ['server','https','http','deploy','annotations','resources','console-capture','requestlog','servlets','jsp','jstl','ext','plus','ssl','setuid','security']
+shibbolethidp_jetty_secure_port: 443
 shibbolethidp_idp_home: /opt/shibboleth-idp
 shibbolethidp_entityid: https://{{ shibbolethidp_fqdn }}/idp/shibboleth
 shibbolethidp_scope: "{{ shibbolethidp_fqdn.split('.')[1:] | join('.') }}"
 shibbolethidp_root: dc={{ shibbolethidp_fqdn.split('.')[-2] }},dc={{ shibbolethidp_fqdn.split('.')[-1] }}
-shibbolethidp_keystore_password: changemepl3453
+shibbolethidp_keystore_password: "{{ vault_keystore_password | default('changemepl3453') }}"
 
 # CONFIGURABLES
 ### Haka-test
@@ -76,25 +77,23 @@ shibbolethidp_mpassidversion: 3f2513bc699af5424ad924632ebd02704b3b0b07
 #shibbolethidp_mpassidversion: "MPASSid-proxy-{{ shibbolethidp_mpassidrelease }}"
 shibbolethidp_stepupversion: 0.9.0 #master
 
-shibbolethidp_jetty_secure_port: 443
-shibbolethidp_jetty_ssl_port: "{{ shibbolethidp_jetty_secure_port }}"
+# shibbolethidp_jetty_ssl_port: "{{ shibbolethidp_jetty_secure_port }}"
 # shibbolethidp_jetty_backchannel_port: 8443
 # shibbolethidp_jetty_backchannel_keystore_path: ../credentials/keystore.jks
 # shibbolethidp_jetty_backchannel_keystore_password: changemepl3453
-shibbolethidp_jetty_sslcontext_keystorepath: ../credentials/keystore.jks
-shibbolethidp_jetty_sslcontext_keystorepassword: changemepl3453
+# shibbolethidp_jetty_sslcontext_keystorepath: ../credentials/keystore.jks
+# shibbolethidp_jetty_sslcontext_keystorepassword: changemepl3453
 
 ### Certs 
-idp_ssl_crt: not_set_yet
-idp_ssl_key: not_set_yet
-idp_ssl_cabundle: not_set_yet
-sslkeystore_password: not_set_yet
+shibbolethidp_ssl_key: "{{ vault_ssl_key | default('not_set_yet') }}"
+shibbolethidp_ssl_crt: "{{ vault_ssl_crt | default('not_set_yet') }}"
+shibbolethidp_ssl_cabundle: "{{ vault_ssl_cabundle | default('not_set_yet') }}"
 
-idp_saml_sig_crt: not_set_yet
-idp_saml_sig_key: not_set_yet
+shibbolethidp_saml_sig_crt: "{{ vault_saml_sig_crt | default('not_set_yet') }}"
+shibbolethidp_saml_sig_key: "{{ vault_saml_sig_key | default('not_set_yet') }}"
 
-idp_saml_enc_crt: not_set_yet
-idp_saml_enc_key: not_set_yet
+shibbolethidp_saml_enc_crt: "{{ vault_saml_enc_crt | default('not_set_yet') }}"
+shibbolethidp_saml_enc_key: "{{ vault_saml_enc_key | default('not_set_yet') }}"
 
-idp_saml_crt: not_set_yet
-idp_saml_key: not_set_yet
+shibbolethidp_saml_crt: "{{ vault_saml_crt | default('not_set_yet') }}"
+shibbolethidp_saml_key: "{{ vault_saml_key | default('not_set_yet') }}"

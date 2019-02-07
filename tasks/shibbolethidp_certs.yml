@@ -1,73 +1,73 @@
 - name: "Shibboleth-IdP | Configure | Certificates | SSL | /etc/pki/tls/private/{{ shibbolethidp_fqdn }}.key"
   copy:
-    content: "{{ idp_ssl_key }}"
+    content: "{{ shibbolethidp_ssl_key }}"
     dest: "/etc/pki/tls/private/{{ shibbolethidp_fqdn }}.key"
     group: jetty
     owner: jetty
     mode: 0440
   when:
-    - ( idp_ssl_key != "not_set_yet" )
+    - ( shibbolethidp_ssl_key != "not_set_yet" )
 
 - name: "Shibboleth-IdP | Configure | Certificates | SSL | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.crt"
   copy:
-    content: "{{ idp_ssl_crt }}"
+    content: "{{ shibbolethidp_ssl_crt }}"
     dest: "/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.crt"
     group: jetty
     owner: jetty
     mode: 0444
   when:
-    - ( idp_ssl_crt != "not_set_yet" )
+    - ( shibbolethidp_ssl_crt != "not_set_yet" )
 
 - name: "Shibboleth-IdP | Configure | Certificates | SSL | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.cabundle.crt"
   copy:
-    content: "{{ idp_ssl_cabundle }}"
+    content: "{{ shibbolethidp_ssl_cabundle }}"
     dest: "/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.cabundle.crt"
     group: jetty
     owner: jetty
     mode: 0444
   when:
-    - ( idp_ssl_cabundle != "not_set_yet" )
+    - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
 
 - name: "Shibboleth-IdP | SAML | enc | Certificates | /etc/pki/tls/private/{{ shibbolethidp_fqdn }}-saml-enc.key"
   copy:
-    content: "{{ idp_saml_enc_key }}"
+    content: "{{ shibbolethidp_saml_enc_key }}"
     dest: "/etc/pki/tls/private/{{ shibbolethidp_fqdn }}-saml-enc.key"
     group: jetty
     owner: jetty
     mode: 0440
   when:
-    - ( idp_saml_enc_key != "not_set_yet" )
+    - ( shibbolethidp_saml_enc_key != "not_set_yet" )
 
 - name: "Shibboleth-IdP | SAML | enc | Certificates | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}-saml-enc.crt"
   copy:
-    content: "{{ idp_saml_enc_crt }}"
+    content: "{{ shibbolethidp_saml_enc_crt }}"
     dest: "/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}-saml-enc.crt"
     group: jetty
     owner: jetty
     mode: 0444
   when:
-    - ( idp_saml_enc_crt != "not_set_yet" )
+    - ( shibbolethidp_saml_enc_crt != "not_set_yet" )
 
 
 - name: "Shibboleth-IdP | SAML | sig | Certificates | /etc/pki/tls/private/{{ shibbolethidp_fqdn }}-saml-sig.key"
   copy:
-    content: "{{ idp_saml_sig_key }}"
+    content: "{{ shibbolethidp_saml_sig_key }}"
     dest: "/etc/pki/tls/private/{{ shibbolethidp_fqdn }}-saml-sig.key"
     group: jetty
     owner: jetty
     mode: 0440
   when:
-    - ( idp_saml_sig_key != "not_set_yet" )
+    - ( shibbolethidp_saml_sig_key != "not_set_yet" )
 
 - name: "Shibboleth-IdP | SAML | sig | Certificates | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}-saml-sig.crt"
   copy:
-    content: "{{ idp_saml_sig_crt }}"
+    content: "{{ shibbolethidp_saml_sig_crt }}"
     dest: "/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}-saml-sig.crt"
     group: jetty
     owner: jetty
     mode: 0444
   when:
-    - ( idp_saml_sig_crt != "not_set_yet" )
+    - ( shibbolethidp_saml_sig_crt != "not_set_yet" )
 
 - name: "Shibboleth-IdP | Configure | Certificates | idp.properties"
   lineinfile:
@@ -82,31 +82,31 @@
   loop_control:
     loop_var: item_certs
   when:
-    - ( idp_saml_sig_crt != "not_set_yet" )
-    - ( idp_saml_sig_key != "not_set_yet" )
-    - ( idp_saml_enc_crt != "not_set_yet" )
-    - ( idp_saml_enc_key != "not_set_yet" )
+    - ( shibbolethidp_saml_sig_crt != "not_set_yet" )
+    - ( shibbolethidp_saml_sig_key != "not_set_yet" )
+    - ( shibbolethidp_saml_enc_crt != "not_set_yet" )
+    - ( shibbolethidp_saml_enc_key != "not_set_yet" )
   notify: restart shibboleth-idp
 
 - name: "Shibboleth-IdP | SAML | Certificates | /etc/pki/tls/private/{{ shibbolethidp_fqdn }}-saml.key"
   copy:
-    content: "{{ idp_saml_key }}"
+    content: "{{ shibbolethidp_saml_key }}"
     dest: "/etc/pki/tls/private/{{ shibbolethidp_fqdn }}-saml.key"
     group: jetty
     owner: jetty
     mode: 0440
   when:
-    - ( idp_saml_key != "not_set_yet" )
+    - ( shibbolethidp_saml_key != "not_set_yet" )
 
 - name: "Shibboleth-IdP | SAML | Certificates | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}-saml.crt"
   copy:
-    content: "{{ idp_saml_crt }}"
+    content: "{{ shibbolethidp_saml_crt }}"
     dest: "/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}-saml.crt"
     group: jetty
     owner: jetty
     mode: 0444
   when:
-    - ( idp_saml_crt != "not_set_yet" )
+    - ( shibbolethidp_saml_crt != "not_set_yet" )
 
 - name: "Shibboleth-IdP | Configure | Certificates | idp.properties"
   lineinfile:
@@ -121,30 +121,30 @@
   loop_control:
     loop_var: item_certs
   when:
-    - ( idp_saml_crt != "not_set_yet" )
-    - ( idp_saml_key != "not_set_yet" )
+    - ( shibbolethidp_saml_crt != "not_set_yet" )
+    - ( shibbolethidp_saml_key != "not_set_yet" )
   notify: restart shibboleth-idp
 
 - name: Shibboleth-IdP | Generate | /tmp/ssl-keystore.p12
   command: openssl pkcs12 -export -out /tmp/ssl-keystore.p12 -inkey /etc/pki/tls/private/{{ shibbolethidp_fqdn }}.key -in /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.crt -certfile /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.cabundle.crt -name 'Server-Cert' -password 'pass:{{ sslkeystore_password }}' creates=/tmp/ssl-keystore.p12
   when:
-    - ( idp_ssl_cabundle != "not_set_yet" )
-    - ( idp_ssl_crt != "not_set_yet" )
-    - ( idp_ssl_key != "not_set_yet" )
+    - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
+    - ( shibbolethidp_ssl_crt != "not_set_yet" )
+    - ( shibbolethidp_ssl_key != "not_set_yet" )
 
 - name: "Shibboleth-IdP | Generate | {{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks"
   command: "keytool -importkeystore -srckeystore /tmp/ssl-keystore.p12 -srcstoretype PKCS12 -destkeystore {{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks -srcstorepass {{ sslkeystore_password }} -deststorepass {{ sslkeystore_password }} creates={{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks"
   when:
-    - ( idp_ssl_cabundle != "not_set_yet" )
-    - ( idp_ssl_crt != "not_set_yet" )
-    - ( idp_ssl_key != "not_set_yet" )
+    - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
+    - ( shibbolethidp_ssl_crt != "not_set_yet" )
+    - ( shibbolethidp_ssl_key != "not_set_yet" )
 
 - name: "Shibboleth-IdP | Ownership| {{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks"
   file: dest="{{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks" owner=jetty group=jetty mode=0440
   when:
-    - ( idp_ssl_cabundle != "not_set_yet" )
-    - ( idp_ssl_crt != "not_set_yet" )
-    - ( idp_ssl_key != "not_set_yet" )
+    - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
+    - ( shibbolethidp_ssl_crt != "not_set_yet" )
+    - ( shibbolethidp_ssl_key != "not_set_yet" )
 
 - name: "Shibboleth-IdP | Jetty | Configure | SSL | {{ shibbolethidp_idp_home }}/jetty-base/start.d/ssl.ini"
   lineinfile:
@@ -162,8 +162,8 @@
   loop_control:
     loop_var: item_certs
   when:
-    - ( idp_ssl_cabundle != "not_set_yet" )
-    - ( idp_ssl_crt != "not_set_yet" )
-    - ( idp_ssl_key != "not_set_yet" )
+    - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
+    - ( shibbolethidp_ssl_crt != "not_set_yet" )
+    - ( shibbolethidp_ssl_key != "not_set_yet" )
   notify: restart shibboleth-idp
 
