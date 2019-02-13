@@ -18,7 +18,7 @@ shibbolethidp_keystore_password: "{{ vault_keystore_password | default('changeme
 
 # CONFIGURABLES
 ### Haka-test
-shibbolethidp_hakatestcrt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2015_sha2.crt"
+shibbolethidp_hakatestcrt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2018_sha2.crt"
 ### Haka
 shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297775/haka-sign-v4.pem"
 ### Edugain
