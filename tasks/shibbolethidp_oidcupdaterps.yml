@@ -1,0 +1,13 @@
+- set_fact:
+    rps: []
+
+- name: UpdateOidcRPs | Combine | Default values for missing attributes
+  set_fact: rps="{{ rps + [shibbolethidp_rpdefaults|combine(shibbolethidp_item, recursive=True )]}}"
+  with_items: "{{ shibbolethidp_rps }}"
+  loop_control:
+    loop_var: shibbolethidp_item
+
+- name: UpdateOidcRPs | Generate | {{ shibbolethidp_idp_home }}/metadata/oidc-client.json
+  copy:
+    dest: "{{ shibbolethidp_idp_home }}/metadata/oidc-client.json"
+    content: "{{ rps | to_nice_json | string }}\n"
