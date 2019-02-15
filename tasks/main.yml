@@ -145,7 +145,7 @@
 - name: Shibboleth IdP | Configurables 
   include: shibbolethidp_{{ item }}.yml
   with_items: "{{ configurables }}"
-  when: configurables is defined
+  when: configurables is defined and configurables!=""
 
 - name: Shibboleth IdP | Complete
   debug: msg='Dummy action for handler triggering'
