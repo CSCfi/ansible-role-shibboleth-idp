@@ -16,11 +16,11 @@
 
 - name: Shibboleth Idp | OIDC | Delete | Older | Plugins
   file:
-    path: "{{ shibbolethproxy_item.path }}"
+    path: "{{ shibbolethidp_item.path }}"
     state: absent
   with_items: "{{ files_to_delete.files }}"
   loop_control:
-    loop_var: shibbolethproxy_item
+    loop_var: shibbolethidp_item
 
 - name: Shibboleth IdP | OIDC | Configure | idp-oidc.properties
   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp-oidc.properties regexp="^#?\s*({{ item_oidc.option }}\s*=)" backrefs=yes line="\\1 {{ item_oidc.value }}"
