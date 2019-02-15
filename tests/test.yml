@@ -2,4 +2,6 @@
 ---
 - hosts: all
   roles:
+    - { role: cmprescott.xml }
+    - { role: CSCfi.jetty }
     - role_under_test
