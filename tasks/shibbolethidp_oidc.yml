@@ -4,8 +4,23 @@
     src: "{{ shibbolethidp_oidcplugin_location }}/releases/download/v{{ shibbolethidp_oidcplugin_version }}/idp-oidc-extension-distribution-{{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
     remote_src: yes
     dest: "{{ shibbolethidp_idp_home }}"
-    creates: "{{ shibbolethidp_idp_home }}/idp-oidc-extension-distribution/pom.xml"
+    creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-oidc-extension-api-{{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }}.jar"
   notify: rebuild shibboleth-idp
+
+- name: Shibboleth IdP | OIDC | Detect | Duplicate | Plugins
+  find:
+    paths: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib"
+    patterns: "^(?!.*({{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }})).*oidc-extension"
+    use_regex: true
+  register: files_to_delete
+
+- name: Shibboleth Idp | OIDC | Delete | Older | Plugins
+  file:
+    path: "{{ shibbolethproxy_item.path }}"
+    state: absent
+  with_items: "{{ files_to_delete.files }}"
+  loop_control:
+    loop_var: shibbolethproxy_item
 
 - name: Shibboleth IdP | OIDC | Configure | idp-oidc.properties
   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp-oidc.properties regexp="^#?\s*({{ item_oidc.option }}\s*=)" backrefs=yes line="\\1 {{ item_oidc.value }}"
