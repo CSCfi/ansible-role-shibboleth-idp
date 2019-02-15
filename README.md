@@ -8,8 +8,7 @@ An role which installs Shibboleth IdP on RedHat/Debian servers
 Requirements
 ------------
 
-* cmprescott.xml ( Optional, asfaik now bundled in ansible core )
-* CSCfi.jetty ( Optional, /opt/jetty must anyways contain unpacked jetty distribution )
+* CSCfi.jetty 
 * CSCfi.mariadb (Optional, configurable nameid uses database storage )
 
 Role Variables
@@ -55,7 +54,6 @@ Example Playbook
 
     - hosts: all
       roles:
-        - { role: CSCfi.jetty }
         - role: CSCfi.shibboleth-idp
   	      configurables: ['slo','consent']
 	        shibbolethidp_jetty_secure_port: 8443

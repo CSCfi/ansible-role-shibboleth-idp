@@ -58,17 +58,23 @@ shibbolethidp_persistentid_sourceattribute: uid
 shibbolethidp_persistentid_salt: this_should_be_ch4ng3d
 shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
 
-### ShibSP Shibboleth SP authentication
-shibbolethidp_shibspplugin_version: 0.9.5
-shibbolethidp_shibspplugin_location: 'https://github.com/mpassid/shibboleth-idp-authn-shibsp'
-
 ### OIDC shibboleth-idp-oidc-extension
 shibbolethidp_oidcplugin_version: 0.8.0b
 shibbolethidp_oidcplugin_location: 'https://github.com/CSCfi/shibboleth-idp-oidc-extension'
+### OIDC Relaying parties
+shibbolethidp_rpdefaults:
+  scope: openid info profile email address phone
+  response_types:
+   - code
+   - id_token
 
-### DISCO shibboleth-idp-authn-discovery
-shibbolethidp_discoplugin_version: 0.9.5
-shibbolethidp_discoplugin_location: 'https://github.com/mpassid/shibboleth-idp-authn-discovery'
+shibbolethidp_rps:
+  - client_id: demo_rp
+    scope: openid info profile email address
+    redirect_uris:
+      - https://openidconnect.net/callback
+    response_types:
+      - ['code', 'id_token', 'token id_token', 'code id_token', 'code token', 'code token id_token']
 
 ### MFA
 shibbolethidp_mfaprovider: https://mfapilot.funet.fi

@@ -181,3 +181,5 @@
         </AttributeRule>
       </AttributeFilterPolicy> 
 
+- name: Shibboleth IdP| OIDC | subtask | oidcupdaterps
+  include: shibbolethidp_oidcupdaterps.yml
