@@ -95,20 +95,30 @@
    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
 
 - name: Shibboleth IdP | OIDC | Create | Directory | .well-known
-  file: path={{ shibbolethidp_jetty_base }}/webapps/root/.well-known state=directory mode=0775 owner=jetty group=jetty
+  file: path=/var/www/html/.well-known state=directory mode=0555 owner=apache group=apache
+
+- name: Shibboleth IdP | OIDC | Create | Directory | oidc
+  file: path=/var/www/html/oidc state=directory mode=0555 owner=apache group=apache
 
 - name: Shibboleth IdP | OIDC | Generate | Keys | openid-configuration
   shell: |
-    echo '{"keys": [' > {{ shibbolethidp_jetty_base }}/webapps/root/.well-known/openid-configuration;
-    grep Public -A10 fullRSA |awk '/{/{a=1} a; /}/{exit}' >> {{ shibbolethidp_jetty_base }}/webapps/root/.well-known/openid-configuration;
-    grep Public -A10 fullEC |awk '/{/{a=1} a; /}/{exit}' >> {{ shibbolethidp_jetty_base }}/webapps/root/.well-known/openid-configuration;
-    echo ']}' >> {{ shibbolethidp_jetty_base }}/webapps/root/.well-known/openid-configuration;
+    echo '{"keys": [' > /var/www/html/oidc/keyset.jwk;
+    grep Public -A10 fullRSA |awk '/{/{a=1} a; /}/{exit}' >> /var/www/html/oidc/keyset.jwk;
+    grep Public -A10 fullEC |awk '/{/{a=1} a; /}/{exit}' >> /var/www/html/oidc/keyset.jwk;
+    echo ']}' >> /var/www/html/oidc/keyset.jwk;
 #    "grep -Pzo '.*Public(.*\n)*' fullRSA |awk '/{/{a=1} a; /}/{exit}' >> s"
 #    "grep -Pzo '.*Public(.*\n)*' fullEC |awk '/{/{a=1} a; /}/{exit}' >> s"
   args:
     chdir: "{{ shibbolethidp_idp_home }}/credentials"
     executable: /bin/bash
 #   creates: "{{ shibbolethidp_idp_home }}/credentials/openid-configuration"
+
+- name: Shibboleth IdP | openid-configuration | Templates | copy
+  template: src={{ shibbolethidp_item.src }} dest={{ shibbolethidp_item.dst }} mode=0755
+  with_items:
+  - { src: openid-configuration, dst: "/var/www/html/.well-known" }
+  loop_control:
+    loop_var: shibbolethidp_item
 
 # - name: Prepare for first relying party
 # =======================================
