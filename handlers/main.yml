@@ -30,6 +30,5 @@
     loop_var: shibbolethidp_item
   notify: rebuild shibboleth-idp
 
-
-- name: reown privatekeys
+- name: reown privatekeys-idp
   include_tasks: tasks/shibbolethidp_certsownership.yml

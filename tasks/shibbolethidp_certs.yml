@@ -7,7 +7,7 @@
     mode: 0440
   when:
     - ( shibbolethidp_ssl_key != "not_set_yet" )
-  notify: reown privatekeys
+  notify: reown privatekeys-idp
 
 - name: "Shibboleth-IdP | Configure | Certificates | SSL | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.crt"
   copy:
@@ -38,7 +38,7 @@
     mode: 0440
   when:
     - ( shibbolethidp_saml_enc_key != "not_set_yet" )
-  notify: reown privatekeys
+  notify: reown privatekeys-idp
 
 - name: "Shibboleth-IdP | SAML | enc | Certificates | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.saml-enc.crt"
   copy:
@@ -59,7 +59,7 @@
     mode: 0440
   when:
     - ( shibbolethidp_saml_sig_key != "not_set_yet" )
-  notify: reown privatekeys
+  notify: reown privatekeys-idp
 
 - name: "Shibboleth-IdP | SAML | sig | Certificates | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.saml-sig.crt"
   copy:
@@ -99,7 +99,7 @@
     mode: 0440
   when:
     - ( shibbolethidp_saml_key != "not_set_yet" )
-  notify: reown privatekeys
+  notify: reown privatekeys-idp
 
 - name: "Shibboleth-IdP | SAML | Certificates | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.saml.crt"
   copy:
