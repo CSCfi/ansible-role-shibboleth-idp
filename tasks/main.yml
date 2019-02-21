@@ -21,6 +21,7 @@
     src: https://shibboleth.net/downloads/identity-provider/{{ shibbolethidp_version }}/shibboleth-identity-provider-{{ shibbolethidp_version }}.tar.gz
     dest: "{{ shibbolethidp_dst_dir }}"
     remote_src: True
+  notify: reown shibboleth-idp
 
 - name: Shibboleth IdP | Templates | copy
   template: src={{ item.src }} dest={{ item.dst }}/{{ item.src }}
@@ -49,13 +50,14 @@
 - include_vars: "Extra.yml"
 
 - name: Shibboleth IdP | jetty_base logs | directory | create
-  file: path={{ shibbolethidp_jetty_base }}/logs state=directory mode=0775 owner=jetty group=jetty
+  file: path={{ shibbolethidp_jetty_base }}/logs state=directory mode=0755 owner=jetty group=jetty
 
 - name: Shibboleth IdP | jetty_base | directories | create
   file: path={{ item.dst }} state=directory owner=jetty group=jetty mode=0755
   with_items:
     - "{{ jetty_jars }}"
     - "{{ shibbolethidp_jars }}"
+  notify: reown shibboleth-idp
 
 - name: Shibboleth IdP | jetty_base | create | system.d
   shell: . /etc/default/shibboleth-idp && java -jar $JETTY_HOME/start.jar --create-startd
@@ -81,6 +83,7 @@
   with_items:
     - "{{ jetty_jars }}"
     - "{{ shibbolethidp_jars }}"
+  notify: reown shibboleth-idp
 
 - name: Shibboleth IdP | Templates | copy
   template: src={{ item.src }} dest={{ item.dst }}
@@ -89,6 +92,7 @@
     - { src: attribute-resolver.xml, dst: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver-haka.xml" }
     - { src: attribute-filter.xml, dst: "{{ shibbolethidp_idp_home }}/conf/attribute-filter-haka.xml" }
     - { src: tweak-ssl.xml, dst: "{{ shibbolethidp_jetty_base }}/etc/tweak-ssl.xml" }
+  notify: reown shibboleth-idp
 
 #    - { src: jetty-requestlog.xml, dst: "{{ shibbolethidp_jetty_base }}/etc" }
 #    - { src: logback-access.xml, dst: "{{ shibbolethidp_jetty_base }}/resources" }
@@ -105,11 +109,6 @@
     regexp: '^etc'
     insertafter: '--module=https'
     line: 'etc/tweak-ssl.xml'
-
-- file: path={{ shibbolethidp_idp_home }}/logs state=directory owner=jetty group=jetty recurse=yes
-- file: path={{ shibbolethidp_idp_home }}/conf state=directory owner=root group=jetty recurse=yes mode=0750
-- file: path={{ shibbolethidp_idp_home }}/credentials state=directory owner=root group=jetty recurse=yes mode=0750
-- file: path={{ shibbolethidp_idp_home }}/jetty-base/logs state=directory owner=jetty group=jetty recurse=yes
 
 - name: Symlink | create | logs
   file:
@@ -146,10 +145,3 @@
   include: shibbolethidp_{{ item }}.yml
   with_items: "{{ configurables }}"
   when: configurables is defined and configurables!=""
-
-- name: Shibboleth IdP | Complete
-  debug: msg='Dummy action for handler triggering'
-  notify: restart shibboleth-idp
-
-- name: Shibboleth IdP | Restart | flush handlers
-  meta: flush_handlers

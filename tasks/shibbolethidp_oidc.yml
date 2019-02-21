@@ -5,7 +5,7 @@
     remote_src: yes
     dest: "{{ shibbolethidp_idp_home }}"
     creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-oidc-extension-api-{{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }}.jar"
-  notify: rebuild shibboleth-idp
+  notify: reown shibboleth-idp
 
 - name: Shibboleth IdP | OIDC | Detect | Duplicate | Plugins
   find:

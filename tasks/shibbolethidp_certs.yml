@@ -2,18 +2,19 @@
   copy:
     content: "{{ shibbolethidp_ssl_key }}"
     dest: "/etc/pki/tls/private/{{ shibbolethidp_fqdn }}.key"
-    group: jetty
-    owner: jetty
+    group: root
+    owner: root
     mode: 0440
   when:
     - ( shibbolethidp_ssl_key != "not_set_yet" )
+  notify: reown privatekeys
 
 - name: "Shibboleth-IdP | Configure | Certificates | SSL | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.crt"
   copy:
     content: "{{ shibbolethidp_ssl_crt }}"
     dest: "/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.crt"
-    group: jetty
-    owner: jetty
+    group: root
+    owner: root
     mode: 0444
   when:
     - ( shibbolethidp_ssl_crt != "not_set_yet" )
@@ -22,8 +23,8 @@
   copy:
     content: "{{ shibbolethidp_ssl_cabundle }}"
     dest: "/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.cabundle.crt"
-    group: jetty
-    owner: jetty
+    group: root
+    owner: root
     mode: 0444
   when:
     - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
@@ -32,39 +33,40 @@
   copy:
     content: "{{ shibbolethidp_saml_enc_key }}"
     dest: "/etc/pki/tls/private/{{ shibbolethidp_fqdn }}.saml-enc.key"
-    group: jetty
-    owner: jetty
+    group: root
+    owner: root
     mode: 0440
   when:
     - ( shibbolethidp_saml_enc_key != "not_set_yet" )
+  notify: reown privatekeys
 
 - name: "Shibboleth-IdP | SAML | enc | Certificates | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.saml-enc.crt"
   copy:
     content: "{{ shibbolethidp_saml_enc_crt }}"
     dest: "/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.saml-enc.crt"
-    group: jetty
-    owner: jetty
+    group: root
+    owner: root
     mode: 0444
   when:
     - ( shibbolethidp_saml_enc_crt != "not_set_yet" )
-
 
 - name: "Shibboleth-IdP | SAML | sig | Certificates | /etc/pki/tls/private/{{ shibbolethidp_fqdn }}.saml-sig.key"
   copy:
     content: "{{ shibbolethidp_saml_sig_key }}"
     dest: "/etc/pki/tls/private/{{ shibbolethidp_fqdn }}.saml-sig.key"
-    group: jetty
-    owner: jetty
+    group: root
+    owner: root
     mode: 0440
   when:
     - ( shibbolethidp_saml_sig_key != "not_set_yet" )
+  notify: reown privatekeys
 
 - name: "Shibboleth-IdP | SAML | sig | Certificates | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.saml-sig.crt"
   copy:
     content: "{{ shibbolethidp_saml_sig_crt }}"
     dest: "/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.saml-sig.crt"
-    group: jetty
-    owner: jetty
+    group: root
+    owner: root
     mode: 0444
   when:
     - ( shibbolethidp_saml_sig_crt != "not_set_yet" )
@@ -92,18 +94,19 @@
   copy:
     content: "{{ shibbolethidp_saml_key }}"
     dest: "/etc/pki/tls/private/{{ shibbolethidp_fqdn }}.saml.key"
-    group: jetty
-    owner: jetty
+    group: root
+    owner: root
     mode: 0440
   when:
     - ( shibbolethidp_saml_key != "not_set_yet" )
+  notify: reown privatekeys
 
 - name: "Shibboleth-IdP | SAML | Certificates | /etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.saml.crt"
   copy:
     content: "{{ shibbolethidp_saml_crt }}"
     dest: "/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.saml.crt"
-    group: jetty
-    owner: jetty
+    group: root
+    owner: root
     mode: 0444
   when:
     - ( shibbolethidp_saml_crt != "not_set_yet" )
@@ -165,5 +168,5 @@
     - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
     - ( shibbolethidp_ssl_crt != "not_set_yet" )
     - ( shibbolethidp_ssl_key != "not_set_yet" )
-  notify: restart shibboleth-idp
-
+  notify:
+    - restart shibboleth-idp
