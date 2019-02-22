@@ -62,12 +62,17 @@ shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
 ### OIDC shibboleth-idp-oidc-extension
 shibbolethidp_oidcplugin_version: 0.8.0b
 shibbolethidp_oidcplugin_location: 'https://github.com/CSCfi/shibboleth-idp-oidc-extension'
+
 ### OIDC Relaying parties
 shibbolethidp_rpdefaults:
   scope: openid info profile email address phone
   response_types:
    - code
    - id_token
+   - token id_token
+   - code id_token
+   - code token
+   - code token id_token
 
 shibbolethidp_rps:
   - client_id: demo_rp
