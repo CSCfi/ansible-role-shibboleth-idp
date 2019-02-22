@@ -29,6 +29,14 @@
   loop_control:
     loop_var: item_oidc
 
+- name: Shibboleth IdP | OIDC | Configure | Session Storage, THIS IS BUGFIX ?! REMOVED COMING releases
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ item_consent.option }}\s*=)" backrefs=yes  line="\\1 {{ item_consent.value }}"
+  with_items:
+    - { option: 'idp.session.StorageService', value: "shibboleth.StorageService", state: present }
+  loop_control:
+    loop_var: item_consent
+
+
 #- name: Shibboleth IdP | OIDC | Import OIDC extension configuration files
 # =======================================================================
 
@@ -100,18 +108,25 @@
 - name: Shibboleth IdP | OIDC | Create | Directory | oidc
   file: path=/var/www/html/oidc state=directory mode=0555 owner=apache group=apache
 
-- name: Shibboleth IdP | OIDC | Generate | Keys | openid-configuration
-  shell: |
-    echo '{"keys": [' > /var/www/html/oidc/keyset.jwk;
-    grep Public -A10 fullRSA |awk '/{/{a=1} a; /}/{exit}' >> /var/www/html/oidc/keyset.jwk;
-    grep Public -A10 fullEC |awk '/{/{a=1} a; /}/{exit}' >> /var/www/html/oidc/keyset.jwk;
-    echo ']}' >> /var/www/html/oidc/keyset.jwk;
-#    "grep -Pzo '.*Public(.*\n)*' fullRSA |awk '/{/{a=1} a; /}/{exit}' >> s"
-#    "grep -Pzo '.*Public(.*\n)*' fullEC |awk '/{/{a=1} a; /}/{exit}' >> s"
-  args:
-    chdir: "{{ shibbolethidp_idp_home }}/credentials"
-    executable: /bin/bash
-#   creates: "{{ shibbolethidp_idp_home }}/credentials/openid-configuration"
+- name: Shibboleth IdP | OIDC | Register | Keys | public rsa
+  shell: "grep Public -A10 {{ shibbolethidp_idp_home }}/credentials/fullRSA |awk '/{/{a=1} a; /}/{exit}'"
+  register: result
+- set_fact: publicrsa="{{ result.stdout | from_json }}"
+
+- name: Shibboleth IdP | OIDC | Register | Keys | public ec
+  shell: "grep Public -A10 {{ shibbolethidp_idp_home }}/credentials/fullEC |awk '/{/{a=1} a; /}/{exit}'"      
+  register: result    
+- set_fact: publicec="{{ result.stdout | from_json }}"
+
+- name: Shibboleth IdP | OIDC | compine | Keys | public rsa + ec
+- set_fact:
+    keyset: 
+      keys: ["{{ publicrsa }}","{{ publicec}}"]
+
+- name: OIDC | Generate | /var/www/html/oidc/keyset.jwk
+  copy:
+    dest: "/var/www/html/oidc/keyset.jwk"
+    content: "{{ keyset | to_nice_json | string }}\n"
 
 - name: Shibboleth IdP | openid-configuration | Templates | copy
   template: src={{ shibbolethidp_item.src }} dest={{ shibbolethidp_item.dst }} mode=0755
