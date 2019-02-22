@@ -119,7 +119,7 @@
 - set_fact: publicec="{{ result.stdout | from_json }}"
 
 - name: Shibboleth IdP | OIDC | compine | Keys | public rsa + ec
-- set_fact:
+  set_fact:
     keyset: 
       keys: ["{{ publicrsa }}","{{ publicec}}"]
 
