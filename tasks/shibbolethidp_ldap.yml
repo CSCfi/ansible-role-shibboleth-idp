@@ -9,6 +9,7 @@
       #    - { option: 'idp.authn.LDAP.sslConfig ', value: 'certificateTrust' }
     - { option: 'idp.authn.LDAP.trustCertificates', value: '/etc/pki/tls/certs/DigiCertCA.crt' }
     - { option: 'idp.authn.LDAP.baseDN', value: '{{ shibbolethidp_ldapbasedn }}' }
+    - { option: 'idp.authn.LDAP.subtreeSearch', value: '{{ shibbolethidp_ldapsubtreesearch }}' }
     - { option: 'idp.authn.LDAP.bindDN', value: '{{ shibbolethidp_ldapuser }}' }
     - { option: 'idp.authn.LDAP.bindDNCredential', value: '{{ shibbolethidp_ldappassword }}' }
     - { option: 'idp.authn.LDAP.userFilter', value: '({{ shibbolethidp_ldapuserfilter }}={user})' }

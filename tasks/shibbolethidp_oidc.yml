@@ -35,34 +35,34 @@
 - name: Shibboleth IdP | OIDC | Configure | global.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/global.xml"
-    marker: "<!-- {mark} ansible managed - OIDC extension global bean definitions -->"
+    marker: "    <!-- {mark} ansible managed - OIDC extension global bean definitions -->"
     insertafter: "<!-- Use this file to define any custom beans needed globally. -->"
     block: |2
-      <import resource="global-oidc.xml" />
+          <import resource="global-oidc.xml" />
 
 - name: Shibboleth IdP | OIDC | Configure | credentials.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/credentials.xml"
-    marker: "<!-- {mark} ansible managed - OIDC extension default credential definition -->"
+    marker: "    <!-- {mark} ansible managed - OIDC extension default credential definition -->"
     insertafter: "default-destroy-method"
     content: |2
-      <import resource="credentials-oidc.xml" />
+          <import resource="credentials-oidc.xml" />
 
 - name: Shibboleth IdP | OIDC | Configure | services.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/services.xml"
-    marker: "<!-- {mark} ansible managed - OIDC extension service definitions -->"
+    marker: "    <!-- {mark} ansible managed - OIDC extension service definitions -->"
     insertafter: "default-destroy-method"
     content: |2
-      <import resource="services-oidc.xml" />
+          <import resource="services-oidc.xml" />
 
 - name: Shibboleth IdP | OIDC | Configure | relying-party.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
-    marker: "<!-- {mark} ansible managed - OIDC extension relying party definitions -->"
+    marker: "    <!-- {mark} ansible managed - OIDC extension relying party definitions -->"
     insertafter: "default-destroy-method"
     content: |2
-      <import resource="oidc-relying-party.xml" />
+          <import resource="oidc-relying-party.xml" />
 
 - name: Shibboleth IdP | OIDC | Configure | idp.properties | (to include oidc-subject.properties and idp-oidc.properties) 
   lineinfile:
@@ -138,12 +138,32 @@
 - name: Shibboleth IdP | OIDC | Configure | relying-party.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
-    marker: "<!-- {mark} ansible managed - OIDC profile configuration  -->"
+    marker: "                <!-- {mark} ansible managed - OIDC profile configuration  -->"
     insertafter: "Liberty.SSOS"
-    content: |
-      <bean parent="OIDC.SSO" p:postAuthenticationFlows="attribute-release" />
-      <bean parent="OIDC.UserInfo"/>
-      <bean parent="OAUTH2.Revocation"/>
+    content: |2
+                      <bean parent="OIDC.SSO" p:postAuthenticationFlows="attribute-release" />
+                      <bean parent="OIDC.UserInfo"/>
+                      <bean parent="OAUTH2.Revocation"/>
+
+- name: Shibboleth IdP | OIDC | Configure | global.xml | Serializers
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/global.xml"
+    marker: "    <!-- {mark} ansible managed - OIDC Serializers  -->"
+    insertbefore: "</beans>"
+    content: |2
+          <bean id="shibboleth.PrincipalSerializers" class="org.springframework.beans.factory.config.ListFactoryBean">
+            <property name="sourceList">
+              <list>
+                <bean class="fi.mpass.shibboleth.authn.principal.impl.ShibAttributePrincipalSerializer" />
+                <bean class="fi.mpass.shibboleth.authn.principal.impl.ShibHeaderPrincipalSerializer" />
+                <bean class="net.shibboleth.idp.authn.principal.impl.UsernamePrincipalSerializer" />
+                <bean class="net.shibboleth.idp.authn.principal.impl.LDAPPrincipalSerializer" />
+                <bean class="net.shibboleth.idp.authn.duo.impl.DuoPrincipalSerializer" />
+                <bean class="net.shibboleth.idp.authn.principal.impl.IdPAttributePrincipalSerializer" />
+                <bean class="net.shibboleth.idp.authn.principal.impl.PasswordPrincipalSerializer" p:dataSealer="#{'%{idp.sealer.storeResource:}'.trim().length() > 0 ? getObject('shibboleth.DataSealer') : null}" />
+              </list>
+            </property>
+          </bean>
 
 - name: Shibboleth IdP | OIDC | Configure | attribute-resolver.xml
   blockinfile:
@@ -206,5 +226,30 @@
         </AttributeRule>
       </AttributeFilterPolicy> 
 
-- name: Shibboleth IdP| OIDC | subtask | oidcupdaterps
+- name: Shibboleth IdP | OIDC | enable | oidc-metadata-providers.xml | oidcClientResolver
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/oidc-metadata-providers.xml"
+    marker: "    <!-- {mark} ansible managed - OIDC metadata-providers client information -->"
+    insertbefore: "</util:list>"
+    content: |2
+              <ref bean="oidcClientResolver" />
+
+- name: Shibboleth IdP | OIDC | enable | oidc-metadata-providers.xml | oidc-client.json
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/oidc-metadata-providers.xml"
+    marker: "    <!-- {mark} ansible managed - OIDC metadata-providers client bean  -->"
+    insertafter: "</util:list>"
+    content: |2
+          <bean id="oidcClientResolver"
+                class="org.geant.idpextension.oidc.metadata.impl.FilesystemClientInformationResolver"
+                p:id="oidcClientResolver1"
+                p:remoteJwkSetCache-ref="shibboleth.oidc.RemoteJwkSetCache">
+            <constructor-arg>
+              <bean class="java.io.File" id="ExampleFile">
+                <constructor-arg type="String" value="/opt/shibboleth-idp/metadata/oidc-client.json" />
+              </bean>
+            </constructor-arg>
+          </bean>
+
+- name: Shibboleth IdP | OIDC | subtask | oidcupdaterps
   include: shibbolethidp_oidcupdaterps.yml
