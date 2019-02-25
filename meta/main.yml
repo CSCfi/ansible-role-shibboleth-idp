@@ -15,5 +15,5 @@ galaxy_info:
         - all
           
 dependencies:
-  - { src: CSCfi.jetty }
+  - { src: CSCfi.jetty, version: v1.0.1, configurables: "{{ jetty_configurables | default(None) }}", when: update is not defined }
 
