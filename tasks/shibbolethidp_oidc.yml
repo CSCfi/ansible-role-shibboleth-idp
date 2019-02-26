@@ -103,10 +103,10 @@
    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
 
 - name: Shibboleth IdP | OIDC | Create | Directory | .well-known
-  file: path=/var/www/html/.well-known state=directory mode=0555 owner=apache group=apache
+  file: path={{ shibbolethidp_wwwroot }}/.well-known state=directory mode=0555 owner=apache group=apache
 
 - name: Shibboleth IdP | OIDC | Create | Directory | oidc
-  file: path=/var/www/html/oidc state=directory mode=0555 owner=apache group=apache
+  file: path={{ shibbolethidp_wwwroot }}/oidc state=directory mode=0555 owner=apache group=apache
 
 - name: Shibboleth IdP | OIDC | Register | Keys | public rsa
   shell: "grep Public -A10 {{ shibbolethidp_idp_home }}/credentials/fullRSA |awk '/{/{a=1} a; /}/{exit}'"
@@ -123,15 +123,15 @@
     keyset: 
       keys: ["{{ publicrsa }}","{{ publicec}}"]
 
-- name: OIDC | Generate | /var/www/html/oidc/keyset.jwk
+- name: OIDC | Generate | {{ shibbolethidp_wwwroot }}/oidc/keyset.jwk
   copy:
-    dest: "/var/www/html/oidc/keyset.jwk"
+    dest: "{{ shibbolethidp_wwwroot }}/oidc/keyset.jwk"
     content: "{{ keyset | to_nice_json | string }}\n"
 
 - name: Shibboleth IdP | openid-configuration | Templates | copy
   template: src={{ shibbolethidp_item.src }} dest={{ shibbolethidp_item.dst }} mode=0755
   with_items:
-  - { src: openid-configuration, dst: "/var/www/html/.well-known" }
+  - { src: openid-configuration, dst: "{{ shibbolethidp_wwwroot }}/.well-known" }
   loop_control:
     loop_var: shibbolethidp_item
 
