@@ -15,7 +15,7 @@ shibbolethidp_entityid: https://{{ shibbolethidp_fqdn }}/idp/shibboleth
 shibbolethidp_scope: "{{ shibbolethidp_fqdn.split('.')[1:] | join('.') }}"
 shibbolethidp_root: dc={{ shibbolethidp_fqdn.split('.')[-2] }},dc={{ shibbolethidp_fqdn.split('.')[-1] }}
 shibbolethidp_keystore_password: "{{ vault_keystore_password | default('changemepl3453') }}"
-shibbolethidp_wwwroot: /opt/shibboleth-idp/jetty-base/webapps/root
+shibbolethidp_wwwroot: "{{ shibbolethidp_jetty_base }}/webapps/root"
 
 # CONFIGURABLES
 ### Haka-test
