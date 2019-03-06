@@ -249,6 +249,18 @@
     content: |2
               <ref bean="oidcClientResolver" />
 
+- name: Shibboleth IdP | OIDC | add | logback.xml | oidc debugs (commented)
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
+    marker: "    <!-- {mark} ansible managed - OIDC logging -->"
+    insertbefore: "Logs IdP, but not OpenSAML, messages"
+    content: |2
+          <!-- OIDC logging incoming and outgoing -->
+          <!--
+          <logger name="org.geant.idpextension.oidc.decoding.impl" level="DEBUG" />
+          <logger name="org.geant.idpextension.oidc.encoding.impl" level="DEBUG" />
+          -->
+
 - name: Shibboleth IdP | OIDC | enable | oidc-metadata-providers.xml | oidc-client.json
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/oidc-metadata-providers.xml"
