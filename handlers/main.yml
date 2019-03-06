@@ -32,3 +32,9 @@
 
 - name: reown privatekeys-idp
   include_tasks: tasks/shibbolethidp_certsownership.yml
+
+- name: reload-service shibboleth-idp
+  shell: ./reload-service.sh -id shibboleth.ClientInformationResolverService
+  args:
+    chdir: "{{ shibbolethidp_idp_home }}/bin"
+    executable: /bin/bash
