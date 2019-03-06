@@ -11,3 +11,4 @@
   copy:
     dest: "{{ shibbolethidp_idp_home }}/metadata/oidc-client.json"
     content: "{{ rps | to_nice_json | string }}\n"
+  notify: restart shibboleth-idp
