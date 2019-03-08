@@ -29,6 +29,8 @@
        <Item>SSLv2</Item>
        <Item>SSLv2Hello</Item>
        <Item>SSLv3</Item>
+			 <Item>TLSv1</Item>
+  		 <Item>TLSv1.1</Item>
      </Array>
     </Arg>
   </Call>
