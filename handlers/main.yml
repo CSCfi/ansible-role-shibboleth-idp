@@ -37,3 +37,4 @@
   shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/reload-service.sh -id shibboleth.ClientInformationResolverService"
   args:
     executable: /bin/bash
+  when: '"update" == "true"'

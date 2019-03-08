@@ -36,7 +36,6 @@
   loop_control:
     loop_var: item_consent
 
-
 #- name: Shibboleth IdP | OIDC | Import OIDC extension configuration files
 # =======================================================================
 
@@ -280,3 +279,4 @@
 
 - name: Shibboleth IdP | OIDC | subtask | oidcupdaterps
   include: shibbolethidp_oidcupdaterps.yml
+
