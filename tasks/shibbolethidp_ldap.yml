@@ -12,8 +12,7 @@
     - { option: 'idp.authn.LDAP.subtreeSearch', value: '{{ shibbolethidp_ldapsubtreesearch }}' }
     - { option: 'idp.authn.LDAP.bindDN', value: '{{ shibbolethidp_ldapuser }}' }
     - { option: 'idp.authn.LDAP.bindDNCredential', value: '{{ shibbolethidp_ldappassword }}' }
-    - { option: 'idp.authn.LDAP.userFilter', value: '({{ shibbolethidp_ldapuserfilter }}={user})' }
-    - { option: 'idp.attribute.resolver.LDAP.searchFilter', value: '({{ shibbolethidp_ldapuserfilter }}=$resolutionContext.principal)' }
-    - { option: 'idp.authn.LDAP.userFilter', value: '({{ shibbolethidp_ldapsearchfilter }})' }
+    - { option: 'idp.authn.LDAP.userFilter', value: '{{ shibbolethidp_ldapuserfilter }}' }
+    - { option: 'idp.attribute.resolver.LDAP.searchFilter', value: '({{ shibbolethidp_ldapsearchfilter }}=$resolutionContext.principal)' } 
   loop_control:
     loop_var: item_ldap

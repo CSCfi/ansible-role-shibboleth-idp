@@ -102,10 +102,10 @@
    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
 
 - name: Shibboleth IdP | OIDC | Create | Directory | .well-known
-  file: path={{ shibbolethidp_wwwroot }}/.well-known state=directory mode=0555 owner=apache group=apache
+  file: path={{ shibbolethidp_wwwroot }}/.well-known state=directory mode=0555
 
 - name: Shibboleth IdP | OIDC | Create | Directory | oidc
-  file: path={{ shibbolethidp_wwwroot }}/oidc state=directory mode=0555 owner=apache group=apache
+  file: path={{ shibbolethidp_wwwroot }}/oidc state=directory mode=0555
 
 - name: Shibboleth IdP | OIDC | Register | Keys | public rsa
   shell: "grep Public -A10 {{ shibbolethidp_idp_home }}/credentials/fullRSA |awk '/{/{a=1} a; /}/{exit}'"
@@ -158,26 +158,6 @@
                       <bean parent="OIDC.SSO" p:postAuthenticationFlows="attribute-release" />
                       <bean parent="OIDC.UserInfo"/>
                       <bean parent="OAUTH2.Revocation"/>
-
-- name: Shibboleth IdP | OIDC | Configure | global.xml | Serializers
-  blockinfile:
-    dest: "{{ shibbolethidp_idp_home }}/conf/global.xml"
-    marker: "    <!-- {mark} ansible managed - OIDC Serializers  -->"
-    insertbefore: "</beans>"
-    content: |2
-          <bean id="shibboleth.PrincipalSerializers" class="org.springframework.beans.factory.config.ListFactoryBean">
-            <property name="sourceList">
-              <list>
-                <bean class="fi.mpass.shibboleth.authn.principal.impl.ShibAttributePrincipalSerializer" />
-                <bean class="fi.mpass.shibboleth.authn.principal.impl.ShibHeaderPrincipalSerializer" />
-                <bean class="net.shibboleth.idp.authn.principal.impl.UsernamePrincipalSerializer" />
-                <bean class="net.shibboleth.idp.authn.principal.impl.LDAPPrincipalSerializer" />
-                <bean class="net.shibboleth.idp.authn.duo.impl.DuoPrincipalSerializer" />
-                <bean class="net.shibboleth.idp.authn.principal.impl.IdPAttributePrincipalSerializer" />
-                <bean class="net.shibboleth.idp.authn.principal.impl.PasswordPrincipalSerializer" p:dataSealer="#{'%{idp.sealer.storeResource:}'.trim().length() > 0 ? getObject('shibboleth.DataSealer') : null}" />
-              </list>
-            </property>
-          </bean>
 
 - name: Shibboleth IdP | OIDC | Configure | attribute-resolver.xml
   blockinfile:
