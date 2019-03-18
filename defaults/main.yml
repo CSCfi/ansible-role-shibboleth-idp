@@ -81,8 +81,7 @@ shibbolethidp_rps:
     scope: openid info profile email address
     redirect_uris:
       - https://openidconnect.net/callback
-    response_types:
-      - ['code', 'id_token', 'token id_token', 'code id_token', 'code token', 'code token id_token']
+    response_types: ['code', 'id_token', 'token id_token', 'code id_token', 'code token', 'code token id_token']
 
 ### MFA
 shibbolethidp_mfaprovider: https://mfapilot.funet.fi

@@ -31,6 +31,17 @@
   #- copy: remote_src=true src=/tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/dependency/ dest="{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/."
 - shell: cp -r /tmp/MPASSid-proxy/idp-authn-impl-socialuser/target/dependency/* {{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/.
 
+- name: MFA-Client | OIDC | Delete | Older | Plugins | BUGFIX conflights with OIDC plugin
+  file:
+    path: "{{shibbolethidp_idp_home}}/edit-webapp/WEB-INF/lib/{{ item_mfa }}"
+    state: absent
+  with_items:
+    - oauth2-oidc-sdk-5.54.jar
+    - nimbus-jose-jwt-4.33.jar
+  loop_control:
+    loop_var: item_mfa
+  when: "'oidc' in configurables"
+
 - name: JETTY | MFA | Annotations | idp.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/jetty-base/webapps/idp.xml"
