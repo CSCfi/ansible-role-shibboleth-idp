@@ -38,10 +38,10 @@ shibbolethidp_dbname: "{{ vault_shibbolethidp_dbname | default('idp') }}"
 ### ldap
 shibbolethidp_ldapuser: "{{ dirsrv_rootdn | default('cn=Directory Manager') }}"
 shibbolethidp_ldappassword: "{{ dirsrv_password | default('not_set_yet') }}"
-shibbolethidp_ldapsuffix: "{{ dirsrv_suffix | deafault(shibbolethidp_root) }}"
+shibbolethidp_ldapsuffix: "{{ dirsrv_suffix | default(shibbolethidp_root) }}"
 shibbolethidp_ldapurl: "ldap://localhost:389"
 shibbolethidp_ldapbasedn: "ou=People,{{ shibbolethidp_ldapsuffix }}"
-shibbolethidp_ldapsearchfilter: "sAMAccountName"
+shibbolethidp_ldapsearchfilter: "uid"
 shibbolethidp_ldapuserfilter: "({{ shibbolethidp_ldapsearchfilter }}={user})"
 shibbolethidp_ldapsubtreesearch: false
 
@@ -110,3 +110,8 @@ shibbolethidp_saml_enc_key: "{{ vault_saml_enc_key | default('not_set_yet') }}"
 
 shibbolethidp_saml_crt: "{{ vault_saml_crt | default('not_set_yet') }}"
 shibbolethidp_saml_key: "{{ vault_saml_key | default('not_set_yet') }}"
+
+### Templates default directory
+# Used mainly from the playbook, you can define directory where from to directory hierarcy 
+# is moved to the destination
+shibbolethidp_templates: "{{ playbook_dir}}/../templates"

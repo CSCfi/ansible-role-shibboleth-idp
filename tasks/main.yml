@@ -126,7 +126,7 @@
 - name: Enable service shibboleth
   service: name=shibboleth-idp enabled=yes state=started
 
-- name: Set logging to debug if configured | shibholethidp_debug = {{ shibbolethidp_debug }}
+- name: Set logging to debug if configured | shibbolethidp_debug = {{ shibbolethidp_debug }}
   xml:
     xpath: "//configuration/variable[@name='idp.loglevel.idp']"
     ensure: present
