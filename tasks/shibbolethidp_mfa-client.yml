@@ -40,7 +40,7 @@
     - nimbus-jose-jwt-4.33.jar
   loop_control:
     loop_var: item_mfa
-  when: "'oidc' in configurables"
+  when: "'oidc' in configurables or 'oidcdeviceflow' in configurables"
 
 - name: JETTY | MFA | Annotations | idp.xml
   blockinfile:

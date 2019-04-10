@@ -1,6 +1,6 @@
 - name: Configurable | OIDCDeviceFlow | dependency | oidc
   include: shibbolethidp_oidc.yml
-  when: 'oidc' not in configurables
+  when: "'oidc' not in configurables"
 
 - name: Configurable | OIDCDeviceFlow | Download | Plugin v{{ shibbolethidp_oidcdeviceflow_version }}
   unarchive:
@@ -49,7 +49,7 @@
 - name: Configurable | OIDCDeviceFlow | Configure | relying-party.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
-    marker: "                <!-- {mark} ansible managed - OIDC profile configuration  -->"
+    marker: "                <!-- {mark} ansible managed - OIDC DeviceFlow profile configuration  -->"
     insertafter: "OAUTH2.Revocation"
     content: |2
                       <bean parent="OAUTH2.Device"/>

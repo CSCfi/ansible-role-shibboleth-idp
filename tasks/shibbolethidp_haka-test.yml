@@ -30,9 +30,9 @@
       x: http://www.springframework.org/schema/beans
       p: http://www.springframework.org/schema/p
   with_items:
-    - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:signResponses", value: "false", ensure: present }
-    - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:signAssertions", value: "true", ensure: present }
-    - { xpath: "//x:bean[@parent='SAML2.SSO']", attribute: "p:encryptAssertions", value: "false", ensure: present }
+    #    - { xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']/property/list/bean[@parent='SAML2.SSO']", attribute: "p:signResponses", value: "false", ensure: present }
+    - { xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']/x:property/x:list/x:bean[@parent='SAML2.SSO']", attribute: "p:signAssertions", value: "true", ensure: present }
+#    - { xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']/x:property/x:list/x:bean[@parent='SAML2.SSO']", attribute: "p:encryptAssertions", value: "false", ensure: present }
   loop_control:
     loop_var: item_hakatest
   notify: restart shibboleth-idp

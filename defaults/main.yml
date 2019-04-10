@@ -62,7 +62,7 @@ shibbolethidp_persistentid_salt: this_should_be_ch4ng3d
 shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
 
 ### OIDC shibboleth-idp-oidc-extension
-shibbolethidp_oidcplugin_version: 0.8.0b
+shibbolethidp_oidcplugin_version: 1.0.0
 shibbolethidp_oidcplugin_location: 'https://github.com/CSCfi/shibboleth-idp-oidc-extension'
 
 ### OIDC Relaying parties

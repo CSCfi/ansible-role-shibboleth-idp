@@ -1,4 +1,4 @@
-- name: Shibboleth IdP | OIDC | Download | Plugin v{{ shibbolethidp_oidcplugin_version }}
+- name: Configurable | OIDC | Download | Plugin v{{ shibbolethidp_oidcplugin_version }}
   unarchive:
     extra_opts: ['--strip-components=1']
     src: "{{ shibbolethidp_oidcplugin_location }}/releases/download/v{{ shibbolethidp_oidcplugin_version }}/idp-oidc-extension-distribution-{{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
@@ -7,14 +7,14 @@
     creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-oidc-extension-api-{{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }}.jar"
   notify: reown shibboleth-idp
 
-- name: Shibboleth IdP | OIDC | Detect | Duplicate | Plugins
+- name: Configurable | OIDC | Detect | Duplicate | Plugins
   find:
     paths: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib"
     patterns: "^(?!.*({{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }})).*oidc-extension"
     use_regex: true
   register: files_to_delete
 
-- name: Shibboleth Idp | OIDC | Delete | Older | Plugins
+- name: Configurable | OIDC | Delete | Older | Plugins
   file:
     path: "{{ shibbolethidp_item.path }}"
     state: absent
@@ -22,24 +22,24 @@
   loop_control:
     loop_var: shibbolethidp_item
 
-- name: Shibboleth IdP | OIDC | Configure | idp-oidc.properties
+- name: Configurable | OIDC | Configure | idp-oidc.properties
   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp-oidc.properties regexp="^#?\s*({{ item_oidc.option }}\s*=)" backrefs=yes line="\\1 {{ item_oidc.value }}"
   with_items:
     - { option: 'idp.oidc.issuer', value: "https://{{ shibbolethidp_fqdn }}", state: present }
   loop_control:
     loop_var: item_oidc
 
-- name: Shibboleth IdP | OIDC | Configure | Session Storage, THIS IS BUGFIX ?! REMOVED COMING releases
+- name: Configurable | OIDC | Configure | Session Storage, THIS IS BUGFIX ?! REMOVED COMING releases
   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ item_consent.option }}\s*=)" backrefs=yes  line="\\1 {{ item_consent.value }}"
   with_items:
     - { option: 'idp.session.StorageService', value: "shibboleth.StorageService", state: present }
   loop_control:
     loop_var: item_consent
 
-#- name: Shibboleth IdP | OIDC | Import OIDC extension configuration files
+#- name: Configurable | OIDC | Import OIDC extension configuration files
 # =======================================================================
 
-- name: Shibboleth IdP | OIDC | Configure | global.xml
+- name: Configurable | OIDC | Configure | global.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/global.xml"
     marker: "    <!-- {mark} ansible managed - OIDC extension global bean definitions -->"
@@ -47,7 +47,7 @@
     block: |2
           <import resource="global-oidc.xml" />
 
-- name: Shibboleth IdP | OIDC | Configure | credentials.xml
+- name: Configurable | OIDC | Configure | credentials.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/credentials.xml"
     marker: "    <!-- {mark} ansible managed - OIDC extension default credential definition -->"
@@ -55,7 +55,7 @@
     content: |2
           <import resource="credentials-oidc.xml" />
 
-- name: Shibboleth IdP | OIDC | Configure | services.xml
+- name: Configurable | OIDC | Configure | services.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/services.xml"
     marker: "    <!-- {mark} ansible managed - OIDC extension service definitions -->"
@@ -63,7 +63,7 @@
     content: |2
           <import resource="services-oidc.xml" />
 
-- name: Shibboleth IdP | OIDC | Configure | relying-party.xml
+- name: Configurable | OIDC | Configure | relying-party.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
     marker: "    <!-- {mark} ansible managed - OIDC extension relying party definitions -->"
@@ -71,63 +71,83 @@
     content: |2
           <import resource="oidc-relying-party.xml" />
 
-- name: Shibboleth IdP | OIDC | Configure | idp.properties | (to include oidc-subject.properties and idp-oidc.properties) 
+- name: Configurable | OIDC | Configure | idp.properties | (to include oidc-subject.properties and idp-oidc.properties) 
   lineinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
     regexp: ^(?!.*oidc)(idp.additionalProperties.*)$
     line: '\1, /conf/oidc-subject.properties, /conf/idp-oidc.properties'
     backrefs: yes
 
-# - name: Shibboleth IdP | OIDC | Generate and set default keys
+- name: Configurable | OIDC | Replace | authn-comparison.xml with authn-comparison-oidc.xml
+  copy:
+    src: "{{ shibbolethidp_idp_home }}/conf/authn/authn-comparison-oidc.xml"
+    dest: "{{ shibbolethidp_idp_home }}/conf/authn/authn-comparison.xml"
+    remote_src: yes
+
+# - name: Configurable | OIDC | Generate and set default keys
 # ===========================================================
 
-- name: Shibboleth IdP | OIDC | Generate | Keys | RSA
-  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSA -p > {{ shibbolethidp_idp_home }}/credentials/fullRSA
+- name: Configurable | OIDC | Generate | Keys | RSASign
+  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSASign -p > {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk
+#  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSA -p > {{ shibbolethidp_idp_home }}/credentials/fullRSA
   args:
-    creates: "{{ shibbolethidp_idp_home }}/credentials/fullRSA"
+#   creates: "{{ shibbolethidp_idp_home }}/credentials/fullRSA"
+    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk"
 
-- name: Shibboleth IdP | OIDC | Generate | Keys | RSA -> jwk
-  shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/fullRSA > {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
+- name: Configurable | OIDC | Generate | Keys | RSASign -> jwk
+  shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk > {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
   args:
     creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
 
-- name: Shibboleth IdP | OIDC | Generate | Keys | EC
-  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultEC -p > {{ shibbolethidp_idp_home }}/credentials/fullEC
+- name: Configurable | OIDC | Generate | Keys | ECSign
+  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultECSign -p > {{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk
+#  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultEC -p > {{ shibbolethidp_idp_home }}/credentials/fullEC
   args:
-    creates: "{{ shibbolethidp_idp_home }}/credentials/fullEC"
+#   creates: "{{ shibbolethidp_idp_home }}/credentials/fullEC"
+    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk"
 
-- name: Shibboleth IdP | OIDC | Generate | Keys | EC -> jwk
-  shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/fullEC > {{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
+- name: Configurable | OIDC | Generate | Keys | ECSign -> jwk
+  shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk > {{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
   args:
-   creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
+    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
 
-- name: Shibboleth IdP | OIDC | Create | Directory | .well-known
+- name: Configurable | OIDC | Generate | Keys | RSAEnc
+  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u enc -i defaultRSAEnc -p > {{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk
+  args:
+    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk"
+
+- name: Configurable | OIDC | Generate | Keys | RSAenc -> jwk
+  shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk > {{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa.jwk"
+  args:
+    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa.jwk"
+
+- name: Configurable | OIDC | Create | Directory | .well-known
   file: path={{ shibbolethidp_wwwroot }}/.well-known state=directory mode=0555
 
-- name: Shibboleth IdP | OIDC | Create | Directory | oidc
+- name: Configurable | OIDC | Create | Directory | oidc
   file: path={{ shibbolethidp_wwwroot }}/oidc state=directory mode=0555
 
-- name: Shibboleth IdP | OIDC | Register | Keys | public rsa
-  shell: "grep Public -A10 {{ shibbolethidp_idp_home }}/credentials/fullRSA |awk '/{/{a=1} a; /}/{exit}'"
-  register: result
-- set_fact: publicrsa="{{ result.stdout | from_json }}"
+#- name: Configurable | OIDC | Register | Keys | public rsa
+#  shell: "grep Public -A10 {{ shibbolethidp_idp_home }}/credentials/fullRSA |awk '/{/{a=1} a; /}/{exit}'"
+#  register: result
+#- set_fact: publicrsa="{{ result.stdout | from_json }}"
 
-- name: Shibboleth IdP | OIDC | Register | Keys | public ec
-  shell: "grep Public -A10 {{ shibbolethidp_idp_home }}/credentials/fullEC |awk '/{/{a=1} a; /}/{exit}'"      
-  register: result    
-- set_fact: publicec="{{ result.stdout | from_json }}"
+#- name: Configurable | OIDC | Register | Keys | public ec
+#  shell: "grep Public -A10 {{ shibbolethidp_idp_home }}/credentials/fullEC |awk '/{/{a=1} a; /}/{exit}'"      
+#  register: result    
+#- set_fact: publicec="{{ result.stdout | from_json }}"
 
-- name: Shibboleth IdP | OIDC | compine | Keys | public rsa + ec
-  set_fact:
-    keyset: 
-      keys: ["{{ publicrsa }}","{{ publicec}}"]
+#- name: Configurable | OIDC | compine | Keys | public rsa + ec
+#  set_fact:
+#    keyset: 
+#      keys: ["{{ publicrsa }}","{{ publicec}}"]
 
-- name: OIDC | Generate | {{ shibbolethidp_wwwroot }}/oidc/keyset.jwk
-  copy:
-    dest: "{{ shibbolethidp_wwwroot }}/oidc/keyset.jwk"
-    content: "{{ keyset | to_nice_json | string }}\n"
+#- name: OIDC | Generate | {{ shibbolethidp_wwwroot }}/oidc/keyset.jwk
+#  copy:
+#    dest: "{{ shibbolethidp_wwwroot }}/oidc/keyset.jwk"
+#    content: "{{ keyset | to_nice_json | string }}\n"
 
-- name: Shibboleth IdP | openid-configuration | Templates | copy
+- name: Configurable | openid-configuration | Templates | copy
   template: src={{ shibbolethidp_item.src }} dest={{ shibbolethidp_item.dst }} mode=0755
   with_items:
   - { src: openid-configuration, dst: "{{ shibbolethidp_wwwroot }}/.well-known" }
@@ -137,7 +157,7 @@
 # - name: Prepare for first relying party
 # =======================================
 
-- name: Shibboleth IdP | OIDC | Configure | relaying-party.xml | enable oidc profile
+- name: Configurable | OIDC | Configure | relaying-party.xml | enable oidc profile
   xml:
     xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']"
     attribute: "p:responderIdLookupStrategy-ref"
@@ -149,7 +169,7 @@
       p: http://www.springframework.org/schema/p
   notify: restart shibboleth-idp
 
-- name: Shibboleth IdP | OIDC | Configure | relying-party.xml
+- name: Configurable | OIDC | Configure | relying-party.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
     marker: "                <!-- {mark} ansible managed - OIDC profile configuration  -->"
@@ -159,7 +179,31 @@
                       <bean parent="OIDC.UserInfo"/>
                       <bean parent="OAUTH2.Revocation"/>
 
-- name: Shibboleth IdP | OIDC | Configure | attribute-resolver.xml
+- name: Configurable | OIDC | Remove | shibboleth.UnverifiedRelyingParty | relying-party.xml
+  xml:
+    xpath: "//beans:bean[@id='shibboleth.UnverifiedRelyingParty']"
+    ensure: "absent"
+    file: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    namespaces:
+      beans: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+  notify: restart shibboleth-idp
+
+- name: Configurable | OIDC | Add | shibboleth.UnverifiedRelyingParty | relying-party.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    marker: "      <!-- {mark} ansible managed - OIDC.Keyset profile configuration  -->"
+    insertbefore: "shibboleth.DefaultRelyingParty"
+    content: |2
+          <bean id="shibboleth.UnverifiedRelyingParty" p:responderIdLookupStrategy-ref="profileResponderIdLookupFunction" parent="RelyingParty">
+            <property name="profileConfigurations">
+              <list>
+                <bean parent="OIDC.Keyset" />
+              </list>
+            </property>
+          </bean>  
+
+- name: Configurable | OIDC | Configure | attribute-resolver.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
     marker: "<!-- {mark} ansible managed - OIDC definition configuration  -->"
@@ -168,13 +212,12 @@
       <!-- Subject Identifier is a attribute that must always be resolved.
       There has to be exactly one resolved and filtered attribute that would be encoded as 'sub'.
       This example attribute (the data connector actually ) will generate public or pairwise 'sub' depending on client registration data.  -->
-      
       <AttributeDefinition id="subject" xsi:type="Simple" activationConditionRef="SubjectRequired">
         <InputDataConnector ref="computedSubjectId" attributeNames="subjectId"/>
         <AttributeEncoder xsi:type="oidcext:OIDCString" name="sub" />
-      </AttributeDefinition>
+      </AttributeDefinition>      
 
-- name: Shibboleth IdP | OIDC | Configure | attribute-resolver.xml
+- name: Configurable | OIDC | Configure | attribute-resolver.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
     marker: "<!-- {mark} ansible managed - OIDC connector configuration  -->"
@@ -183,20 +226,19 @@
       <!-- Data Connector for generating 'sub' claim. The connector may be used to generate both public and pairwise subject values -->
       <DataConnector id="computedSubjectId" xsi:type="ComputedId"
         generatedAttributeID="subjectId"
-        sourceAttributeID="%{idp.oidc.subject.sourceAttribute}"
         salt="%{idp.oidc.subject.salt}"
         algorithm="%{idp.oidc.subject.algorithm:SHA}"
         encoding="%{idp.oidc.subject.encoding:BASE32}">
-        <Dependency ref="%{idp.oidc.subject.sourceAttribute}"/>
-      </DataConnector> 
+        <InputAttributeDefinition ref="%{idp.oidc.subject.sourceAttribute}"/>
+      </DataConnector>
 
-- name: Shibboleth IdP | OIDC | Configure | attribute-filter.xml | Namespaces
+- name: Configurable | OIDC | Configure | attribute-filter.xml | Namespaces
   xml:
     xpath: "{{ item_oidc.xpath }}"
     attribute: "{{ item_oidc.attribute }}"
     value: "{{ item_oidc.value }}"
     ensure: "{{ item_oidc.ensure }}"
-    file: /opt/shibboleth-idp/conf/attribute-filter.xml
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-filter.xml"
     namespaces:
       xmlns: urn:mace:shibboleth:2.0:afp
       xsi: http://www.w3.org/2001/XMLSchema-instance
@@ -207,12 +249,13 @@
     loop_var: item_oidc
   notify: restart shibboleth-idp
 
-- name: Shibboleth IdP | OIDC | Configure | attribute-filter.xml
+- name: Configurable | OIDC | Configure | attribute-filter.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/attribute-filter.xml"
     marker: "<!-- {mark} ansible managed - OIDC filter configuration  -->"
     insertbefore: "</AttributeFilterPolicyGroup>"
     content: |
+      
       <AttributeFilterPolicy id="OPENID_SCOPE">
         <PolicyRequirementRule xsi:type="oidcext:OIDCScope" value="openid" />
         <AttributeRule attributeID="subject">
@@ -220,15 +263,28 @@
         </AttributeRule>
       </AttributeFilterPolicy> 
 
-- name: Shibboleth IdP | OIDC | enable | oidc-metadata-providers.xml | oidcClientResolver
+- name: Configurable | OIDC | enable | oidc-metadata-providers.xml | oidcClientResolver
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/oidc-metadata-providers.xml"
     marker: "    <!-- {mark} ansible managed - OIDC metadata-providers client information -->"
     insertbefore: "</util:list>"
     content: |2
-              <ref bean="oidcClientResolver" />
+              <ref bean="oidcFileResolver" />
 
-- name: Shibboleth IdP | OIDC | add | logback.xml | oidc debugs (commented)
+- name: Configurable | OIDC | enable | oidc-metadata-providers.xml | oidc-client.json
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/oidc-metadata-providers.xml"
+    marker: "    <!-- {mark} ansible managed - OIDC metadata-providers client bean  -->"
+    insertafter: "</util:list>"
+    content: |2
+          <bean id="oidcFileResolver"
+                class="org.geant.idpextension.oidc.metadata.impl.FilesystemClientInformationResolver"
+                p:id="OidcFileResolver1"
+                p:remoteJwkSetCache-ref="shibboleth.oidc.RemoteJwkSetCache" 
+                c:metadata="%{idp.home}/metadata/oidc-client.json">
+          </bean>
+
+- name: Configurable | OIDC | add | logback.xml | oidc debugs (commented)
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
     marker: "    <!-- {mark} ansible managed - OIDC logging -->"
@@ -240,23 +296,6 @@
           <logger name="org.geant.idpextension.oidc.encoding.impl" level="DEBUG" />
           -->
 
-- name: Shibboleth IdP | OIDC | enable | oidc-metadata-providers.xml | oidc-client.json
-  blockinfile:
-    dest: "{{ shibbolethidp_idp_home }}/conf/oidc-metadata-providers.xml"
-    marker: "    <!-- {mark} ansible managed - OIDC metadata-providers client bean  -->"
-    insertafter: "</util:list>"
-    content: |2
-          <bean id="oidcClientResolver"
-                class="org.geant.idpextension.oidc.metadata.impl.FilesystemClientInformationResolver"
-                p:id="oidcClientResolver1"
-                p:remoteJwkSetCache-ref="shibboleth.oidc.RemoteJwkSetCache">
-            <constructor-arg>
-              <bean class="java.io.File" id="ExampleFile">
-                <constructor-arg type="String" value="/opt/shibboleth-idp/metadata/oidc-client.json" />
-              </bean>
-            </constructor-arg>
-          </bean>
-
-- name: Shibboleth IdP | OIDC | subtask | oidcupdaterps
+- name: Configurable | OIDC | subtask | oidcupdaterps
   include: shibbolethidp_oidcupdaterps.yml
 
