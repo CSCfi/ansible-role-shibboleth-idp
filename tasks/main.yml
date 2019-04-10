@@ -98,32 +98,32 @@
 #    - { src: logback-access.xml, dst: "{{ shibbolethidp_jetty_base }}/resources" }
 #    - { src: logback.xml, dst: "{{ shibbolethidp_jetty_base }}/resources" }
 
-- name: Copy config files for services
+- name: Main | Copy | jetty-ssl-context.xml
   copy: src={{ item.src }} dest={{ item.dst }} remote_src=yes
   with_items:
     - { src: "{{ shibbolethidp_jetty_home }}/etc/jetty-ssl-context.xml", dst: "{{ shibbolethidp_jetty_base }}/etc/" }
 
-- name: Shibboleth-idp | JETTY | SSL | enable | tweak-ssl.xml
+- name: Main | Jetty | SSL | enable | tweak-ssl.xml
   lineinfile:
     dest: "{{ shibbolethidp_jetty_base }}/start.d/https.ini"
     regexp: '^etc'
     insertafter: '--module=https'
     line: 'etc/tweak-ssl.xml'
 
-- name: Symlink | create | logs
+- name: Main | Symlink | create | logs
   file:
     src="{{ shibbolethidp_idp_home }}/logs"
     dest=/var/log/shibboleth-idp
     state=link
 
-- name: Symlink | create | logs
+- name: Main | Symlink | create | logs
   file:
     src="{{ shibbolethidp_idp_home }}/jetty-base/logs"
     dest=/var/log/jetty
     state=link
     force=yes
 
-- name: Configure | authn/password-authn-config.xml | Username | Lowercase
+- name: Main | Configure | authn/password-authn-config.xml | Username | Lowercase
   xml:
     xpath: "{{ item.xpath }}"
     attribute: "{{ item.attribute }}"
@@ -138,10 +138,10 @@
     - { xpath: "//util:constant[@id='shibboleth.authn.Password.Lowercase']", attribute: "static-field", value: "java.lang.Boolean.TRUE", ensure: present }
   notify: restart shibboleth-idp
 
-- name: Enable service shibboleth
+- name: Main | Enable | Service | shibboleth-idp 
   service: name=shibboleth-idp enabled=yes state=started
 
-- name: Set logging to debug if configured | shibbolethidp_debug = {{ shibbolethidp_debug }}
+- name: Main | Configure | Debug | shibbolethidp_debug = {{ shibbolethidp_debug }}
   xml:
     xpath: "//configuration/variable[@name='idp.loglevel.idp']"
     ensure: present
@@ -150,7 +150,8 @@
     file: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
   when: shibbolethidp_debug is defined and shibbolethidp_debug == true
 
-- xml:
+- name: Main | Configure | Debug | shibbolethidp_debug = {{ shibbolethidp_debug }}
+  xml:
     xpath: "//configuration/logger[@name='fi.mpass' and @level='debug']"
     ensure: present
     file: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
