@@ -83,6 +83,10 @@ shibbolethidp_rps:
       - https://openidconnect.net/callback
     response_types: ['code', 'id_token', 'token id_token', 'code id_token', 'code token', 'code token id_token']
 
+### OIDC DeviceFlow
+shibbolethidp_oidcdeviceflow_version: 0.5.0a
+shibbolethidp_oidcdeviceflow_location: 'https://github.com/CSCfi/shibboleth-idp-oauth2-deviceflow-extension'
+
 ### MFA
 shibbolethidp_mfaprovider: https://mfapilot.funet.fi
 shibbolethidp_mpassidrelease: 0.9.5
