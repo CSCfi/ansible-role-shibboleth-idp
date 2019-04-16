@@ -87,36 +87,36 @@
 # - name: Configurable | OIDC | Generate and set default keys
 # ===========================================================
 
-- name: Configurable | OIDC | Generate | Keys | RSASign
+- name: Configurable | OIDC | Generate | Keys | RSASign (full)
   shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSASign -p > {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk
 #  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSA -p > {{ shibbolethidp_idp_home }}/credentials/fullRSA
   args:
 #   creates: "{{ shibbolethidp_idp_home }}/credentials/fullRSA"
     creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk"
 
-- name: Configurable | OIDC | Generate | Keys | RSASign -> jwk
+- name: Configurable | OIDC | Generate | Keys | RSASign
   shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk > {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
   args:
     creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
 
-- name: Configurable | OIDC | Generate | Keys | ECSign
+- name: Configurable | OIDC | Generate | Keys | ECSign (full)
   shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultECSign -p > {{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk
 #  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultEC -p > {{ shibbolethidp_idp_home }}/credentials/fullEC
   args:
 #   creates: "{{ shibbolethidp_idp_home }}/credentials/fullEC"
     creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk"
 
-- name: Configurable | OIDC | Generate | Keys | ECSign -> jwk
+- name: Configurable | OIDC | Generate | Keys | ECSign
   shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk > {{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
   args:
     creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
 
-- name: Configurable | OIDC | Generate | Keys | RSAEnc
+- name: Configurable | OIDC | Generate | Keys | RSAEnc (full)
   shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u enc -i defaultRSAEnc -p > {{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk
   args:
     creates: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk"
 
-- name: Configurable | OIDC | Generate | Keys | RSAenc -> jwk
+- name: Configurable | OIDC | Generate | Keys | RSAenc
   shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk > {{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa.jwk"
   args:
     creates: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa.jwk"
@@ -124,8 +124,8 @@
 - name: Configurable | OIDC | Create | Directory | .well-known
   file: path={{ shibbolethidp_wwwroot }}/.well-known state=directory mode=0555
 
-- name: Configurable | OIDC | Create | Directory | oidc
-  file: path={{ shibbolethidp_wwwroot }}/oidc state=directory mode=0555
+# - name: Configurable | OIDC | Create | Directory | oidc
+#  file: path={{ shibbolethidp_wwwroot }}/oidc state=directory mode=0555
 
 #- name: Configurable | OIDC | Register | Keys | public rsa
 #  shell: "grep Public -A10 {{ shibbolethidp_idp_home }}/credentials/fullRSA |awk '/{/{a=1} a; /}/{exit}'"
@@ -147,12 +147,21 @@
 #    dest: "{{ shibbolethidp_wwwroot }}/oidc/keyset.jwk"
 #    content: "{{ keyset | to_nice_json | string }}\n"
 
-- name: Configurable | openid-configuration | Templates | copy
-  template: src={{ shibbolethidp_item.src }} dest={{ shibbolethidp_item.dst }} mode=0755
-  with_items:
-  - { src: openid-configuration, dst: "{{ shibbolethidp_wwwroot }}/.well-known" }
-  loop_control:
-    loop_var: shibbolethidp_item
+
+- name: Main | Template | Set | service_name 
+  set_fact:
+    service_name: "{{ shibbolethidp_fqdn }}"
+
+- name: Main | Template | Get | openid-configuration
+  fetch:
+    src: "{{ shibbolethidp_idp_home }}/static/.well-known/openid-configuration"
+    dest: "/tmp/openid-configuration.j2"
+    flat: yes
+  
+- name: Main | Template | push | openid-configuration
+  template:
+    src: "/tmp/openid-configuration.j2"
+    dest: "{{ shibbolethidp_wwwroot }}/.well-known/openid-configuration"
 
 # - name: Prepare for first relying party
 # =======================================
@@ -291,10 +300,8 @@
     insertbefore: "Logs IdP, but not OpenSAML, messages"
     content: |2
           <!-- OIDC logging incoming and outgoing -->
-          <!--
-          <logger name="org.geant.idpextension.oidc.decoding.impl" level="DEBUG" />
-          <logger name="org.geant.idpextension.oidc.encoding.impl" level="DEBUG" />
-          -->
+          <logger name="org.geant.idpextension.oidc.decoding.impl" level="${idp.loglevel.idp:-INFO}" />
+          <logger name="org.geant.idpextension.oidc.encoding.impl" level="${idp.loglevel.idp:-INFO}" />
 
 - name: Configurable | OIDC | subtask | oidcupdaterps
   include: shibbolethidp_oidcupdaterps.yml

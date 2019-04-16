@@ -37,6 +37,14 @@
     content: |2
           <import resource="oauth2-deviceflow-relying-party.xml" />
 
+- name: Configurable | OIDCDeviceFlow | Configure | oidc-relying-party.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/oidc-relying-party.xml"
+    marker: "        <!-- {mark} ansible managed - OIDC DeviceFlow profileresponde relying party definitions -->"
+    insertbefore: "</util:map>"
+    content: |2
+              <entry key-ref="OAUTH2.Device" value="#{getObject('issuer')}" />
+
 - name: Configurable | OIDCDeviceFlow | Configure | idp.properties | (to include idp-oauth2-deviceflow.properties) 
   lineinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
