@@ -94,6 +94,10 @@ shibbolethidp_mpassidversion: 3f2513bc699af5424ad924632ebd02704b3b0b07
 #shibbolethidp_mpassidversion: "MPASSid-proxy-{{ shibbolethidp_mpassidrelease }}"
 shibbolethidp_stepupversion: 0.9.0 #master
 
+### OIDCStepUpServer
+shibbolethidp_oidcstepupserver_location: https://github.com/CSCfi/shibboleth-idp-authn-stepup
+shibbolethidp_oidcstepupserver_version: 0.10.0
+
 # shibbolethidp_jetty_ssl_port: "{{ shibbolethidp_jetty_secure_port }}"
 # shibbolethidp_jetty_backchannel_port: 8443
 # shibbolethidp_jetty_backchannel_keystore_path: ../credentials/keystore.jks

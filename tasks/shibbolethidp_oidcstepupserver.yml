@@ -1,0 +1,90 @@
+- name: Configurable | OIDCStepUpServer | dependency | oidc
+  include: shibbolethidp_oidc.yml
+  when: "'oidc' not in configurables"
+
+- name: Configurable | OIDCStepUpServer | Download | Plugin v{{ shibbolethidp_oidcstepupserver_version }}
+  unarchive:
+    extra_opts: ['--strip-components=1']
+    src: "{{ shibbolethidp_oidcstepupserver_location }}/releases/download/v{{ shibbolethidp_oidcstepupserver_version }}/idp-stepup-distribution-{{ shibbolethidp_oidcstepupserver_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
+    remote_src: yes
+    dest: "{{ shibbolethidp_idp_home }}"
+    creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-stepup-api-{{ shibbolethidp_oidcstepupserver_version | regex_replace('[^0-9.]', '') }}.jar"
+  notify: reown shibboleth-idp
+
+- name: Configurable | OIDCStepUpServer | Detect | Duplicate | Plugins
+  find:
+    paths: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib"
+    patterns: "^(?!.*({{ shibbolethidp_oidcstepupserver_version | regex_replace('[^0-9.]', '') }})).*idp-stepup"
+    use_regex: true
+  register: files_to_delete
+
+- name: Configurable | OIDCStepUpServer | Delete | Older | Plugins
+  file:
+    path: "{{ shibbolethidp_item.path }}"
+    state: absent
+  with_items: "{{ files_to_delete.files }}"
+  loop_control:
+    loop_var: shibbolethidp_item
+
+#- name: Shibboleth IdP | OIDC | Import OIDC extension configuration files
+# =======================================================================
+
+- name: Configurable | OIDCStepUpServer | Configure | Flow | Insert | general-authn.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    marker: "    <!-- {mark} ansible managed - stepup-flow -->"
+    insertbefore: '</util:list>'
+    content: |2
+          <bean id="authn/Stepup" parent="shibboleth.AuthenticationFlow" p:passiveAuthenticationSupported="false" p:forcedAuthenticationSupported="true" >
+            <property name="supportedPrincipals">
+              <list>
+                <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://refeds.org/profile/mfa" />
+              </list>
+            </property>
+          </bean>
+
+- name: Configurable | OIDCStepUpServer | Configure | Flows | idp.properties
+  lineinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
+    regexp: ^(?!.*{{ shibbolethidp_item }})(idp.authn.flows=.*)$
+    line: \1|{{ shibbolethidp_item }}
+    backrefs: yes
+  with_items: Stepup
+  loop_control:
+    loop_var: shibbolethidp_item
+  notify:
+    - restart shibboleth-idp
+
+- name: Configurable | OIDCStepUpServer | Remove | subject | attribute-resolver.xml
+  xml:
+    xpath: "//x:AttributeResolver/x:AttributeDefinition[@id='subject']"
+    ensure: "absent"
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
+    namespaces:
+      x: urn:mace:shibboleth:2.0:resolver
+  notify: restart shibboleth-idp
+
+- name: Configurable | OIDCStepUpServer | Configure | subject | attribute-resolver.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
+    marker: "    <!-- {mark} ansible managed - stepup subject -->"
+    insertafter: 'Core schema attributes'
+    content: |2
+          <AttributeDefinition id="subject" xsi:type="ScriptedAttribute">
+            <Script><![CDATA[
+              logger = Java.type("org.slf4j.LoggerFactory").getLogger("fi.csc.idp.attribute.resolver.subjectbuilder");
+              outboundMessageCtx = profileContext.getOutboundMessageContext();
+              if (outboundMessageCtx != null) {
+                oidcResponseContext = outboundMessageCtx.getSubcontext("org.geant.idpextension.oidc.messaging.context.OIDCAuthenticationResponseContext");
+                if (oidcResponseContext != null) {
+                  subject.addValue(oidcResponseContext.getRequestedSubject());
+                  logger.debug("subject value: " + subject.getValues().get(0));
+                } else {
+                  logger.warn("RP has not requested subject, unable to produce subject");
+                }
+              } else {
+                logger.warn("No oidc response context, unable to produce subject");
+              }
+            ]]></Script>
+            <AttributeEncoder xsi:type="oidcext:OIDCString" name="sub" />
+          </AttributeDefinition>
