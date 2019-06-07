@@ -52,6 +52,14 @@
     line: '\1, /conf/idp-oauth2-deviceflow.properties'
     backrefs: yes
 
+- name: Configurable | OIDCDeviceFlow | idp-oauth2-deviceflow.properties
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp-oauth2-deviceflow.properties regexp="^#?\s*({{ shibboleth_item.option }}\s*=)" backrefs=yes  line="\\1 {{ shibbolethidp_item.value }}"
+  with_items:
+    - { option: 'idp.oauth2.deviceflow.userCode.defaultLength', value: "16", state: present }
+  loop_control:
+    loop_var: shibboleth_item
+
+
 # - name: Prepare for first relying party
 # =======================================
 - name: Configurable | OIDCDeviceFlow | Configure | relying-party.xml
