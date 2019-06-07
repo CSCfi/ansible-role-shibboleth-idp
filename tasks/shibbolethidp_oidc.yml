@@ -88,38 +88,36 @@
 # ===========================================================
 
 - name: Configurable | OIDC | Generate | Keys | RSASign (full)
-  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSASign -p > {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk
+  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSASign{{lookup('pipe','date +%Y%m%d%H%M')}} -p > {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk
 #  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u sig -i defaultRSA -p > {{ shibbolethidp_idp_home }}/credentials/fullRSA
-  args:
-#   creates: "{{ shibbolethidp_idp_home }}/credentials/fullRSA"
-    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk"
+#  args:
+#    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk"
 
 - name: Configurable | OIDC | Generate | Keys | RSASign
   shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs-full.jwk > {{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
-  args:
-    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
+#  args:
+#    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-rs.jwk"
 
 - name: Configurable | OIDC | Generate | Keys | ECSign (full)
-  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultECSign -p > {{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk
+  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultECSign{{lookup('pipe','date +%Y%m%d%H%M')}} -p > {{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk
 #  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t EC -c P-256 -u sig -i defaultEC -p > {{ shibbolethidp_idp_home }}/credentials/fullEC
-  args:
-#   creates: "{{ shibbolethidp_idp_home }}/credentials/fullEC"
-    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk"
+#  args:
+#    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk"
 
 - name: Configurable | OIDC | Generate | Keys | ECSign
   shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/idp-signing-es-full.jwk > {{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
-  args:
-    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
+#  args:
+#    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-signing-es.jwk"
 
 - name: Configurable | OIDC | Generate | Keys | RSAEnc (full)
-  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u enc -i defaultRSAEnc -p > {{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk
-  args:
-    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk"
+  shell: java -jar {{ shibbolethidp_idp_home }}/bin/json-web-key-generator.jar -t RSA -s 2048 -u enc -i defaultRSAEnc{{lookup('pipe','date +%Y%m%d%H%M')}} -p > {{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk
+#  args:
+#    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk"
 
 - name: Configurable | OIDC | Generate | Keys | RSAenc
   shell: "awk '/{/{a=1} a; /}/{exit}' {{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa-full.jwk > {{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa.jwk"
-  args:
-    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa.jwk"
+#  args:
+#    creates: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption-rsa.jwk"
 
 - name: Configurable | OIDC | Create | Directory | .well-known
   file: path={{ shibbolethidp_wwwroot }}/.well-known state=directory mode=0555
