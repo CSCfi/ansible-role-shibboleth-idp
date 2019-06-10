@@ -30,7 +30,7 @@
     - { src: idp-schema.sql, dst: /tmp }
     - { src: shibboleth-idp, dst: /etc/default }
     - { src: shibboleth-idp.service, dst: /etc/systemd/system }
-    - { src: jetty.conf, dst: /etc/tmpwatch.d }
+    - { src: jetty.conf, dst: /etc/tmpfiles.d }
 
 - name: Main | Install
   shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_dst_dir }}/shibboleth-identity-provider-{{ shibbolethidp_version }}/bin/install.sh \
