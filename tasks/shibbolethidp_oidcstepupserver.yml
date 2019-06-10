@@ -88,3 +88,14 @@
             ]]></Script>
             <AttributeEncoder xsi:type="oidcext:OIDCString" name="sub" />
           </AttributeDefinition>
+
+- name: Configurable | OIDCStepUpServer | 
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/authn/stepup.properties regexp="^#?\s*({{ item_stepup.option }}\s*=)" backrefs=yes  line="\\1 {{ item_stepup.value }}"
+  with_items:
+    - { option: 'stepup.SMSAccount.sender', value: "{{ shibbolethidp_stepupSMSAccountSender }}", state: present }
+    - { option: 'stepup.SMSAccount.sid', value: "{{ shibbolethidp_stepupSMSAccountSid }}", state: present }
+    - { option: 'stepup.SMSAccount.token', value: "{{ shibbolethidp_stepupSMSAccountToken }}", state: present }
+    - { option: 'stepup.ShibStorageAccountStorageEncryptor.encryptKey', value: "{{ shibbolethidp_stepupEncryptKey }}", state: present }
+    - { option: 'stepup.ShibStorageAccountStorage.storageservice', value: "{{ shibbolethidp_stepupStorageService }}", state: present }
+  loop_control:
+    loop_var: item_stepup

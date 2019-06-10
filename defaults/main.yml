@@ -97,13 +97,11 @@ shibbolethidp_stepupversion: 0.9.0 #master
 ### OIDCStepUpServer
 shibbolethidp_oidcstepupserver_location: https://github.com/CSCfi/shibboleth-idp-authn-stepup
 shibbolethidp_oidcstepupserver_version: 0.10.0
-
-# shibbolethidp_jetty_ssl_port: "{{ shibbolethidp_jetty_secure_port }}"
-# shibbolethidp_jetty_backchannel_port: 8443
-# shibbolethidp_jetty_backchannel_keystore_path: ../credentials/keystore.jks
-# shibbolethidp_jetty_backchannel_keystore_password: changemepl3453
-# shibbolethidp_jetty_sslcontext_keystorepath: ../credentials/keystore.jks
-# shibbolethidp_jetty_sslcontext_keystorepassword: changemepl3453
+shibbolethidp_stepupSMSAccountSender: "{{ vault_shibbolethidp_stepupSMSAccountSender | default('not_set_yet') }}"
+shibbolethidp_stepupSMSAccountSid: "{{ vault_shibbolethidp_stepupSMSAccountSid | default('not_set_yet') }}"
+shibbolethidp_stepupSMSAccountToken: "{{ vault_shibbolethidp_stepupSMSAccountToken | default('not_set_yet') }}"
+shibbolethidp_stepupEncryptKey: "{{ vault_shibbolethidp_stepupEncryptKey | default('not_set_yet') }}"
+shibbolethidp_stepupStorageService: "{{ vault_shibbolethidp_stepupStorageService | default('not_set_yet') }}"
 
 ### Certs 
 shibbolethidp_ssl_key: "{{ vault_ssl_key | default('not_set_yet') }}"
