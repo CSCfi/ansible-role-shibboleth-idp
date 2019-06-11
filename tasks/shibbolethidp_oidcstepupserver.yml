@@ -99,3 +99,7 @@
     - { option: 'stepup.ShibStorageAccountStorage.storageservice', value: "{{ shibbolethidp_stepupStorageService }}", state: present }
   loop_control:
     loop_var: item_stepup
+
+- shell: mysql < /tmp/totp-schema.sql
+  ignore_errors: yes
+
