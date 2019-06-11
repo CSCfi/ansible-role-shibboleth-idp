@@ -102,6 +102,8 @@ shibbolethidp_stepupSMSAccountSid: "{{ vault_shibbolethidp_stepupSMSAccountSid |
 shibbolethidp_stepupSMSAccountToken: "{{ vault_shibbolethidp_stepupSMSAccountToken | default('not_set_yet') }}"
 shibbolethidp_stepupEncryptKey: "{{ vault_shibbolethidp_stepupEncryptKey | default('not_set_yet') }}"
 shibbolethidp_stepupStorageService: "{{ vault_shibbolethidp_stepupStorageService | default('shibboleth.JPAStorageService') }}"
+shibbolethidp_stepupTokenValidator: "ValueTokenValidator" #elixir: userInfoMap
+shibbolethidp_stepupUserinfoEndpoint: elixir.op
 
 ### Certs 
 shibbolethidp_ssl_key: "{{ vault_ssl_key | default('not_set_yet') }}"
