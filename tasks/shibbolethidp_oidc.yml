@@ -29,12 +29,12 @@
   loop_control:
     loop_var: item_oidc
 
-- name: Configurable | OIDC | Configure | Session Storage, THIS IS BUGFIX ?! REMOVED COMING releases
-  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ item_consent.option }}\s*=)" backrefs=yes  line="\\1 {{ item_consent.value }}"
-  with_items:
-    - { option: 'idp.session.StorageService', value: "shibboleth.StorageService", state: present }
-  loop_control:
-    loop_var: item_consent
+# - name: Configurable | OIDC | Configure | Session Storage, THIS IS BUGFIX ?! REMOVED COMING releases
+#   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ item_consent.option }}\s*=)" backrefs=yes  line="\\1 {{ item_consent.value }}"
+#   with_items:
+#     - { option: 'idp.session.StorageService', value: "shibboleth.StorageService", state: present }
+#   loop_control:
+#    loop_var: item_consent
 
 #- name: Configurable | OIDC | Import OIDC extension configuration files
 # =======================================================================
