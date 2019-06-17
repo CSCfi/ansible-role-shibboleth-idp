@@ -31,6 +31,8 @@
     - { src: totp-schema.sql, dst: /tmp }
     - { src: shibboleth-idp, dst: /etc/default }
     - { src: shibboleth-idp.service, dst: /etc/systemd/system }
+    - { src: shibboleth-idp-watcher.service, dst: /etc/systemd/system }
+    - { src: shibboleth-idp-watcher.path, dst: /etc/systemd/system }
     - { src: jetty.conf, dst: /etc/tmpfiles.d }
 
 - name: Main | Install
@@ -141,7 +143,10 @@
   notify: restart shibboleth-idp
 
 - name: Main | Enable | Service | shibboleth-idp 
-  service: name=shibboleth-idp enabled=yes state=started
+  service: name="{{ item }}" enabled=yes state=started
+  with_items
+    - shibboleth-idp
+    - shibboleth-idp-watcher.path
 
 - name: Main | Configure | Debug | shibbolethidp_debug = {{ shibbolethidp_debug }}
   xml:

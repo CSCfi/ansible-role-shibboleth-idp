@@ -1,0 +1,9 @@
+[Unit]
+Description=shibboleth-idp restarter
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl restart shibboleth-idp.service
+
+[Install]
+WantedBy=multi-user.target

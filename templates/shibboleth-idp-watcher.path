@@ -1,0 +1,5 @@
+[Path]
+PathModified=/usr/lib/java
+
+[Install]
+WantedBy=multi-user.target
