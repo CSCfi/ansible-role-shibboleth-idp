@@ -144,7 +144,7 @@
 
 - name: Main | Enable | Service | shibboleth-idp 
   service: name="{{ item }}" enabled=yes state=started
-  with_items
+  with_items:
     - shibboleth-idp
     - shibboleth-idp-watcher.path
 
