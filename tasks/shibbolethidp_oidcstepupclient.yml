@@ -71,7 +71,7 @@
       <bean id="JWTPrivateKey"
         class="net.shibboleth.ext.spring.factory.PrivateKeyFactoryBean"
         p:resource="../../../credentials/mfaclient.pem" />      
-      <bean id="SetOIDCInformation" class="fi.okm.mpass.idp.authn.impl.SetOIDCInformation"
+      <bean id="SetOIDCInformation" class="fi.mpass.shibboleth.authn.impl.SetOIDCInformation"
         p:privKey-ref="JWTPrivateKey" p:responseType="id_token">
         <property name="clientId" value="{{ ansible_fqdn }}" />
         <property name="providerMetadataLocation" value="{{ shibbolethidp_authnsocialuser_provider }}" />
@@ -191,7 +191,7 @@
               resCtx.resolveAttributes(custom);
             
               //Pass the resolved attributes to context
-              suCtx = authCtx.getSubcontext("fi.okm.mpass.idp.authn.impl.SocialUserOpenIdConnectContext", true);
+              suCtx = authCtx.getSubcontext("fi.mpass.shibboleth.authn.impl.SocialUserOpenIdConnectContext", true);
               suCtx.setResolvedIdPAttributes(resCtx.getResolvedIdPAttributes());
               input.removeSubcontext(resCtx);
               nextFlow; // pass control to oidc flow
@@ -210,7 +210,7 @@
     creates: "{{ shibbolethidp_idp_home }}/credentials/mfaclientpublic.pem"
 - file: path={{ shibbolethidp_idp_home }}//credentials/mfaclient.pem mode=0750 group=jetty owner=root
 - shell: npm install -g pem-jwk
-- shell: pem-jwk {{ shibbolethidp_idp_home }}/credentials/mfaclientpublic.pem > {{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset/mfaclientkeyset.jwk
+- shell: echo '{"keys":[' > {{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset/mfaclientkeyset2.jwk && pem-jwk {{ shibbolethidp_idp_home }}/credentials/mfaclientpublic.pem >> {{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset/mfaclientkeyset2.jwk && echo ']}' >> {{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset/mfaclientkeyset2.jwk
   args:
     creates: "{{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset/mfaclientkeyset.jwk"
 
