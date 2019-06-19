@@ -30,7 +30,7 @@
   loop_control:
     loop_var: shibbolethidp_item
 
-- name: MFA-Client | OIDC | Delete | Older | Plugins | BUGFIX conflights with OIDC plugin
+- name: Configurable | OIDCStepUpClient | OIDC | Delete | Older | Plugins | BUGFIX conflights with OIDC plugin
   file:
     path: "{{shibbolethidp_idp_home}}/edit-webapp/WEB-INF/lib/{{ item_mfa }}"
     state: absent
@@ -41,7 +41,7 @@
     loop_var: item_mfa
   when: "'oidc' in configurables or 'oidcdeviceflow' in configurables"
 
-- name: JETTY | MFA | Annotations | idp.xml
+- name: Configurable | OIDCStepUpClient | JETTY | Annotations | idp.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/jetty-base/webapps/idp.xml"
     marker: "<!-- {mark} ANSIBLE MANAGED socialuser -->"
@@ -53,7 +53,7 @@
       </Call>
   notify: restart shibboleth-idp
 
-- name: IDP | MFA | SocialUser OpenID Connect | Remove | socialuseropenidconnect-authn-beans.xml
+- name: Configurable | OIDCStepUpClient | Remove | socialuseropenidconnect-authn-beans.xml
   xml:
     file: "{{ shibbolethidp_idp_home }}/flows/authn/SocialUserOpenIDConnect/socialuseropenidconnect-authn-beans.xml"
     xpath: //x:beans/x:bean[@id='SetOIDCInformation']
@@ -62,7 +62,7 @@
       x: http://www.springframework.org/schema/beans
     ensure: absent
 
-- name: IDP | MFA | SocialUser OpenID Connect | Insert | socialuseropenidconnect-authn-beans.xml
+- name: Configurable | OIDCStepUpClient | Insert | socialuseropenidconnect-authn-beans.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/flows/authn/SocialUserOpenIDConnect/socialuseropenidconnect-authn-beans.xml"
     marker: "<!-- {mark} ANSIBLE MANAGED SetOIDCInformation -->"
@@ -92,7 +92,7 @@
       </bean>
   notify: restart shibboleth-idp
 
-- name: IDP | MFA | SocialUser OpenID Connect | Remove | general-authn.xml
+- name: Configurable | OIDCStepUpClient | Remove | general-authn.xml
   xml:
     file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
     xpath: //x:beans/util:list/x:bean[@id='authn/SocialUserOpenIDConnect']
@@ -101,7 +101,7 @@
       x: http://www.springframework.org/schema/beans
     ensure: absent
 
-- name: IDP | MFA | SocialUser OpenID Connect | Remove | general-authn.xml
+- name: Configurable | OIDCStepUpClient | Remove | general-authn.xml
   xml:
     file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
     xpath: //x:beans/util:list/x:bean[@id='authn/MFA']
@@ -110,7 +110,7 @@
       x: http://www.springframework.org/schema/beans
     ensure: absent
 
-- name: IDP | MFA | Configure | Flow | Insert | general-authn.xml
+- name: Configurable | OIDCStepUpClient | Configure | Flow | Insert | general-authn.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
     marker: "<!-- {mark} ANSIBLE MANAGED mfa-flow -->"
@@ -132,7 +132,7 @@
         </property>
       </bean>
 
-- name: IDP | MFA | Configure | Flow | Remove | mfa-authn-config.xml
+- name: Configurable | OIDCStepUpClient | Configure | Flow | Remove | mfa-authn-config.xml
   xml:          
     file: "{{ shibbolethidp_idp_home }}/conf/authn/mfa-authn-config.xml"
     xpath: //util:map[@id='shibboleth.authn.MFA.TransitionMap']
@@ -141,7 +141,7 @@
       x: http://www.springframework.org/schema/beans
     ensure: absent
 
-- name: IDP | MFA | Configure | Flow | Remove | mfa-authn-config.xml
+- name: Configurable | OIDCStepUpClient | Configure | Flow | Remove | mfa-authn-config.xml
   xml:                  
     file: "{{ shibbolethidp_idp_home }}/conf/authn/mfa-authn-config.xml"
     xpath: //x:bean[@id='checkSecondFactor']
@@ -150,7 +150,7 @@
       x: http://www.springframework.org/schema/beans
     ensure: absent
 
-- name: IDP | MFA | Configure | Flow | Insert | mfa-authn-config.xml
+- name: Configurable | OIDCStepUpClient | Configure | Flow | Insert | mfa-authn-config.xml
   blockinfile:          
     dest: "{{ shibbolethidp_idp_home }}/conf/authn/mfa-authn-config.xml"
     marker: "<!-- {mark} ANSIBLE MANAGED mfa-flow -->"
@@ -200,7 +200,7 @@
         </constructor-arg>
       </bean>
 
-- name: IDP | MFA | credentials
+- name: Configurable | OIDCStepUpClient | credentials
   file: path={{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset state=directory mode=0755
 - shell: openssl genrsa -out {{ shibbolethidp_idp_home }}/credentials/mfaclient.pem 2048
   args:
@@ -214,7 +214,7 @@
   args:
     creates: "{{ shibbolethidp_idp_home }}/jetty-base/webapps/root/keyset/mfaclientkeyset.jwk"
 
-- name: IDP | MFA | Configure | AUTH flows
+- name: Configurable | OIDCStepUpClient | Configure | AUTH flows
   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ item_mfa.option }}\s*=)" backrefs=yes  line="\\1{{ item_mfa.value }}"
   with_items:
     - { option: 'idp.authn.flows', value: "Password|MFA", state: present }
