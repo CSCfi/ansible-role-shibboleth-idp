@@ -41,8 +41,8 @@ shibbolethidp_ldappassword: "{{ dirsrv_password | default('not_set_yet') }}"
 shibbolethidp_ldapsuffix: "{{ dirsrv_suffix | default(shibbolethidp_root) }}"
 shibbolethidp_ldapurl: "ldap://localhost:389"
 shibbolethidp_ldapbasedn: "ou=People,{{ shibbolethidp_ldapsuffix }}"
-shibbolethidp_ldapsearchfilter: "uid"
-shibbolethidp_ldapuserfilter: "({{ shibbolethidp_ldapsearchfilter }}={user})"
+shibbolethidp_ldapsearchfilter: "(uid=$resolutionContext.principal)"
+shibbolethidp_ldapuserfilter: "(uid={user})"
 shibbolethidp_ldapsubtreesearch: false
 
 ### JAAS relational login
