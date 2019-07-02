@@ -13,6 +13,6 @@
     - { option: 'idp.authn.LDAP.bindDN', value: '{{ shibbolethidp_ldapuser }}' }
     - { option: 'idp.authn.LDAP.bindDNCredential', value: '{{ shibbolethidp_ldappassword }}' }
     - { option: 'idp.authn.LDAP.userFilter', value: '{{ shibbolethidp_ldapuserfilter }}' }
-    - { option: 'idp.attribute.resolver.LDAP.searchFilter', value: '({{ shibbolethidp_ldapsearchfilter }}=$resolutionContext.principal)' } 
+    - { option: 'idp.attribute.resolver.LDAP.searchFilter', value: '{{ shibbolethidp_ldapsearchfilter }}' } 
   loop_control:
     loop_var: item_ldap
