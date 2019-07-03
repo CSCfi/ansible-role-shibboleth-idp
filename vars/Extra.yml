@@ -1,16 +1,16 @@
 ---
 shibbolethidp_jars:
   - name: mariadb-java-client
-    url: http://central.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/2.3.0/mariadb-java-client-2.3.0.jar
+    url: http://central.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/2.4.2/mariadb-java-client-2.4.2.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
   - name: Postresql client
-    url: http://central.maven.org/maven2/org/postgresql/postgresql/42.2.5/postgresql-42.2.5.jar
+    url: http://central.maven.org/maven2/org/postgresql/postgresql/42.2.6/postgresql-42.2.6.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
   - name: commons-dbcp2
-    url: http://central.maven.org/maven2/org/apache/commons/commons-dbcp2/2.5.0/commons-dbcp2-2.5.0.jar
+    url: http://central.maven.org/maven2/org/apache/commons/commons-dbcp2/2.6.0/commons-dbcp2-2.6.0.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
   - name: commons-pool2
-    url: http://central.maven.org/maven2/org/apache/commons/commons-pool2/2.6.0/commons-pool2-2.6.0.jar
+    url: http://central.maven.org/maven2/org/apache/commons/commons-pool2/2.6.2/commons-pool2-2.6.2.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
 
 jetty_jars:
