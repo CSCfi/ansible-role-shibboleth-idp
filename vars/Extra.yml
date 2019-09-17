@@ -12,6 +12,9 @@ shibbolethidp_jars:
   - name: commons-pool2
     url: http://central.maven.org/maven2/org/apache/commons/commons-pool2/2.6.2/commons-pool2-2.6.2.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
+  - name: gson
+    url: http://central.maven.org/maven2/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar
+    dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
 
 jetty_jars:
   - name: logback-classic
