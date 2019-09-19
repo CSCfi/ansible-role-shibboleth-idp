@@ -127,3 +127,4 @@ shibbolethidp_saml_key: "{{ vault_saml_key | default('not_set_yet') }}"
 # Used mainly from the playbook, you can define directory where from to directory hierarcy 
 # is moved to the destination
 shibbolethidp_templates: "{{ playbook_dir}}/../templates"
+shibbolethidp_files: "{{ playbook_dir}}/../files"

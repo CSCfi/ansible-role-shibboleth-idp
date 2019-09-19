@@ -18,3 +18,22 @@
   when: item_templates.state == 'file'
   loop_control:
     loop_var: item_templates
+
+- name: Files | Directories | Create
+  file:
+    state: directory
+    dest: "/{{ item_templates.path }}"
+  with_filetree: "{{ shibbolethidp_files }}"
+  when: item_templates.state == 'directory'
+  loop_control:
+    loop_var: item_templates
+
+- name: Files | Files | Copy
+  copy:
+    src: '{{ item_templates.src }}'
+    dest: '/{{ item_templates.path }}'
+  with_filetree: "{{ shibbolethidp_files }}"
+  when: item_templates.state == 'file'
+  loop_control:
+    loop_var: item_templates
+
