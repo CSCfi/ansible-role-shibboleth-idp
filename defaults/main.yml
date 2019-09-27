@@ -4,7 +4,7 @@
 shibbolethidp_state: latest
 shibbolethidp_fqdn: "{{ ansible_fqdn }}"
 
-shibbolethidp_version: 3.4.4
+shibbolethidp_version: 3.4.5
 shibbolethidp_dst_dir: /opt
 shibbolethidp_jetty_base: /opt/shibboleth-idp/jetty-base
 shibbolethidp_jetty_home: /opt/jetty
