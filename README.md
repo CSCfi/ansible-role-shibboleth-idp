@@ -54,7 +54,4 @@ Example Playbook
 
     - hosts: all
       roles:
-        - role: CSCfi.shibboleth-idp
-  	      configurables: ['slo','consent']
-	        shibbolethidp_jetty_secure_port: 8443
-	        shibbolethidp_debug: true
+        - { role: CSCfi.shibboleth-idp, configurables: ['certs', 'slo', 'consent'] }
