@@ -18,6 +18,11 @@ shibbolethidp_keystore_password: "{{ vault_keystore_password | default('changeme
 shibbolethidp_wwwroot: "{{ shibbolethidp_jetty_base }}/webapps/root"
 
 # CONFIGURABLES
+### F-ticks
+shibbolethidp_fticks_federation: Haka
+shibbolethidp_fticks_salt: changemeplease
+shibbolethidp_fticks_loghost: localhost
+
 ### Haka-test
 shibbolethidp_hakatestcrt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2018_sha2.crt"
 ### Haka
