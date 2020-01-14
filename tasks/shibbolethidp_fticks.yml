@@ -1,11 +1,13 @@
 ---
 - name: Shibboleth IdP | F-Ticks | Configure
-  lineinfile: dest={{ idp_home }}/conf/idp.properties regexp="^#?\s*({{ item.option }}\s*=)" backrefs=yes  line="\\1 {{ item.value }}"
+  lineinfile: dest={{ shibbolethidp_home }}/conf/idp.properties regexp="^#?\s*({{ item_fticks.option }}\s*=)" backrefs=yes  line="\\1 {{ item_fticks.value }}"
   with_items:
     - { option: 'idp.fticks.federation', value: "{{ shibbolethidp_fticks_federation }}", state: present }
     - { option: 'idp.fticks.algorithm', value: "SHA-256", state: present }
     - { option: 'idp.fticks.salt', value: "{{ shibbolethidp_fticks_salt }}", state: present }
     - { option: 'idp.fticks.loghost', value: "{{ shibbolethidp_fticks_loghost }}", state: present }
+  loop_control:
+    loop_var: item_fticks
 
 - name: Shibboleth IdP | F-Ticks | Configure | Appender
   blockinfile:
