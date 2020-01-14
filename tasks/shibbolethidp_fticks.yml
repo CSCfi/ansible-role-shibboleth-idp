@@ -5,7 +5,7 @@
     - { option: 'idp.fticks.federation', value: "{{ shibbolethidp_fticks_federation }}", state: present }
     - { option: 'idp.fticks.algorithm', value: "SHA-256", state: present }
     - { option: 'idp.fticks.salt', value: "{{ shibbolethidp_fticks_salt }}", state: present }
-    - { option: 'idp.fticks.loghost', value: "{{ shibbolethidp_fticks_localhost }}", state: present }
+    - { option: 'idp.fticks.loghost', value: "{{ shibbolethidp_fticks_loghost }}", state: present }
 
 - name: Shibboleth IdP | F-Ticks | Configure | Appender
   blockinfile:
