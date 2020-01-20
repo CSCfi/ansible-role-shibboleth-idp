@@ -1,36 +1,36 @@
 ---
 shibbolethidp_jars:
   - name: mariadb-java-client
-    url: http://central.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/2.4.2/mariadb-java-client-2.4.2.jar
+    url: https://central.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/2.4.2/mariadb-java-client-2.4.2.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
   - name: Postresql client
-    url: http://central.maven.org/maven2/org/postgresql/postgresql/42.2.6/postgresql-42.2.6.jar
+    url: https://central.maven.org/maven2/org/postgresql/postgresql/42.2.6/postgresql-42.2.6.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
   - name: commons-dbcp2
-    url: http://central.maven.org/maven2/org/apache/commons/commons-dbcp2/2.6.0/commons-dbcp2-2.6.0.jar
+    url: https://central.maven.org/maven2/org/apache/commons/commons-dbcp2/2.6.0/commons-dbcp2-2.6.0.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
   - name: commons-pool2
-    url: http://central.maven.org/maven2/org/apache/commons/commons-pool2/2.6.2/commons-pool2-2.6.2.jar
+    url: https://central.maven.org/maven2/org/apache/commons/commons-pool2/2.6.2/commons-pool2-2.6.2.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
   - name: gson
-    url: http://central.maven.org/maven2/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar
+    url: https://central.maven.org/maven2/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
 
 jetty_jars:
   - name: logback-classic
-    url: http://central.maven.org/maven2/ch/qos/logback/logback-classic/1.2.3/logback-classic-1.2.3.jar
+    url: https://central.maven.org/maven2/ch/qos/logback/logback-classic/1.2.3/logback-classic-1.2.3.jar
     dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
   - name: logback-core
-    url: http://central.maven.org/maven2/ch/qos/logback/logback-core/1.2.3/logback-core-1.2.3.jar
+    url: https://central.maven.org/maven2/ch/qos/logback/logback-core/1.2.3/logback-core-1.2.3.jar
     dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
   - name: logback-access
-    url: http://central.maven.org/maven2/ch/qos/logback/logback-access/1.2.3/logback-access-1.2.3.jar
+    url: https://central.maven.org/maven2/ch/qos/logback/logback-access/1.2.3/logback-access-1.2.3.jar
     dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
   - name: jcl-over-slf4j
-    url: http://central.maven.org/maven2/org/slf4j/jcl-over-slf4j/1.7.9/jcl-over-slf4j-1.7.9.jar
+    url: https://central.maven.org/maven2/org/slf4j/jcl-over-slf4j/1.7.9/jcl-over-slf4j-1.7.9.jar
     dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
   - name: slf4j-api
-    url: http://central.maven.org/maven2/org/slf4j/slf4j-api/1.7.9/slf4j-api-1.7.9.jar
+    url: https://central.maven.org/maven2/org/slf4j/slf4j-api/1.7.9/slf4j-api-1.7.9.jar
     dst: "{{ shibbolethidp_jetty_base }}/lib/logging/"
   - name: jetty9-dta-ssl
     url: https://build.shibboleth.net/nexus/content/repositories/releases/net/shibboleth/utilities/jetty9/jetty9-dta-ssl/1.0.0/jetty9-dta-ssl-1.0.0.jar 
