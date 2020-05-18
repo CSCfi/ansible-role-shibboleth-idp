@@ -95,14 +95,15 @@
   template: src={{ item.src }} dest={{ item.dst }}
   with_items:
     - { src: idp.xml, dst: "{{ shibbolethidp_jetty_base }}/webapps/idp.xml" }
-    - { src: attribute-resolver.xml, dst: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver-haka.xml" }
-    - { src: attribute-filter.xml, dst: "{{ shibbolethidp_idp_home }}/conf/attribute-filter-haka.xml" }
+    - { src: schac.xml, dst: "{{ shibbolethidp_idp_home }}/conf/attributes/schac.xml" }
+    - { src: funetEduPerson.xml, dst: "{{ shibbolethidp_idp_home }}/conf/attributes/funetEduPerson.xml" }
     - { src: tweak-ssl.xml, dst: "{{ shibbolethidp_jetty_base }}/etc/tweak-ssl.xml" }
   notify: reown shibboleth-idp
 
 #    - { src: jetty-requestlog.xml, dst: "{{ shibbolethidp_jetty_base }}/etc" }
 #    - { src: logback-access.xml, dst: "{{ shibbolethidp_jetty_base }}/resources" }
 #    - { src: logback.xml, dst: "{{ shibbolethidp_jetty_base }}/resources" }
+
 
 - name: Main | Copy | jetty-ssl-context.xml
   copy: src={{ item.src }} dest={{ item.dst }} remote_src=yes
@@ -165,6 +166,25 @@
     ensure: present
     file: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
   when: shibbolethidp_debug is defined and shibbolethidp_debug == true
+
+- name: Main | Configure | AttributeRegistry | Load attribute definitions
+  blockinfile:
+    path: "{{ shibbolethidp_idp_home }}/conf/attributes/default-rules.xml" 
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    insertafter: "<import resource="samlSubject.xml" />"
+    block: |
+          <import resource="schac.xml" />
+          <import resource="funetEduPerson.xml" />
+  notify: restart shibboleth-idp
+
+- name: Main | Configure | Id generation secret
+  lineinfile:
+    path: "{{ shibbolethidp_idp_home }}/credentials/secrets.properties"
+    regexp: '^#idp.persistentId.salt = changethistosomethingrandom'
+    insertafter: '^#idp.persistentId.salt = changethistosomethingrandom'
+    line: idp.persistentId.salt = changethistosomethingrandom
+
+
 
 - name: Main | Configurables 
   include: shibbolethidp_{{ item }}.yml
