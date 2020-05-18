@@ -15,6 +15,11 @@
 - name: Main | Install | Packages
   package: name={{ item }} state={{ shibbolethidp_state }}
   with_items: "{{ shibbolethidp_packages }}"
+  
+- name: Correct java version selected
+  alternatives:
+    name: java
+    path: /etc/alternatives/jre_11
 
 - name: Main | Download | Unarchive
   unarchive:
