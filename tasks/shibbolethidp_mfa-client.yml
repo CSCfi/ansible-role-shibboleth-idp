@@ -16,7 +16,7 @@
 
 - name: MFA | Download | git | MPASSid-proxy
   git:
-    repo: 'https://github.com/Digipalvelutehdas/MPASSid-proxy'
+    repo: 'https://github.com/mpassid/MPASSid-proxy'
     dest: /tmp/MPASSid-proxy
     version: MPASSid-proxy-{{ mpassid_version }}
     
