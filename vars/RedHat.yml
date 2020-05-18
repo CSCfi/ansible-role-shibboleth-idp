@@ -1,8 +1,8 @@
 ---
 __shibbolethidp_packages:
-    - java-1.8.0-openjdk-headless
-    - mysql-connector-java
+    - java-11-openjdk-headless
+#   - mysql-connector-java
 
 shibbolethidp_service_name: shibboleth-idp
 
-shibbolethidp_java_home: /etc/alternatives/jre_1.8.0
+shibbolethidp_java_home: /etc/alternatives/jre_11
