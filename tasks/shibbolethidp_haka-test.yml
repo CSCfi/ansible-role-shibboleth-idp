@@ -6,7 +6,7 @@
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
     marker: "    <!-- {mark} Ansible managed - Haka-test metadata -->"
-    insertafter: "<!-- ========================================================================================== -->"
+    insertbefore: "</MetadataProvider>"
     block: |2
           <!-- Metadata is refreshed every 15 minutes -->
           <MetadataProvider id="HTTPHakaTestMetadata" xsi:type="FileBackedHTTPMetadataProvider" 
