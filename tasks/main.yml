@@ -16,10 +16,8 @@
   package: name={{ item }} state={{ shibbolethidp_state }}
   with_items: "{{ shibbolethidp_packages }}"
   
-- name: Correct java version selected
-  alternatives:
-    name: java
-    path: /etc/alternatives/jre_11
+- name: Main | Remove | Packages
+  package: name=java-1.8.0-openjdk-headless state=absent
 
 - name: Main | Download | Unarchive
   unarchive:
