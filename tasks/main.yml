@@ -37,13 +37,13 @@
 
 - name: Main | Install
   shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_dst_dir }}/shibboleth-identity-provider-{{ shibbolethidp_version }}/bin/install.sh \
-  -Didp.merge.properties=/tmp/idp.merge.properties \
   -Didp.src.dir={{ shibbolethidp_dst_dir }}/shibboleth-identity-provider-{{ shibbolethidp_version }} \
   -Didp.target.dir={{ shibbolethidp_idp_home }} \
   -Didp.scope={{ shibbolethidp_scope }} \
   -Didp.host.name={{ shibbolethidp_fqdn }} \
   -Didp.sealer.password={{ shibbolethidp_keystore_password }} \
   -Didp.keystore.password={{ shibbolethidp_keystore_password }} \
+  -Didp.entityID={{ shibbolethidp_entityid }} \
   -Didp.noprompt=true"
 #  -Didp.jetty.config=true"
   args:
