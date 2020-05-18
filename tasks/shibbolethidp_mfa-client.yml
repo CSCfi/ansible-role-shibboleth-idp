@@ -10,6 +10,7 @@
   with_items:
     - npm
     - maven
+    - git
   loop_control:
     loop_var: item_mfa
 
