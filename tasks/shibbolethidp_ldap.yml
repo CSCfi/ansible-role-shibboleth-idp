@@ -16,3 +16,22 @@
     - { option: 'idp.attribute.resolver.LDAP.searchFilter', value: '{{ shibbolethidp_ldapsearchfilter }}' } 
   loop_control:
     loop_var: item_ldap
+
+- name: "Configure | Messages | {{ shibbolethidp_idp_home }}/messages/messages.properties"
+  lineinfile:
+    path: "{{ shibbolethidp_idp_home }}/messages/messages.properties"
+    state: present 
+    regexp: "^account-locked.message"
+    line: "account-locked.message = Your account is locked. Please contact servicedesk@csc.fi."
+
+- name: Configure | authn/password-authn-config.xml | AccountLocked
+  xml:
+    path: "{{ shibbolethidp_idp_home }}/conf/authn/password-authn-config.xml"
+    xpath:  "//util:map[@id='shibboleth.authn.Password.ClassifiedMessageMap']/x:entry[@key='AccountLocked']/x:list"
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+      util: http://www.springframework.org/schema/util
+    add_children:
+      - value: 'Account inactivated'
+  notify: restart shibboleth-idp
