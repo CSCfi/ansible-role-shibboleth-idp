@@ -17,13 +17,6 @@
   loop_control:
     loop_var: item_ldap
 
-- name: "Configure | Messages | {{ shibbolethidp_idp_home }}/messages/messages.properties"
-  lineinfile:
-    path: "{{ shibbolethidp_idp_home }}/messages/messages.properties"
-    state: present 
-    regexp: "^account-locked.message"
-    line: "account-locked.message = Your account is locked. Please contact servicedesk@csc.fi."
-
 - name: Configure | authn/password-authn-config.xml | AccountLocked
   xml:
     path: "{{ shibbolethidp_idp_home }}/conf/authn/password-authn-config.xml"
