@@ -1,0 +1,25 @@
+---
+- name: Configure | {{ item }}
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/ldap.properties regexp="^#?\s*({{ ldapitem.option }}\s*=)" backrefs=yes  line="\\1 {{ ldapitem.value }}"
+  with_items:
+    - { option: 'idp.authn.LDAP.authenticator', value: 'bindSearchAuthenticator'}
+    - { option: 'idp.authn.LDAP.ldapURL', value: '{{ shibbolethidp_ldapurl }}'}
+    - { option: 'idp.authn.LDAP.useStartTLS', value: 'false' }
+    - { option: 'idp.authn.LDAP.useSSL', value: 'false' }
+      #    - { option: 'idp.authn.LDAP.sslConfig ', value: 'certificateTrust' }
+    - { option: 'idp.authn.LDAP.trustCertificates', value: '/etc/pki/tls/certs/{{ shibbolethidp_fqdn }}.cabundle.crt' }
+    - { option: 'idp.authn.LDAP.baseDN', value: '{{ shibbolethidp_ldapbasedn }}' }
+    - { option: 'idp.authn.LDAP.subtreeSearch', value: '{{ shibbolethidp_ldapsubtreesearch }}' }
+    - { option: 'idp.authn.LDAP.bindDN', value: '{{ shibbolethidp_ldapuser }}' }
+    - { option: 'idp.authn.LDAP.userFilter', value: '{{ shibbolethidp_ldapuserfilter }}' }
+    - { option: 'idp.attribute.resolver.LDAP.searchFilter', value: '{{ shibbolethidp_ldapsearchfilter }}' } 
+  loop_control:
+    loop_var: ldapitem
+
+- name: configure shibboleth-idp 
+  lineinfile: dest={{ shibbolethidp_idp_home }}/credentials/secrets.properties regexp="^#?\s*({{ ldapitem.option }}\s*=)" backrefs=yes  line="\\1 {{ ldapitem.value }}"
+  with_items:
+    - { option: 'idp.authn.LDAP.bindDNCredential', value: "{{ shibbolethidp_ldappassword }}", state: present }
+  loop_control:
+    loop_var: ldapitem
+

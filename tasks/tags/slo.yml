@@ -1,0 +1,12 @@
+---
+- name: Configure | {{ item }}
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ sloitem.option }}\s*=)" backrefs=yes  line="\\1 {{ sloitem.value }}"
+  with_items:
+    - { option: 'idp.session.trackSPSessions', value: "true", state: present }
+    - { option: 'idp.session.secondaryServiceIndex', value: "true", state: present }
+    - { option: 'idp.logout.elaboration', value: "true", state: present }
+    - { option: 'idp.session.StorageService', value: "shibboleth.JPAStorageService", state: present }
+    - { option: 'idp.session.defaultSPlifetime', value: "PT8H", state: present }
+    - { option: 'idp.session.slop', value: "P1D", state: present }
+  loop_control:
+    loop_var: sloitem

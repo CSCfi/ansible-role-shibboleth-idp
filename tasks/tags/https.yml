@@ -1,0 +1,16 @@
+---
+- name: Configure | {{ item }} | Jetty | start.d/ssl.ini
+  lineinfile: dest={{ shibbolethidp_jetty_base }}/start.d/ssl.ini regexp="^#?\s*({{ httpsitem.option }}\s*=)" backrefs=yes  line="\\1 {{ httpsitem.value }}"
+  with_items:
+    - { option: 'jetty.ssl.port', value: "{{ shibbolethidp_jetty_ssl_port }}", state: present }
+    - { option: 'jetty.ssl.host', value: "0.0.0.0", state: present }
+#    - { option: '--module', value: "ssl", state: present }
+  loop_control:
+    loop_var: httpsitem
+
+- name: Configure | {{ item }} | Jetty | enable | tweak-ssl.xml
+  lineinfile:
+    dest: "{{ shibbolethidp_jetty_base }}/start.d/https.ini"
+    regexp: '^etc'
+    insertafter: '--module=https'
+    line: 'etc/tweak-ssl.xml'

@@ -1,0 +1,35 @@
+- name: Configure | {{ item }} | Get | Certificate | {{ shibbolethidp_edugaincrt | basename }}
+  get_url: url="{{ shibbolethidp_edugaincrt }}" dest="{{ shibbolethidp_idp_home }}/credentials/{{ shibbolethidp_edugaincrt | basename }}" mode=0755
+
+- name: Configure | {{ item }} | Del | MetadataProvider[@id="HTTPEdugainMetadataProvider"] < conf/metadata-providers.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
+    xpath: /x:MetadataProvider/x:MetadataProvider[@id="HTTPEdugainMetadata"]
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:metadata"
+    state: absent
+
+- name: Configure | {{ item }} | Add | MetadataProvider[@id="HTTPEdugainMetadata"] > conf/metadata-providers.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
+    xpath: /x:MetadataProvider
+    pretty_print: yes
+    namespaces: &namespaces
+      x: "urn:mace:shibboleth:2.0:metadata"
+      xsi: "http://www.w3.org/2001/XMLSchema-instance"
+    add_children:
+      - MetadataProvider:
+          id: HTTPEdugainMetadata
+          refreshDelayFactor: "0.5"
+          maxRefreshDelay: PT2H
+          "{http://www.w3.org/2001/XMLSchema-instance}type": FileBackedHTTPMetadataProvider
+          backingFile: "%{idp.home}/metadata/edugain-metadata.xml"
+          metadataURL: "{{ shibbolethidp_edugainmd_url }}"
+          _:
+            - MetadataFilter:
+                "{http://www.w3.org/2001/XMLSchema-instance}type": SignatureValidation
+                certificateFile: "%{idp.home}/credentials/{{ shibbolethidp_edugaincrt | basename }}"
+            - MetadataFilter:
+                "{http://www.w3.org/2001/XMLSchema-instance}type": EntityRoleWhiteList
+                _:
+                  - RetainedRole: md:SPSSODescriptor

@@ -1,0 +1,138 @@
+- name: Configure | OIDCDeviceFlow | dependency | oidc
+  include: oidc.yml
+  when: "'oidc' not in confs"
+
+- name: Configure | OIDCDeviceFlow | Download | Plugin v{{ shibbolethidp_oidcdeviceflow_version }}
+  unarchive:
+    extra_opts: ['--strip-components=1']
+    src: "{{ shibbolethidp_oidcdeviceflow_location }}/releases/download/v{{ shibbolethidp_oidcdeviceflow_version }}/idp-oauth2-deviceflow-extension-distribution-{{ shibbolethidp_oidcdeviceflow_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
+    remote_src: yes
+    dest: "{{ shibbolethidp_idp_home }}"
+    creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-oauth2-deviceflow-extension-api-{{ shibbolethidp_oidcdeviceflow_version | regex_replace('[^0-9.]', '') }}.jar"
+  notify: reown shibboleth-idp
+
+- name: Configure | OIDCDeviceFlow | Detect | Duplicate | Plugins
+  find:
+    paths: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib"
+    patterns: "^(?!.*({{ shibbolethidp_oidcdeviceflow_version | regex_replace('[^0-9.]', '') }})).*idp-oauth2-deviceflow-extension"
+    use_regex: true
+  register: files_to_delete
+
+- name: Configure | OIDCDeviceFlow | Delete | Older | Plugins
+  file:
+    path: "{{ shibbolethidp_item.path }}"
+    state: absent
+  with_items: "{{ files_to_delete.files }}"
+  loop_control:
+    loop_var: shibbolethidp_item
+
+#- name: Shibboleth IdP | OIDC | Import OIDC extension configuration files
+# =======================================================================
+- name: Configure | {{ item }} | Del | oidc import files
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/{{ oidcitem.file}}"
+    xpath: /x:beans/x:import[@resource="{{ oidcitem.import }}"]
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+    state: absent
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - { import: oauth2-deviceflow-relying-party.xml, file: oidc-relying-party.xml, path: empty }
+
+- name: Configure | {{ item }} | Add | oidc import files"
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/{{ oidcitem.file }}"
+    xpath: "{{ oidcitem.path }}"
+    pretty_print: yes
+    insertbefore: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+    add_children:
+      - import:
+          resource: "{{ oidcitem.import }}"
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - { import: oauth2-deviceflow-relying-party.xml, file: oidc-relying-party.xml, path: "/x:beans/x:bean" }
+
+- name: Configure | {{ item }} | Del | OAUTH2.Device < conf/oidc-relying-party.xml
+  xml:
+    xpath: "{{ oidcitem }}"
+    ensure: "absent"
+    file: "{{ shibbolethidp_idp_home }}/conf/oidc-relying-party.xml"
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      util: http://www.springframework.org/schema/util
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - '/x:beans/util:map[@id="profileResponders"]/x:entry[@key-ref="OAUTH2.Device"]'
+  notify: restart shibboleth-idp
+
+- name: Configure | {{ item }} | Add | OAUTH2.Device > conf/oidc-relying-party.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/oidc-relying-party.xml"
+    xpath: /x:beans/util:map[@id="profileResponders"]/x:entry[@key-ref="OIDC.Configuration"]
+    pretty_print: yes
+    insertafter: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+      p: "http://www.springframework.org/schema/p"
+      c: "http://www.springframework.org/schema/c"
+    add_children:
+      - entry:
+          key-ref: "OAUTH2.Device"
+          value: "#{getObject('issuer')}"
+
+- name: Configure | OIDCDeviceFlow | Configure | idp.properties | (to include idp-oauth2-deviceflow.properties) 
+  lineinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
+    regexp: ^(?!.*idp-oauth2-deviceflow)(idp.additionalProperties.*)$
+    line: '\1, /conf/idp-oauth2-deviceflow.properties'
+    backrefs: yes
+
+- name: Configure | OIDCDeviceFlow | idp-oauth2-deviceflow.properties
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp-oauth2-deviceflow.properties regexp="^#?\s*({{ shibbolethidp_item.option }}\s*=)" backrefs=yes  line="\\1 {{ shibbolethidp_item.value }}"
+  with_items:
+    - { option: 'idp.oauth2.deviceflow.userCode.defaultLength', value: "16", state: present }
+  loop_control:
+    loop_var: shibbolethidp_item
+
+
+# - name: Prepare for first relying party
+# =======================================
+
+- name: Configure | {{ item }} | Del | OAUTH2.Device < conf/relying-party.xml
+  xml:
+    xpath: "{{ oidcitem }}"
+    ensure: "absent"
+    file: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - '/x:beans/x:bean[@id="shibboleth.DefaultRelyingParty"]/x:property[@name="profileConfigurations"]/x:list/x:bean[@parent="OAUTH2.Device"]'
+  notify: restart shibboleth-idp
+
+- name: Configure | {{ item }} | Add | OAUTH2.Device > conf/attribute-resolver.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    xpath: /x:beans/x:bean[@id="shibboleth.DefaultRelyingParty"]/x:property[@name="profileConfigurations"]/x:list/x:bean[@parent="OAUTH2.Revocation"]
+    pretty_print: yes
+    insertafter: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+      p: "http://www.springframework.org/schema/p"
+      c: "http://www.springframework.org/schema/c"
+    add_children:
+      - bean:
+          parent: "OAUTH2.Device"
+
+#- name: Configure | OIDCDeviceFlow | dependency | oidcupdaterps
+#  include: shibbolethidp_oidcupdaterps.yml
+

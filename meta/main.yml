@@ -1,19 +1,8 @@
 galaxy_info:
   author: Sami Silén
-  description: Shibboleth IdPv3 for RedHat and Debian
-  company: CSC - IT Center for Science
-  license: license (BSD, MIT)
-  
-  min_ansible_version: 2.4
-  
-  platforms:
-    - name: Debian
-      versions:
-        - all
-    - name: EL
-      versions:
-        - all
-          
-dependencies:
-  - { src: CSCfi.jetty, version: v1.0.4, configurables: "{{ jetty_configurables | default(None) }}", when: update is not defined }
+  description: Shibboleth-IdP Configurator
+  company: CSC
 
+  license: MIT
+
+  min_ansible_version: 2.9

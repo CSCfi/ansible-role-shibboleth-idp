@@ -1,21 +1,23 @@
----
 # handlers file for shibboleth-idp
 - name: systemctl daemon-reload
   command: systemctl daemon-reload
+  when: (inventory_hostname != 'localhost')
 
 - name: restart shibboleth-idp
   service: name=shibboleth-idp state=restarted
+  when: (inventory_hostname != 'localhost')
 
 - name: rebuild shibboleth-idp
-  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh -Didp.target.dir={{ shibbolethidp_idp_home }}"
+  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/build.sh -Didp.target.dir={{ shibbolethidp_idp_home }}"
   args:
     executable: /bin/bash
   notify: restart shibboleth-idp
+  when: (inventory_hostname != 'localhost')
 
 - name: generate hashlinks
   shell: "make"
   args:
-    chdir: "{{ shibbolethidp_idp_home }}/metadata/dyn"
+    chdir: "{{ shibbolethidp_idp_home }}/metadata/dyn"
     executable: /bin/bash
   notify: restart shibboleth-idp
 
@@ -29,12 +31,30 @@
   loop_control:
     loop_var: shibbolethidp_item
   notify: rebuild shibboleth-idp
+  when: 
+    - (inventory_hostname != 'localhost')
 
 - name: reown privatekeys-idp
-  include_tasks: tasks/shibbolethidp_certsownership.yml
+  acl:
+    path: "{{ handleritem }}"
+    entity: jetty
+    etype: user
+    permissions: r
+    state: present
+  with_items: 
+    - "{{ shibbolethidp_samlsig_path }}.key"
+    - "{{ shibbolethidp_samlenc_path }}.key"
+    - "{{ shibbolethidp_oidcsig_path }}.key"
+    - "{{ shibbolethidp_oidcenc_path }}.key"
+  loop_control:
+    loop_var: handleritem
+  notify: restart shibboleth-idp
+  when: 
+    - (inventory_hostname != 'localhost')
 
 - name: reload-service shibboleth-idp
   shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/reload-service.sh -id shibboleth.ClientInformationResolverService"
   args:
     executable: /bin/bash
-  when: update is defined
+  when: 
+    - (inventory_hostname != 'localhost')

@@ -1,0 +1,91 @@
+# - name: Configure Refeds MFA/SFA profile with static attribute values
+# =====================================================================
+
+- name: Refeds | MFA/SFA Profile | authn/general-authn.xml | authn/Password | Remove
+  xml:
+    xpath: "{{ refedsitem }}"
+    ensure: "absent"
+    file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    namespaces:
+      beans: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+      util: http://www.springframework.org/schema/util
+  with_items:
+    - "//beans:bean[@id='authn/Password']"
+    - "//util:map[@id='shibboleth.AuthenticationPrincipalWeightMap']"
+  loop_control:
+    loop_var: refedsitem
+  notify: restart shibboleth-idp
+
+- name: Refeds | MFA/SFA Profile | authn/general-authn.xml | authn/Password | Add
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    xpath: "//x:bean[@id='authn/Duo']"
+    insertbefore: yes
+    pretty_print: yes
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+      c: http://www.springframework.org/schema/c
+    add_children:
+      - bean:
+          id: "authn/Password"
+          parent: "shibboleth.AuthenticationFlow"
+          "{http://www.springframework.org/schema/p}passiveAuthenticationSupported": "true"
+          "{http://www.springframework.org/schema/p}forcedAuthenticationSupported": "true"
+          _: 
+            - property:
+                name: supportedPrincipals
+                _:
+                  - list:
+                      _:
+                         - bean:
+                             parent: "shibboleth.SAML2AuthnContextClassRef"
+                             "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/sfa"
+                         - bean:
+                             parent: "shibboleth.SAML2AuthnContextClassRef"
+                             "{http://www.springframework.org/schema/c}classRef": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
+                         - bean:
+                             parent: "shibboleth.SAML2AuthnContextClassRef"
+                             "{http://www.springframework.org/schema/c}classRef": "urn:oasis:names:tc:SAML:2.0:ac:classes:Password"
+  notify: restart shibboleth-idp
+
+- name: Refeds | MFA/SFA Profile | authn/general-authn.xml | WeightMap | Add
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    xpath: /x:beans
+    pretty_print: yes
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+      c: http://www.springframework.org/schema/c
+      util: http://www.springframework.org/schema/util
+    add_children:
+      - "{http://www.springframework.org/schema/util}map": 
+          id: "shibboleth.AuthenticationPrincipalWeightMap"
+          _:
+            - entry:
+                _:
+                  - key:
+                      _:
+                        - bean:
+                            parent: "shibboleth.SAML2AuthnContextClassRef"
+                            "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
+                  - value: "3"
+            - entry:
+                _:
+                  - key:
+                      _:
+                        - bean:
+                            parent: "shibboleth.SAML2AuthnContextClassRef"
+                            "{http://www.springframework.org/schema/c}classRef": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
+                  - value: "2"
+            - entry:
+                _:
+                  - key:
+                     _:
+                        - bean:
+                            parent: "shibboleth.SAML2AuthnContextClassRef"
+                            "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/sfa"
+                  - value: "1"
+  notify: restart shibboleth-idp

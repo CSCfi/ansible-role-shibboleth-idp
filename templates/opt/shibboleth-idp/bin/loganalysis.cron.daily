@@ -1,0 +1,5 @@
+#!/bin/bash
+date=`date '+%d'`
+if [ $date == 01 ]; then
+  {{ shibbolethidp_idp_home }}/bin/loganalysis.py -n {{ shibbolethidp_idp_home }}/logs/idp-audit-$(date --date="last month" +%Y-%m)* > {{ shibbolethidp_jetty_base }}/webapps/root/statistics/HakaStatistics_$(date --date="last month" +%Y-%m)_{{ shibbolethidp_fqdn }}.txt 2>&1
+fi

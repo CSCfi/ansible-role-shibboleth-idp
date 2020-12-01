@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AttributeFilterPolicyGroup id="haka-onlyifrequired"
+    xmlns="urn:mace:shibboleth:2.0:afp"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:oidcext="org.geant.idpextension.oidc.attribute.filter"
+    xsi:schemaLocation="urn:mace:shibboleth:2.0:afp http://shibboleth.net/schema/idp/shibboleth-afp.xsd org.geant.idpextension.oidc.attribute.filter classpath:/schema/idp-oidc-extension-afp.xsd">
+
+<AttributeFilterPolicy id="haka-onlyifrequired">
+      <PolicyRequirementRule xsi:type="OR">
+         <Rule xsi:type="InEntityGroup" groupID="urn:mace:funet.fi:haka" />
+         <Rule xsi:type="InEntityGroup" groupID="CSC testipalvelut" />
+       </PolicyRequirementRule>
+
+      <AttributeRule attributeID="eduPersonAssurance">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="eduPersonPrincipalName">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="eduPersonAffiliation">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="eduPersonOrgUnitDN">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="eduPersonPrimaryAffiliation">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="eduPersonPrimaryOrgUnitDN">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="funetEduPersonLearnerId">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="funetEduPersonCreditUnits">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="funetEduPersonECTS">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="nationalIdentificationNumber">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="electronicIdentificationNumber ">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="schacHomeOrganization">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="schacHomeOrganizationType">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="schacDateOfBirth">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="schacPersonalUniqueCode">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="schacPersonalUniqueID">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="mail">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="uid">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="sn">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="cn">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="displayName">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="givenName">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="employeeNumber">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule> 
+      <AttributeRule attributeID="mobile">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="o">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="ou">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="preferredLanguage">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="title">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+      <AttributeRule attributeID="telephoneNumber">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+       <AttributeRule attributeID="eduPersonEntitlement">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+       <AttributeRule attributeID="funetEduPersonStudentCategory">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+       <AttributeRule attributeID="eduPersonOrgDN">
+        <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"/>
+      </AttributeRule>
+    </AttributeFilterPolicy>
+</AttributeFilterPolicyGroup>

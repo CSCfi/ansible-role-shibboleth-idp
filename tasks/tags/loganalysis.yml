@@ -1,0 +1,11 @@
+---
+# tasks file for CSCfi.shibboleth-idp
+- name: Configure | {{ item }} | Symlink | cron.daily
+  file:
+    src="{{ shibbolethidp_idp_home }}/bin/loganalysis.cron.daily"
+    dest=/etc/cron.daily/shibboleth_loganalysis
+    state=link
+  when: inventory_hostname != "localhost"
+
+- name: Configure | {{ item }} | directory | create
+  file: path={{ shibbolethidp_jetty_base }}/webapps/root/statistics state=directory

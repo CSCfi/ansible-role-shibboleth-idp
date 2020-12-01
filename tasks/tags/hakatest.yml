@@ -1,0 +1,64 @@
+- name: Configure | {{ item }} | Get | Certificate | {{ shibbolethidp_hakatestcrt | basename }}
+  get_url: url="{{ shibbolethidp_hakatestcrt }}" dest="{{ shibbolethidp_idp_home }}/credentials/{{ shibbolethidp_hakatestcrt | basename }}" mode=0755
+
+- name: Configure | {{ item }} | Del | MetadataProvider[@id="HTTPHakatestMetadataProvider"] < conf/metadata-providers.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
+    xpath: /x:MetadataProvider/x:MetadataProvider[@id="HTTPHakatestMetadata"]
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:metadata"
+    state: absent
+
+- name: Configure | {{ item }} | Add | MetadataProvider[@id="HTTPHakatestMetadata"] > conf/metadata-providers.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
+    xpath: /x:MetadataProvider
+    pretty_print: yes
+    namespaces: &namespaces
+      x: "urn:mace:shibboleth:2.0:metadata"
+      xsi: "http://www.w3.org/2001/XMLSchema-instance"
+    add_children:
+      - MetadataProvider:
+          id: HTTPHakatestMetadata
+          refreshDelayFactor: "0.5"
+          maxRefreshDelay: PT2H
+          "{http://www.w3.org/2001/XMLSchema-instance}type": FileBackedHTTPMetadataProvider
+          backingFile: "%{idp.home}/metadata/haka_test_metadata_signed.xml"
+          metadataURL: "https://haka.funet.fi/metadata/haka_test_metadata_signed.xml"
+          _:
+            - MetadataFilter:
+                "{http://www.w3.org/2001/XMLSchema-instance}type": SignatureValidation
+                certificateFile: "%{idp.home}/credentials/{{ shibbolethidp_hakatestcrt | basename }}"
+            - MetadataFilter:
+                "{http://www.w3.org/2001/XMLSchema-instance}type": EntityRoleWhiteList
+                _:
+                  - RetainedRole: md:SPSSODescriptor
+
+- name: Configure | {{ item }} | Mod | Assertion Signing > conf/relying-party.xml
+  xml:
+    xpath: "{{ item_haka.xpath }}"
+    attribute: "{{ item_haka.attribute }}"
+    value: "{{ item_haka.value }}"
+    ensure: "{{ item_haka.ensure }}"
+    file: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+  with_items:
+#    - { xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']/property/list/bean[@parent='SAML2.SSO']", attribute: "p:signResponses", value: "false", ensure: present }
+    - { xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']/x:property/x:list/x:bean[@parent='SAML2.SSO']", attribute: "p:signAssertions", value: "true", ensure: present }
+#    - { xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']/x:property/x:list/x:bean[@parent='SAML2.SSO']", attribute: "p:encryptAssertions", value: "false", ensure: prese$
+  loop_control:
+    loop_var: item_haka
+  notify: restart shibboleth-idp
+
+- name: Configure | {{ item }} | Del | MetadataProvider[@id="HTTPHakatestMetadataProvider"]/MetadataFilter < conf/metadata-providers.xml (Proxy)
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
+    xpath: /x:MetadataProvider/x:MetadataProvider[@id="HTTPHakatestMetadata"]/x:MetadataFilter[@xsi:type="EntityRoleWhiteList"]
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:metadata"
+      xsi:  "http://www.w3.org/2001/XMLSchema-instance"
+    state: absent
+  when: (confs is defined) and ('proxy' in confs)
+

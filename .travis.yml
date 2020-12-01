@@ -1,43 +1,37 @@
 ---
-services: docker
+language: python
+python: "3.6"
 
-env:
-  - container_id: $(mktemp)
-    distribution: centos
-    version: 7
-    init: /usr/lib/systemd/systemd
-    run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
-  - container_id: $(mktemp)
-    distribution: debian
-    version: 9
-    init: /lib/systemd/systemd
-    run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
+# Use the new container infrastructure
+sudo: false
 
-before_install:
-  - sudo apt-get update
-  # Pull container
-  - sudo docker pull ${distribution}:${version}
-  # Customize container
-  - sudo docker build --rm=true --file=tests/dockerfile.${distribution} --tag=${distribution}:ansible tests
+# Install ansible
+addons:
+  apt:
+    packages:
+    - python-pip
+    - python-lxml
+
+install:
+  # Install ansible
+  - pip install ansible
+
+  # Check ansible version
+  - ansible --version
+
+  # Create ansible.cfg with correct roles_path
+  - printf '[defaults]\nroles_path=../' >ansible.cfg
 
 script:
-  # Run container in detached state
-  - sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/role_under_test:ro ${run_opts} ${distribution}:ansible "${init}" > "${container_id}"
-  # Install dependencies.
-  - sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/requirements.yml
-    # Syntax check
-  - sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml --syntax-check
-    # Test role
-  - sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml
-    # Idempotence test
-  - >
-    sudo docker exec "$(cat ${container_id})" ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml
-    | grep -q 'failed=0'
-    && (echo 'Idempotence test: pass' && exit 0)
-    || (echo 'Idempotence test: fail' && exit 1)
+  # Basic role syntax check
+  - ansible-galaxy install -r tests/requirements.yml -p tests/roles
+  - ansible-playbook tests/test.yml -i tests/inventory --syntax-check
+  - ansible-playbook tests/test.yml -i tests/inventory
 
-    # Clean up
-  - sudo docker stop "$(cat ${container_id})"
+  # Build docker with new configurations
+  - cd tests
+  - docker build --tag="cscfi/shibboleth-idp-test:latest" .
+  - docker run --name="test" cscfi/shibboleth-idp-test
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/

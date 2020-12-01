@@ -1,1 +1,3 @@
-localhost
+[test]
+localhost ansible_connection=local
+#ADDRESS ansible_user=cloud-user shibbolethidp_idp_home=/opt/shibboleth-idp ansible_become=yes

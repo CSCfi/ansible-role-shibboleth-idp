@@ -1,0 +1,10 @@
+- name: Configurable | OIDC | add | logback.xml | oidc debugs (commented)
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/logback.xml"
+    marker: "    <!-- {mark} ansible managed - OIDC logging -->"
+    insertbefore: "Logs IdP, but not OpenSAML, messages"
+    content: |2
+          <!-- OIDC logging incoming and outgoing -->
+          <logger name="org.geant.idpextension.oidc.decoding.impl" level="${idp.loglevel.idp:-INFO}" />
+          <logger name="org.geant.idpextension.oidc.encoding.impl" level="${idp.loglevel.idp:-INFO}" />
+

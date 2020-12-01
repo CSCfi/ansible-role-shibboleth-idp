@@ -1,0 +1,397 @@
+- name: Configure | {{ item }} | Download | Plugin v{{ shibbolethidp_oidcplugin_version }}
+  unarchive:
+    extra_opts: ['--strip-components=1']
+    src: "https://shibboleth.net/downloads/identity-provider/extensions/java-idp-oidc/{{ shibbolethidp_oidcplugin_version }}/idp-oidc-extension-distribution-{{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
+    remote_src: yes
+    dest: "{{ shibbolethidp_idp_home }}"
+    creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-oidc-extension-api-{{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }}.jar"
+  notify: reown shibboleth-idp
+
+- name: Configure | {{ item }} | Detect | Duplicate | Plugins
+  find:
+    paths: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib"
+    patterns: "^(?!.*({{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }})).*oidc-extension"
+    use_regex: true
+  register: files_to_delete
+
+- name: Configure | {{ oidc }} | Delete | Older | Plugins
+  file:
+    path: "{{ shibbolethidp_item.path }}"
+    state: absent
+  with_items: "{{ files_to_delete.files }}"
+  loop_control:
+    loop_var: shibbolethidp_item
+
+- name: Configure | {{ item }} | Configure | idp-oidc.properties
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp-oidc.properties regexp="^#?\s*({{ item_oidc.option }}\s*=)" backrefs=yes line="\\1 {{ item_oidc.value }}"
+  with_items:
+    - { option: 'idp.oidc.issuer', value: "https://{{ shibbolethidp_fqdn }}", state: present }
+  loop_control:
+    loop_var: item_oidc
+
+#- name: Configurable | OIDC | Import OIDC extension configuration files
+# =======================================================================
+
+- name: Configure | {{ item }} | Del | oidc import files
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/{{ oidcitem.file}}"
+    xpath: /x:beans/x:import[@resource="{{ oidcitem.import }}"]
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+    state: absent
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - { import: global-oidc.xml, file: global.xml, path: empty }
+    - { import: services-oidc.xml, file: services.xml, path: empty }
+    - { import: oidc-relying-party.xml, file: relying-party.xml, path: empty }
+    - { import: credentials-oidc.xml, file: credentials.xml, path: empty }
+
+- name: Configure | {{ item }} | Add | oidc import files"
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/{{ oidcitem.file }}"
+    xpath: "{{ oidcitem.path }}"
+    pretty_print: yes
+    insertbefore: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+    add_children:
+      - import:
+          resource: "{{ oidcitem.import }}"
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - { import: services-oidc.xml, file: services.xml, path: "/x:beans/util:list" }
+    - { import: oidc-relying-party.xml, file: relying-party.xml, path: "/x:beans/x:bean" }
+    - { import: credentials-oidc.xml, file: credentials.xml, path: "/x:beans/util:list" }
+
+- name: Configure | {{ item }} | Add | oidc import files"
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/{{ oidcitem.file }}"
+    xpath: "{{ oidcitem.path }}"
+    pretty_print: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+    add_children:
+      - import:
+          resource: "{{ oidcitem.import }}"
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - { import: global-oidc.xml, file: global.xml, path: "/x:beans" }
+
+- name: Configurable | {{ item }} | Configure | idp.properties | (to include oidc-subject.properties and idp-oidc.properties) 
+  lineinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
+    regexp: ^(?!.*oidc)(idp.additionalProperties.*)$
+    line: '\1, /conf/oidc-subject.properties, /conf/idp-oidc.properties'
+    backrefs: yes
+
+- name: Configurable | OIDC | Replace | authn-comparison.xml with authn-comparison-oidc.xml
+  copy:
+    src: "{{ shibbolethidp_idp_home }}/conf/{{ oidcitem }}-oidc.xml"
+    dest: "{{ shibbolethidp_idp_home }}/conf/{{ oidcitem }}.xml"
+    remote_src: yes
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - "authn/authn-comparison"
+    - "attribute-filter"
+    - "attribute-resolver"
+
+- name: Configure | {{ item }} | Del | signind and encryptions beans < conf/credentials-oidc.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/credentials-oidc.xml"
+    xpath: "{{ oidcitem }}"
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+      p: "http://www.springframework.org/schema/p"
+    state: absent
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - '/x:beans/x:bean[@id="shibboleth.oidc.DefaultRSSigningCredential"]'
+    - '/x:beans/x:bean[@id="shibboleth.oidc.DefaultESSigningCredential"]'
+    - '/x:beans/x:bean[@id="shibboleth.oidc.DefaultRSAEncryptionCredential"]'
+    - '/x:beans/x:bean[@id="shibboleth.oidc.PEMSigningCredential"]'
+    - '/x:beans/x:bean[@id="shibboleth.oidc.PEMEncryptionCredential"]'
+    - '/x:beans/util:list[@id="shibboleth.oidc.SigningCredentials"]/x:ref[@bean="shibboleth.oidc.DefaultRSSigningCredential"]'
+    - '/x:beans/util:list[@id="shibboleth.oidc.SigningCredentials"]/x:ref[@bean="shibboleth.oidc.DefaultESSigningCredential"]'
+    - '/x:beans/util:list[@id="shibboleth.oidc.EncryptionCredentials"]/x:ref[@bean="shibboleth.oidc.DefaultRSAEncryptionCredential"]'
+
+- name: Configure | {{ item }} | Add | bean[@id="shibboleth.oidc.PEMSigningCredential and Encryption"] > conf/credentials-oidc.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/credentials-oidc.xml"
+    xpath: /x:beans/util:list
+    pretty_print: yes
+    insertbefore: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+      p: "http://www.springframework.org/schema/p"
+    add_children:
+      - bean:
+          id: shibboleth.oidc.PEMSigningCredential
+          class: net.shibboleth.idp.profile.spring.factory.BasicX509CredentialFactoryBean
+          "{http://www.springframework.org/schema/p}privateKeyResource": "%{idp.signing.key}"
+          "{http://www.springframework.org/schema/p}certificateResource": "%{idp.signing.cert}"
+          "{http://www.springframework.org/schema/p}keyNames": "testSigning"
+          "{http://www.springframework.org/schema/p}entityId-ref": "issuer"
+      - bean:
+          id: shibboleth.oidc.PEMEncryptionCredential
+          class: net.shibboleth.idp.profile.spring.factory.BasicX509CredentialFactoryBean
+          "{http://www.springframework.org/schema/p}privateKeyResource": "%{idp.encryption.key}"
+          "{http://www.springframework.org/schema/p}certificateResource": "%{idp.encryption.cert}"
+          "{http://www.springframework.org/schema/p}keyNames": "testEncryption"
+          "{http://www.springframework.org/schema/p}entityId-ref": "issuer" 
+
+
+- name: Configure | {{ item }} | Add | bean[@id="shibboleth.oidc.PEMSigningCredential"] > conf/credentials-oidc.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/credentials-oidc.xml"
+    xpath: /x:beans/util:list[@id="shibboleth.oidc.SigningCredentials"]
+    pretty_print: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+      p: "http://www.springframework.org/schema/p"
+    add_children:
+      - ref:
+          bean: shibboleth.oidc.PEMSigningCredential
+
+- name: Configure | {{ item }} | Add | bean[@id="shibboleth.oidc.PEMEncryptionCredential"] > conf/credentials-oidc.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/credentials-oidc.xml"
+    xpath: /x:beans/util:list[@id="shibboleth.oidc.EncryptionCredentials"]
+    pretty_print: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+      p: "http://www.springframework.org/schema/p"
+    add_children:
+      - ref:
+          bean: shibboleth.oidc.PEMEncryptionCredential
+
+- name: Configure | {{ item }} | Create | Directory | .well-known
+  file: path={{ shibbolethidp_wwwroot }}/.well-known state=directory
+
+- name: Main | Template | Set | service_name 
+  set_fact:
+    service_name: "{{ shibbolethidp_fqdn }}"
+
+- name: Configure | {{ item }} | Get | openid-configuration
+  fetch:
+    src: "{{ shibbolethidp_idp_home }}/static/.well-known/openid-configuration"
+    dest: "/tmp/openid-configuration.j2"
+    flat: yes
+  
+- name: Configure | {{ item }} | Put | openid-configuration
+  template:
+    src: "/tmp/openid-configuration.j2"
+    dest: "{{ shibbolethidp_wwwroot }}/.well-known/openid-configuration"
+
+- name: Configure | {{ item }} | Mod | relaying-party.xml | enable oidc profile
+  xml:
+    xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']"
+    attribute: "p:responderIdLookupStrategy-ref"
+    value: "profileResponderIdLookupFunction"
+    ensure: "present"
+    file: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+  notify: restart shibboleth-idp
+
+
+- name: Configurable | {{ item }} | Del | shibboleth.UnverifiedRelyingParty < conf/relying-party.xml
+  xml:
+    xpath: "{{ oidcitem }}"
+    ensure: "absent"
+    file: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - '/x:beans/x:bean[@id="shibboleth.UnverifiedRelyingParty"]'
+    - '/x:beans/x:bean[@id="shibboleth.DefaultRelyingParty"]/x:property[@name="profileConfigurations"]/x:list/x:bean[@parent="OIDC.SSO"]'
+    - '/x:beans/x:bean[@id="shibboleth.DefaultRelyingParty"]/x:property[@name="profileConfigurations"]/x:list/x:bean[@parent="OIDC.UserInfo"]'
+    - '/x:beans/x:bean[@id="shibboleth.DefaultRelyingParty"]/x:property[@name="profileConfigurations"]/x:list/x:bean[@parent="OAUTH2.Revocation"]'
+  notify: restart shibboleth-idp
+
+- name: Configure | {{ item }} | Add | AttributeDefinition[@id="subject"] > conf/attribute-resolver.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    xpath: /x:beans/x:bean[@id="shibboleth.DefaultRelyingParty"]/x:property[@name="profileConfigurations"]/x:list/x:ref[@bean="Liberty.SSOS"]
+    pretty_print: yes
+    insertafter: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+      p: "http://www.springframework.org/schema/p"
+      c: "http://www.springframework.org/schema/c"
+    add_children:
+      - bean:
+          parent: "OIDC.SSO"
+          "{http://www.springframework.org/schema/p}postAuthenticationFlows": "attribute-release"
+      - bean:
+          parent: "OIDC.UserInfo"
+      - bean:
+          parent: "OAUTH2.Revocation"
+
+- name: Configure | {{ item }} | Add | AttributeDefinition[@id="subject"] > conf/attribute-resolver.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    xpath: /x:beans/x:bean[@id="shibboleth.DefaultRelyingParty"]
+    pretty_print: yes
+    insertbefore: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+      p: "http://www.springframework.org/schema/p"
+      c: "http://www.springframework.org/schema/c"
+    add_children:
+      - bean:
+          id: shibboleth.UnverifiedRelyingParty
+          "{http://www.springframework.org/schema/p}responderIdLookupStrategy-ref": "profileResponderIdLookupFunction"
+          parent: RelyingParty
+          _:
+             - property:
+                 name: profileConfigurations
+                 _:
+                    - list:
+                         _:
+                            - bean:
+                                parent: OIDC.Keyset
+
+- name: Configure | {{ item }} | Del | AttributeDefinition & DataConnector] < conf/attribute-resolver.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
+    xpath: "{{ oidcitem }}"
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:resolver"
+    state: absent
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - '/x:AttributeResolver/x:AttributeDefinition[@id="subject"]'
+    - '/x:AttributeResolver/x:DataConnector[@id="computedSubjectId"]'
+
+- name: Configure | {{ item }} | Add | AttributeDefinition[@id="subject"] > conf/attribute-resolver.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
+    xpath: /x:AttributeResolver/x:AttributeDefinition
+    pretty_print: yes
+    insertbefore: yes
+    namespaces: &namespaces
+      x: "urn:mace:shibboleth:2.0:resolver"
+      xsi: "http://www.w3.org/2001/XMLSchema-instance"
+    add_children:
+      - AttributeDefinition:
+          id: subject
+          "{http://www.w3.org/2001/XMLSchema-instance}type": Simple
+          activationConditionRef: SubjectRequired
+          _:
+            - InputDataConnector:
+                ref: computedSubjectId
+                attributeNames: subjectId
+            - AttributeEncoder:
+                "{http://www.w3.org/2001/XMLSchema-instance}type": "oidcext:OIDCString"
+                name: sub
+
+- name: Configure | {{ item }} | Add | DataConnector[@id="computedSubjectId"] > conf/attribute-resolver.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
+    xpath: /x:AttributeResolver/x:DataConnector
+    pretty_print: yes
+    insertafter: yes
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:resolver"
+      xsi: "http://www.w3.org/2001/XMLSchema-instance"
+    add_children:
+      - DataConnector:
+          id: computedSubjectId
+          "{http://www.w3.org/2001/XMLSchema-instance}type": ComputedId
+          generatedAttributeID: "subjectId"
+          salt: "%{idp.oidc.subject.salt}"
+          algorithm: "%{idp.oidc.subject.algorithm:SHA}"
+          encoding: "%{idp.oidc.subject.encoding:BASE32}"
+          _:
+            - InputAttributeDefinition:
+                ref: "%{idp.oidc.subject.sourceAttribute}"
+
+- name: Configure | {{ item }} | Del | AttributeFilterPolicy[@id="OPENID_SCOPE"] < conf/attribute-filter.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-filter.xml"
+    xpath: /x:AttributeFilterPolicyGroup/x:AttributeFilterPolicy[@id="OPENID_SCOPE"]
+    state: absent
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:afp"
+
+- name: Configure | {{ item }} | Add | AttributeFilterPolicy[@id="OPENID_SCOPE"] > conf/attribute-filter.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-filter.xml"
+    xpath: /x:AttributeFilterPolicyGroup
+    pretty_print: yes
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:afp"
+      xsi: "http://www.w3.org/2001/XMLSchema-instance"
+    add_children:
+      - AttributeFilterPolicy:
+          id: "OPENID_SCOPE"
+          _:
+            - PolicyRequirementRule:
+                value: "openid"
+                "{http://www.w3.org/2001/XMLSchema-instance}type": "oidcext:OIDCScope"
+            - AttributeRule:
+                attributeID: subject
+                _:
+                  - PermitValueRule:
+                      "{http://www.w3.org/2001/XMLSchema-instance}type": "ANY"
+
+- name: Configure | {{ item }} | Del | oidcFileResolvers
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/oidc-metadata-providers.xml"
+    xpath: "{{ oidcitem }}"
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+    state: absent
+  loop_control:
+    loop_var: oidcitem
+  with_items:
+    - '/x:beans/util:list[@id="shibboleth.oidc.ClientInformationResolvers"]/x:ref[@bean="oidcFileResolver"]'
+    - '/x:beans/x:bean[@id="oidcFileResolver"]'
+
+- name: Configure | {{ item }} | Add | oidcFileResolver | reference
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/oidc-metadata-providers.xml"
+    xpath: /x:beans/util:list[@id="shibboleth.oidc.ClientInformationResolvers"]
+    pretty_print: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+    add_children:
+      - ref:
+          bean: "oidcFileResolver"
+
+- name: Configure | {{ item }} | Add | oidcFileResolver
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/oidc-metadata-providers.xml"
+    xpath: /x:beans
+    pretty_print: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+      p: "http://www.springframework.org/schema/p"
+      c: "http://www.springframework.org/schema/c"
+    add_children:
+      - bean:
+          id: "oidcFileResolver"
+          class: "org.geant.idpextension.oidc.metadata.impl.FilesystemClientInformationResolver"
+          "{http://www.springframework.org/schema/p}id": "OidcFileResolver1"
+          "{http://www.springframework.org/schema/p}remoteJwkSetCache-ref": "shibboleth.oidc.RemoteJwkSetCache"
+          "{http://www.springframework.org/schema/c}metadata": "%{idp.home}/metadata/oidc-client.json"

@@ -1,39 +1,36 @@
 ---
-# defaults file for shibboleth-idp
-
-shibbolethidp_state: latest
+# defaults file for ansible-role-shibboleth-idp-configurator
 shibbolethidp_fqdn: "{{ ansible_fqdn }}"
+shibbolethidp_idp_home: "{{ playbook_dir }}/customized-shibboleth-idp"
 
-shibbolethidp_version: 3.4.6
+### Install
+shibbolethidp_version: 4.0.1
+jetty_version: 9.4.29.v20200521
 shibbolethidp_dst_dir: /opt
-shibbolethidp_jetty_base: /opt/shibboleth-idp/jetty-base
+shibbolethidp_jetty_base: "{{ shibbolethidp_idp_home }}/jetty-base"
+shibbolethidp_wwwroot: "{{ shibbolethidp_jetty_base }}/webapps/root"
 shibbolethidp_jetty_home: /opt/jetty
-shibbolethidp_jetty_modules: ['server','https','http','deploy','annotations','resources','console-capture','requestlog','servlets','jsp','jstl','ext','plus','ssl','setuid','security']
-shibbolethidp_jetty_secure_port: 443
-shibbolethidp_idp_home: /opt/shibboleth-idp
+shibbolethidp_jetty_modules: ['server','ssl', 'https','http','deploy','annotations','resources','console-capture','requestlog','servlets','jsp','jstl','ext','plus','setuid','security']
+shibbolethidp_jetty_ssl_port: 443
 shibbolethidp_entityid: https://{{ shibbolethidp_fqdn }}/idp/shibboleth
 shibbolethidp_scope: "{{ shibbolethidp_fqdn.split('.')[1:] | join('.') }}"
-shibbolethidp_root: dc={{ shibbolethidp_fqdn.split('.')[-2] }},dc={{ shibbolethidp_fqdn.split('.')[-1] }}
-shibbolethidp_keystore_password: "{{ vault_keystore_password | default('changemepl3453') }}"
-shibbolethidp_wwwroot: "{{ shibbolethidp_jetty_base }}/webapps/root"
+shibbolethidp_root: dc={{ shibbolethidp_fqdn.split('.')[-2] }},dc={{ shibbolethidp_fqdn.split('.')[-1] }}
+shibbolethidp_keystore_password: "{{ vault_keystore_password | default('idpkstorepwd') }}"
 
-# CONFIGURABLES
-### F-ticks
-shibbolethidp_fticks_federation: Haka
-shibbolethidp_fticks_salt: changemeplease
-shibbolethidp_fticks_loghost: localhost
-
+### Edugain
+shibbolethidp_edugaincrt: "https://wiki.eduuni.fi/download/attachments/27297747/haka-edugain-sign.csc.fi.2017.pem"
+shibbolethidp_edugainmd_url: "https://haka.funet.fi/edugain-nightly/gen-edugain/idp-FILL-metadata-eduGain.xml"
 ### Haka-test
 shibbolethidp_hakatestcrt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2018_sha2.crt"
 ### Haka
 shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297775/haka-sign-v4.pem"
-### Edugain
-shibbolethidp_edugaincrt: "https://wiki.eduuni.fi/download/attachments/27297747/haka-edugain-sign.csc.fi.2017.pem"
-shibbolethidp_idprrid: "{{ vault_shibbolethidp_idprrid | default('NOT_SET_YET') }}"
-### Virtu-test
-shibbolethidp_virtutestcrt: "https://wiki.eduuni.fi/download/attachments/28345566/virtu-test-metadata-signing-crt-2015.pem"
 
-### nameId
+### NameID
+shibbolethidp_persistentid_sourceattribute: uid
+shibbolethidp_persistentid_salt: this_should_be_ch4ng3d
+shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
+
+### Database
 shibbolethidp_dbuser: "{{ vault_shibbolethidp_dbuser | default('idp') }}"
 shibbolethidp_dbpassword: "{{ vault_shibbolethidp_dbpassword | default('not_set_yet') }}"
 shibbolethidp_dbhost: "{{ vault_shibbolethidp_dbhost | default('localhost') }}"
@@ -48,88 +45,33 @@ shibbolethidp_ldapurl: "ldap://localhost:389"
 shibbolethidp_ldapbasedn: "ou=People,{{ shibbolethidp_ldapsuffix }}"
 shibbolethidp_ldapsearchfilter: "(uid=$resolutionContext.principal)"
 shibbolethidp_ldapuserfilter: "(uid={user})"
-shibbolethidp_ldapsubtreesearch: false
+shibbolethidp_ldapsubtreesearch: False
 
-### JAAS relational login
-shibbolethidp_jaas_dbdriver: "com.mysql.jdbc.Driver"
-shibbolethidp_jaas_usertable: "users"
-shibbolethidp_jaas_usercolumn: "username"
-shibbolethidp_jaas_passcolumn: "password"
-shibbolethidp_jaas_dburl: "jdbc:mysql://{{ shibbolethidp_dbhost }}:3306/{{ shibbolethidp_dbname }}"
-shibbolethidp_jaas_dbuser: "{{ shibbolethidp_dbuser }}"
-shibbolethidp_jaas_dbpassword: "{{ shibbolethidp_dbpassword }}"
-shibbolethidp_jaas_hash: "SHA-512"
-shibbolethidp_jaas_springsecuritycrypto_version: 5.1.3
+### OIDC
+shibbolethidp_oidcplugin_version: 2.0.0
 
-### NameID configuration
-shibbolethidp_persistentid_sourceattribute: uid
-shibbolethidp_persistentid_salt: this_should_be_ch4ng3d
-shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
-
-### OIDC shibboleth-idp-oidc-extension
-shibbolethidp_oidcplugin_version: 1.1.0
-shibbolethidp_oidcplugin_location: 'https://github.com/CSCfi/shibboleth-idp-oidc-extension'
-
-### OIDC Relaying parties
-shibbolethidp_rpdefaults:
-  scope: openid info profile email address phone
-  response_types:
-   - code
-   - id_token
-   - token id_token
-   - code id_token
-   - code token
-   - code token id_token
-
-shibbolethidp_rps:
-  - client_id: demo_rp
-    scope: openid info profile email address
-    redirect_uris:
-      - https://openidconnect.net/callback
-    response_types: ['code', 'id_token', 'token id_token', 'code id_token', 'code token', 'code token id_token']
-
-### OIDC DeviceFlow
-shibbolethidp_oidcdeviceflow_version: 1.0.0
+### OIDC Device flow
+shibbolethidp_oidcdeviceflow_version: 2.0.1
 shibbolethidp_oidcdeviceflow_location: 'https://github.com/CSCfi/shibboleth-idp-oauth2-deviceflow-extension'
 
-### MFA
-shibbolethidp_mfaprovider: https://mfapilot.funet.fi
-shibbolethidp_mpassidrelease: 0.9.5
-shibbolethidp_mpassidversion: 3f2513bc699af5424ad924632ebd02704b3b0b07
-#shibbolethidp_mpassidversion: "MPASSid-proxy-{{ shibbolethidp_mpassidrelease }}"
-shibbolethidp_stepupversion: 0.9.0 #master
-
-shibbolethidp_authnsocialuser_provider: https://haka-auth.funet.fi
-shibbolethidp_authnsocialuser_version: 0.9.5
-shibbolethidp_authnsocialuser_location: 'https://github.com/mpassid/shibboleth-idp-authn-socialuser'
-
-### OIDCStepUpServer
-shibbolethidp_oidcstepupserver_location: https://github.com/CSCfi/shibboleth-idp-authn-stepup
-shibbolethidp_oidcstepupserver_version: 0.10.0
-shibbolethidp_stepupSMSAccountSender: "{{ vault_shibbolethidp_stepupSMSAccountSender | default('not_set_yet') }}"
-shibbolethidp_stepupSMSAccountSid: "{{ vault_shibbolethidp_stepupSMSAccountSid | default('not_set_yet') }}"
-shibbolethidp_stepupSMSAccountToken: "{{ vault_shibbolethidp_stepupSMSAccountToken | default('not_set_yet') }}"
-shibbolethidp_stepupEncryptKey: "{{ vault_shibbolethidp_stepupEncryptKey | default('not_set_yet') }}"
-shibbolethidp_stepupStorageService: "{{ vault_shibbolethidp_stepupStorageService | default('shibboleth.JPAStorageService') }}"
-shibbolethidp_stepupTokenValidator: "ValueTokenValidator" #elixir: userInfoMap
-shibbolethidp_stepupUserinfoEndpoint: elixir.op
-
-### Certs 
+### Certs
 shibbolethidp_ssl_key: "{{ vault_ssl_key | default('not_set_yet') }}"
 shibbolethidp_ssl_crt: "{{ vault_ssl_crt | default('not_set_yet') }}"
+shibbolethidp_ssl_path: "{{ shibbolethidp_idp_home }}/credentials/{{ shibbolethidp_fqdn }}"
 shibbolethidp_ssl_cabundle: "{{ vault_ssl_cabundle | default('not_set_yet') }}"
 
-shibbolethidp_saml_sig_crt: "{{ vault_saml_sig_crt | default('not_set_yet') }}"
-shibbolethidp_saml_sig_key: "{{ vault_saml_sig_key | default('not_set_yet') }}"
+shibbolethidp_samlsig_crt: "{{ vault_samlsig_crt | default('not_set_yet') }}"
+shibbolethidp_samlsig_key: "{{ vault_samlsig_key | default('not_set_yet') }}"
+shibbolethidp_samlsig_path: "{{ shibbolethidp_idp_home }}/credentials/idp-signing"
 
-shibbolethidp_saml_enc_crt: "{{ vault_saml_enc_crt | default('not_set_yet') }}"
-shibbolethidp_saml_enc_key: "{{ vault_saml_enc_key | default('not_set_yet') }}"
+shibbolethidp_samlenc_crt: "{{ vault_samlenc_crt | default(shibbolethidp_samlsig_crt) }}"
+shibbolethidp_samlenc_key: "{{ vault_samlenc_key | default(shibbolethidp_samlsig_key) }}"
+shibbolethidp_samlenc_path: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption"
 
-shibbolethidp_saml_crt: "{{ vault_saml_crt | default('not_set_yet') }}"
-shibbolethidp_saml_key: "{{ vault_saml_key | default('not_set_yet') }}"
+shibbolethidp_oidcsig_crt: "{{ vault_oidcsig_crt | default(shibbolethidp_samlsig_crt) }}"
+shibbolethidp_oidcsig_key: "{{ vault_odicsig_key | default(shibbolethidp_samlsig_key) }}"
+shibbolethidp_oidcsig_path: "{{ shibbolethidp_idp_home }}/credentials/idp-signing" 
 
-### Templates default directory
-# Used mainly from the playbook, you can define directory where from to directory hierarcy 
-# is moved to the destination
-shibbolethidp_templates: "{{ playbook_dir}}/../templates"
-shibbolethidp_files: "{{ playbook_dir}}/../files"
+shibbolethidp_oidcenc_crt: "{{ vault_oidcenc_crt | default(shibbolethidp_oidcsig_crt) }}"
+shibbolethidp_oidcenc_key: "{{ vault_oidcenc_key | default(shibbolethidp_oidcsig_key) }}"
+shibbolethidp_oidcenc_path: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption"

@@ -1,7 +1,13 @@
-# test.yml
 ---
-- hosts: all
+- name: Configure Shibboleth IdP
+  hosts: test
+
+  vars:
+    # ansible_python_interpreter: /usr/bin/python3
+    shibbolethidp_fqdn: vm1356.kaj.pouta.csc.fi
+
   roles:
-    - { role: cmprescott.xml }
-    - { role: CSCfi.jetty }
-    - role_under_test
+    - role: CSCfi.jetty
+      when: (inventory_hostname != 'localhost')
+    - role: ansible-role-shibboleth-idp-configurator
+      confs: ['oidc','install','proxy','hakatest']

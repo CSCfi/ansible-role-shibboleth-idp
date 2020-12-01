@@ -1,0 +1,238 @@
+- name: Configure | {{ item }} | Del | AttributeDefinition & DataConnector] < conf/attribute-resolver.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
+    xpath: "{{ proxyitem }}"
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:resolver"
+    state: absent
+  loop_control:
+    loop_var: proxyitem
+  with_items:
+    - '/x:AttributeResolver/x:AttributeDefinition[@id="proxy-eppn"]'
+    - '/x:AttributeResolver/x:DataConnector[@id="passthroughAttributes"]'
+
+- name: Configure | {{ item }} | Add | AttributeDefinition[@id="proxy-eppn"] > conf/attribute-resolver.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
+    xpath: /x:AttributeResolver/x:AttributeDefinition
+    pretty_print: yes
+    insertbefore: yes
+    namespaces: &namespaces
+      x: "urn:mace:shibboleth:2.0:resolver"
+      xsi: "http://www.w3.org/2001/XMLSchema-instance"
+    add_children:
+      - AttributeDefinition:
+          id: proxy-eppn
+          "{http://www.w3.org/2001/XMLSchema-instance}type": SubjectDerivedAttribute
+          forCanonicalization: "true"
+          principalAttributeName: eduPersonPrincipalName
+
+- name: Configure | {{ item }} | Add | DataConnector[@id="passthroughAttributes"] > conf/attribute-resolver.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
+    xpath: /x:AttributeResolver/x:DataConnector
+    pretty_print: yes
+    insertafter: yes
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:resolver"
+      xsi: "http://www.w3.org/2001/XMLSchema-instance"
+    add_children:
+      - DataConnector:
+          id: passthroughAttributes
+          "{http://www.w3.org/2001/XMLSchema-instance}type": Subject
+          exportAllAttributes: "true"
+
+- name: Configure | {{ item }} | Del | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] < conf/c14n/attribute-sourced-subject-c14n-config.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
+    xpath: /x:beans/util:list[@id="{{ proxyitem }}"]
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+    state: absent
+  loop_control:
+    loop_var: proxyitem
+  with_items:
+    - shibboleth.c14n.attribute.AttributesToResolve
+    - shibboleth.c14n.attribute.AttributeSourceIds
+
+- name: Configure | {{ item }} | Add | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] > conf/c14n/attribute-sourced-subject-c14n-config.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
+    xpath: /x:beans/util:list
+    pretty_print: yes
+    insertafter: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+    add_children:
+      - "{http://www.springframework.org/schema/util}list":
+          id: "{{ proxyitem }}"
+          _:
+            - value: proxy-eppn
+  loop_control:
+    loop_var: proxyitem
+  with_items:
+     - shibboleth.c14n.attribute.AttributeSourceIds
+     - shibboleth.c14n.attribute.AttributesToResolve
+
+- name: Configure | {{ item }} | Del | bean[@id="c14n/attribute"] < conf/c14n/subject-c14n.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.xml"
+    xpath: /x:beans/util:list[@id="shibboleth.PostLoginSubjectCanonicalizationFlows"]/x:bean[@id="c14n/attribute"]
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+    state: absent
+
+- name: Configure | {{ item }} | Add | bean[@id="c14n/attribute"] > conf/c14n/subject-c14n.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.xml"
+    xpath: /x:beans/util:list[@id="shibboleth.PostLoginSubjectCanonicalizationFlows"]
+    pretty_print: yes
+    #    insertafter: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+    add_children:
+      - bean:
+          id: "c14n/attribute"
+          parent: "shibboleth.PostLoginSubjectCanonicalizationFlow"
+
+- name: Configure | {{ item }} | Del | bean[@id="authn/SAML"] < conf/authn/general-authn.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    xpath: /x:beans/util:list[@id="shibboleth.AvailableAuthenticationFlows"]/x:bean[@id="authn/SAML"]
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      util: "http://www.springframework.org/schema/util"
+    state: absent
+
+- name: Configure | {{ item }} | Add | bean[@id="authn/SAML"] > conf/authn/general-authn.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    xpath: /x:beans/util:list[@id="shibboleth.AvailableAuthenticationFlows"]
+    pretty_print: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      p: "http://www.springframework.org/schema/p"
+      util: "http://www.springframework.org/schema/util"
+    add_children:
+      - bean:
+          id: "authn/SAML"
+          parent: "shibboleth.AuthenticationFlow"
+          "{http://www.springframework.org/schema/p}nonBrowserSupported": "false"
+          "{http://www.springframework.org/schema/p}passiveAuthenticationSupported": "true"
+          "{http://www.springframework.org/schema/p}forcedAuthenticationSupported": "true"
+          "{http://www.springframework.org/schema/p}proxyScopingEnforced": "true"
+          "{http://www.springframework.org/schema/p}discoveryRequired": "false"
+
+- name: Configure | {{ item }} | Del | bean[@id="shibboleth.authn.SAML.discoveryFunction"] < conf/authn/saml-authn-config.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
+    xpath: /x:beans/x:bean[@id="shibboleth.authn.SAML.discoveryFunction"]
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+    state: absent
+
+- name: Configure | {{ item }} | Add | bean[@id="shibboleth.authn.SAML.discoveryFunction"] > conf/authn/saml-authn-config.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
+    xpath: /x:beans
+    pretty_print: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      p: "http://www.springframework.org/schema/p"
+      c: "http://www.springframework.org/schema/c"
+    add_children:
+      - bean:
+          id: "shibboleth.authn.SAML.discoveryFunction"
+          parent: "shibboleth.Functions.Constant"
+          "{http://www.springframework.org/schema/c}target": "https://test-user-auth.csc.fi/idp/shibboleth"
+
+- name: Configure | {{ item }} | Mod | ensure checkAddress=false  > conf/relying-party.xml
+  xml:
+    xpath: "{{ proxyitem.xpath }}"
+    attribute: "{{ proxyitem.attribute }}"
+    value: "{{ proxyitem.value }}"
+    ensure: "{{ proxyitem.ensure }}"
+    file: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+  with_items:
+    - { xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']/x:property/x:list/x:bean[@parent='SAML2.SSO']", attribute: "p:checkAddress", value: "false", ensure: present }
+  loop_control:
+    loop_var: proxyitem
+
+- name: Configure | {{ item }} | Del | AttributeFilterPolicy[@id="proxy"] < conf/attribute-filter.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-filter.xml"
+    xpath: /x:AttributeFilterPolicyGroup/x:AttributeFilterPolicy[@id="{{ proxyitem }}"]
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:afp"
+    state: absent
+  loop_control:
+    loop_var: proxyitem
+  with_items:
+    - proxy
+    - testsp
+
+- name: Configure | {{ item }} | Add | AttributeFilterPolicy[@id="proxy"] > conf/attribute-filter.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/attribute-filter.xml"
+    xpath: /x:AttributeFilterPolicyGroup
+    pretty_print: yes
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:afp"
+      xsi: "http://www.w3.org/2001/XMLSchema-instance"
+    add_children:
+      - AttributeFilterPolicy:
+          id: "proxy"
+          _:
+            - PolicyRequirementRule:
+                value: "https://test-user-auth.csc.fi/idp/shibboleth"
+                "{http://www.w3.org/2001/XMLSchema-instance}type": Issuer
+            - AttributeRule:
+                attributeID: givenName
+                permitAny: "true"
+            - AttributeRule:
+                attributeID: sn
+                permitAny: "true"
+            - AttributeRule:
+                attributeID: mail
+                permitAny: "true"
+            - AttributeRule:
+                attributeID: eduPersonPrincipalName
+                permitAny: "true"
+            - AttributeRule:
+                attributeID: schacHomeOrganization
+                permitAny: "true"
+            - AttributeRule:
+                attributeID: schacHomeOrganizationType
+                permitAny: "true"
+      - AttributeFilterPolicy:
+          id: "testsp"
+          _:
+            - PolicyRequirementRule:
+                value: "https://testsp.funet.fi/shibboleth"
+                "{http://www.w3.org/2001/XMLSchema-instance}type": Requester
+            - AttributeRule:
+                attributeID: givenName
+                permitAny: "true"
+            - AttributeRule:
+                attributeID: sn
+                permitAny: "true"
+            - AttributeRule:
+                attributeID: mail
+                permitAny: "true"
+            - AttributeRule:
+                attributeID: eduPersonPrincipalName
+                permitAny: "true"
+            - AttributeRule:
+                attributeID: schacHomeOrganization
+                permitAny: "true"
+            - AttributeRule:
+                attributeID: schacHomeOrganizationType
+                permitAny: "true"
+

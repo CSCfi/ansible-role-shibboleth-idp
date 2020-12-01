@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    This file is an EXAMPLE configuration file containing lots of commented
+    example attributes, encoders, and a couple of example data connectors.
+    
+    Not all attribute definitions or data connectors are demonstrated, but
+    a variety of LDAP attributes, some common to Shibboleth deployments and
+    many not, are included.
+    
+    Deployers should refer to the Shibboleth 2 documentation for a complete
+    list of components  and their options.
+-->
+<AttributeResolver
+  xmlns="urn:mace:shibboleth:2.0:resolver"
+  xmlns:sec="urn:mace:shibboleth:2.0:security"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:mace:shibboleth:2.0:resolver http://shibboleth.net/schema/idp/shibboleth-attribute-resolver.xsd
+                      urn:mace:shibboleth:2.0:security http://shibboleth.net/schema/idp/shibboleth-security.xsd">
+
+    <!-- ========================================== -->
+    <!--      Attribute Definitions                 -->
+    <!-- ========================================== -->
+
+    <!-- Schema: Core schema attributes-->
+
+    <AttributeDefinition xsi:type="Simple" id="uid">
+      <InputDataConnector ref="myLDAP" attributeNames="uid"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="mail">
+      <InputDataConnector ref="myLDAP" attributeNames="mail"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="homePhone">
+      <InputDataConnector ref="myLDAP" attributeNames="homePhone"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="homePostalAddress">
+      <InputDataConnector ref="myLDAP" attributeNames="homePostalAddress"/>
+    </AttributeDefinition>
+
+   <AttributeDefinition xsi:type="Simple" id="mobile">
+        <InputDataConnector ref="myLDAP" attributeNames="mobile"/>
+    </AttributeDefinition>
+
+   <AttributeDefinition xsi:type="Simple" id="pager">
+        <InputDataConnector ref="myLDAP" attributeNames="pagerNumber"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="cn">
+        <InputDataConnector ref="myLDAP" attributeNames="cn"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="sn">
+        <InputDataConnector ref="myLDAP" attributeNames="sn"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="locality">
+        <InputDataConnector ref="myStatic" attributeNames="l" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="stateProvince">
+        <InputDataConnector ref="myLDAP" attributeNames="st"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="street">
+        <InputDataConnector ref="myLDAP" attributeNames="street"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="organizationName">
+        <InputDataConnector ref="myLDAP" attributeNames="o"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="ou">
+        <InputDataConnector ref="myLDAP" attributeNames="ou"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="title">
+        <InputDataConnector ref="myLDAP" attributeNames="title"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="postalAddress">
+        <InputDataConnector ref="myLDAP" attributeNames="postalAddress"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="postalCode">
+        <InputDataConnector ref="myLDAP" attributeNames="postalCode" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="postOfficeBox">
+        <InputDataConnector ref="myLDAP" attributeNames="postOfficeBox" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="telephoneNumber">
+        <InputDataConnector ref="myLDAP" attributeNames="telephoneNumber"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="givenName">
+        <InputDataConnector ref="myLDAP" attributeNames="givenName" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="initials">
+        <InputDataConnector ref="myLDAP" attributeNames="initials"/>
+    </AttributeDefinition>
+
+    <!-- Schema: inetOrgPerson attributes-->
+    <AttributeDefinition xsi:type="Simple" id="departmentNumber">
+        <InputDataConnector ref="myLDAP" attributeNames="departmentNumber"/>
+    </AttributeDefinition>
+    
+    <AttributeDefinition xsi:type="Simple" id="displayName">
+        <InputDataConnector ref="myLDAP" attributeNames="displayName"/>
+    </AttributeDefinition> 
+
+    <AttributeDefinition xsi:type="Simple" id="employeeNumber">
+        <InputDataConnector ref="myLDAP" attributeNames="employeeNumber"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="employeeType">
+        <InputDataConnector ref="myLDAP" attributeNames="employeeType"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="jpegPhoto">
+        <InputDataConnector ref="myLDAP" attributeNames="jpegPhoto"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="preferredLanguage">
+        <InputDataConnector ref="myLDAP" attributeNames="preferredLanguage"/>
+    </AttributeDefinition>
+
+		<!-- Schema: eduPerson attributes -->
+    <AttributeDefinition xsi:type="Simple" id="eduPersonAffiliation">
+        <InputDataConnector ref="myLDAP" attributeNames="eduPersonAffiliation"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="eduPersonOrgDN">
+        <InputDataConnector ref="myLDAP" attributeNames="eduPersonOrgDN"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="eduPersonEntitlement">
+        <InputDataConnector ref="myLDAP" attributeNames="eduPersonEntitlement"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="eduPersonNickname">
+        <InputDataConnector ref="myLDAP" attributeNames="eduPersonNickName"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="eduPersonPrimaryAffiliation">
+        <InputDataConnector ref="myLDAP" attributeNames="eduPersonPrimaryAffiliation"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Scoped" id="eduPersonUniqueId" scope="%{idp.scope}">
+        <InputDataConnector ref="myLDAP" attributeNames="localUniqueId"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Prescoped" id="eduPersonPrincipalName">
+        <InputDataConnector ref="myLDAP" attributeNames="eduPersonPrincipalName" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Scoped" id="eduPersonScopedAffiliation" scope="%{idp.scope}">
+        <InputDataConnector ref="myLDAP" attributeNames="eduPersonAffiliation"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="eduPersonAssurance">
+        <InputDataConnector ref="myStatic" attributeNames="eduPersonAssurance"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="funetEduPersonCreditUnits">
+        <InputDataConnector ref="myLDAP" attributeNames="funetEduPersonCreditUnits"/> 
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="funetEduPersonECTS">
+        <InputDataConnector ref="myLDAP" attributeNames="funetEduPersonECTS"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="funetEduPersonLearnerId">
+        <InputDataConnector ref="myLDAP" attributeNames="funetEduPersonLearnerId"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="funetEduPersonStudentCategory">
+        <InputDataConnector ref="myLDAP" attributeNames="funetEduPersonStudentCategory"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="electronicIdentificationNumber">
+        <InputDataConnector ref="myLDAP" attributeNames="electronicIdentificationNumber" />
+    </AttributeDefinition>
+  
+    <AttributeDefinition xsi:type="Simple" id="nationalIdentificationNumber">
+        <InputDataConnector ref="myLDAP" attributeNames="nationalIdentificationNumber"/>
+    </AttributeDefinition>
+
+    <!-- schac attributes -->
+    <AttributeDefinition xsi:type="Simple" id="schacMotherTongue">
+      <InputDataConnector ref="myLDAP" attributeNames="schacMotherTongue"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacGender">
+      <InputDataConnector ref="myLDAP" attributeNames="schacGender"/>
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacDateOfBirth">
+      <InputDataConnector ref="myLDAP" attributeNames="schacDateOfBirth" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacPlaceOfBirth">
+      <InputDataConnector ref="myLDAP" attributeNames="schacPlaceOfBirth" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacCountryOfCitizenship">
+      <InputDataConnector ref="myLDAP" attributeNames="schacCountryOfCitizenship" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacHomeOrganization">
+      <InputDataConnector ref="myLDAP" attributeNames="schacHomeOrganization" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacHomeOrganizationType">
+      <InputDataConnector ref="myLDAP" attributeNames="schacHomeOrganizationType" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacCountryOfResidence">
+      <InputDataConnector ref="myLDAP" attributeNames="schacCountryOfResidence" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacUserPresenceID">
+      <InputDataConnector ref="myLDAP" attributeNames="schacUserPresenceID" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacPersonalUniqueCode">
+      <InputDataConnector ref="myLDAP" attributeNames="schacPersonalUniqueCode" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacPersonalUniqueID">
+      <InputDataConnector ref="myLDAP" attributeNames="schacPersonalUniqueID" />
+    </AttributeDefinition>
+
+    <AttributeDefinition xsi:type="Simple" id="schacUserStatus">
+      <InputDataConnector ref="myLDAP" attributeNames="schacUserStatus" />
+    </AttributeDefinition>
+
+		<!-- ========================================== -->
+    <!--      Data Connectors                       -->
+    <!-- ========================================== -->
+    
+    <!-- Static Connector -->
+    <DataConnector id="myStatic" xsi:type="Static">
+      <Attribute id="l">
+        <Value>Espoo</Value>
+      </Attribute>
+      <Attribute id="eduPersonAssurance">
+        <Value>https://refeds.org/assurance/ID/unique</Value>
+        <Value>https://refeds.org/assurance/ID/no-eppn-reassign</Value>
+        <Value>https://refeds.org/assurance/IAP/low</Value>
+        <Value>https://refeds.org/assurance/IAP/med</Value>
+        <Value>https://refeds.org/assurance/IAP/high</Value>
+        <Value>https://refeds.org/assurance/IAP/local-enterprise</Value>
+        <Value>https://refeds.org/assurance/ATP/ePA-1m</Value>
+        <Value>https://refeds.org/assurance/ATP/ePA-1d</Value>
+        <Value>https://refeds.org/assurance/profile/cappuccino</Value>
+        <Value>https://refeds.org/assurance/profile/espresso</Value>
+      </Attribute>
+    </DataConnector>
+
+    <DataConnector id="myLDAP" xsi:type="LDAPDirectory"
+        ldapURL="%{idp.attribute.resolver.LDAP.ldapURL}"
+        baseDN="%{idp.attribute.resolver.LDAP.baseDN}" 
+        principal="%{idp.attribute.resolver.LDAP.bindDN}"
+        principalCredential="%{idp.attribute.resolver.LDAP.bindDNCredential}">
+        <FilterTemplate>
+            <![CDATA[
+                %{idp.attribute.resolver.LDAP.searchFilter}
+            ]]>
+        </FilterTemplate>
+<!--
+        <StartTLSTrustCredential id="LDAPtoIdPCredential" xsi:type="sec:X509ResourceBacked">
+            <sec:Certificate>%{idp.attribute.resolver.LDAP.trustCertificates}</sec:Certificate>
+        </StartTLSTrustCredential>
+-->
+    </DataConnector>
+
+    <DataConnector id="StoredIdConnector"
+                   xsi:type="StoredId"
+                   salt="%{idp.persistentId.salt}"
+                   generatedAttributeID="storedId">
+      <InputAttributeDefinition ref="%{idp.persistentId.sourceAttribute}" />
+      <BeanManagedConnection>shibboleth.JPAStorageService.DataSource</BeanManagedConnection>
+    </DataConnector>
+</AttributeResolver>

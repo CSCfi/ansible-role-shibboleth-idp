@@ -1,0 +1,11 @@
+- name: Configure | {{ item }} 
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ consentitem.option }}\s*=)" backrefs=yes  line="\\1 {{ consentitem.value }}"
+  with_items:
+    - { option: 'idp.consent.allowGlobal', value: "false", state: present }
+    - { option: 'idp.consent.compareValues', value: "true", state: present }
+    - { option: 'idp.consent.StorageService', value: "shibboleth.JPAStorageService", state: present }
+    - { option: 'idp.consent.maxStoredRecords', value: "-1", state: present }
+    - { option: 'idp.consent.storageRecordLifetime', value: "P1Y", state: present }
+    - { option: 'idp.session.timeout', value: "PT4H", state: present }   # CSC IDP, so that session last for a working day
+  loop_control:
+    loop_var: consentitem

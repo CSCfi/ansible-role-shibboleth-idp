@@ -1,0 +1,90 @@
+- name: Configure | {{ item }} | Private keys
+  copy:
+    content: "{{ certitem.key }}"
+    dest: "{{ certitem.path }}.key"
+  when:
+    - ( shibbolethidp_ssl_key != "not_set_yet" )
+    - ( shibbolethidp_samlsig_key != "not_set_yet" )
+  notify: reown privatekeys-idp
+  loop_control:
+    loop_var: certitem
+  with_items:
+    - { key: "{{ shibbolethidp_ssl_key }}", path: "{{ shibbolethidp_ssl_path }}" }
+    - { key: "{{ shibbolethidp_samlsig_key }}", path: "{{ shibbolethidp_samlsig_path }}" }
+    - { key: "{{ shibbolethidp_samlenc_key }}", path: "{{ shibbolethidp_samlenc_path }}" }
+    - { key: "{{ shibbolethidp_oidcsig_key }}", path: "{{ shibbolethidp_oidcsig_path }}" }
+    - { key: "{{ shibbolethidp_oidcenc_key }}", path: "{{ shibbolethidp_oidcenc_path }}" }
+
+- name: Configure | {{ item }} | Certificates
+  copy:
+    content: "{{ certitem.crt }}"
+    dest: "{{ certitem.path }}.crt"
+  when:
+    - ( shibbolethidp_ssl_crt != "not_set_yet" )
+    - ( shibbolethidp_samlsig_crt != "not_set_yet" )
+  notify: reown privatekeys-idp
+  loop_control:
+    loop_var: certitem
+  with_items:
+    - { crt: "{{ shibbolethidp_ssl_crt }}", path: "{{ shibbolethidp_ssl_path }}" }
+    - { crt: "{{ shibbolethidp_ssl_cabundle }}", path: "{{ shibbolethidp_ssl_path }}.cabundle" }
+    - { crt: "{{ shibbolethidp_samlsig_crt }}", path: "{{ shibbolethidp_samlsig_path }}" }
+    - { crt: "{{ shibbolethidp_samlenc_crt }}", path: "{{ shibbolethidp_samlenc_path }}" }
+    - { crt: "{{ shibbolethidp_oidcsig_crt }}", path: "{{ shibbolethidp_oidcsig_path }}" }
+    - { crt: "{{ shibbolethidp_oidcenc_crt }}", path: "{{ shibbolethidp_oidcenc_path }}" }
+
+#- name: Configure | {{ item }} | Certificates | idp.properties
+#  lineinfile:
+#    dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
+#    regexp: "{{ certitem.regexp }}"
+#    line: "{{ certitem.line }}"
+#  with_items:
+#    - { regexp:  '#?idp\.signing\.key=', line: 'idp.signing.key= {{ shibbolethidp_samlsig_path }}.key' }
+#    - { regexp:  '#?idp\.signing\.cert=', line: 'idp.signing.cert= {{ shibbolethidp_samlsig_path }}.crt' }
+#    - { regexp:  '#?idp\.encryption\.key=', line: 'idp.encryption.key= {{ shibbolethidp_samlenc_path }}.key' }
+#    - { regexp:  '#?idp\.encryption\.cert=', line: 'idp.encryption.cert= {{ shibbolethidp_samlenc_path }}.crt' }
+#  loop_control:
+#    loop_var: certitem
+#  when:
+#    - ( shibbolethidp_samlsig_crt != "not_set_yet" )
+#    - ( shibbolethidp_samlsig_key != "not_set_yet" )
+#  notify: restart shibboleth-idp
+
+- name: Configure | {{ item }} | Generate | /tmp/ssl-keystore.p12
+  command: "openssl pkcs12 -export -out /tmp/ssl-keystore.p12 -inkey {{ shibbolethidp_ssl_path }}.key -in {{ shibbolethidp_ssl_path }}.crt -certfile {{ shibbolethidp_ssl_path }}.cabundle.crt -name 'Server-Cert' -password 'pass:{{ shibbolethidp_keystore_password }}' creates=/tmp/ssl-keystore.p12"
+  when:
+    - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
+    - ( shibbolethidp_ssl_crt != "not_set_yet" )
+    - ( shibbolethidp_ssl_key != "not_set_yet" )
+    - ( 'https' in confs )
+
+- name: "Configure | {{ item }} | Generate| {{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks"
+  command: "keytool -importkeystore -srckeystore /tmp/ssl-keystore.p12 -srcstoretype PKCS12 -destkeystore {{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks -srcstorepass {{ shibbolethidp_keystore_password }} -deststorepass {{ shibbolethidp_keystore_password }} creates={{ shibbolethidp_idp_home }}/credentials/ssl-keystore.jks"
+  when:
+    - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
+    - ( shibbolethidp_ssl_crt != "not_set_yet" )
+    - ( shibbolethidp_ssl_key != "not_set_yet" )
+    - ( 'https' in confs )
+
+- name: "Configure | {{ item  }} | Jetty | SSL | {{ shibbolethidp_idp_home }}/jetty-base/start.d/ssl.ini"
+  lineinfile:
+    dest: "{{ shibbolethidp_idp_home }}/jetty-base/start.d/ssl.ini"
+    regexp: '^#?\s*({{ certitem.option }}\s*=)'
+    state: present
+    line: "{{ certitem.option}}={{ certitem.value }}"
+  with_items:
+    - { option: "jetty.sslContext.keyStorePath", value: "../credentials/ssl-keystore.jks" }
+    - { option: "jetty.sslContext.trustStorePath", value: "../credentials/ssl-keystore.jks" }
+    - { option: "jetty.sslContext.keyStorePassword", value: "{{ shibbolethidp_keystore_password }}" }
+    - { option: "jetty.sslContext.trustStorePassword", value: "{{ shibbolethidp_keystore_password }}" }
+    - { option: "jetty.sslContext.keyManagerPassword", value: "{{ shibbolethidp_keystore_password }}" }
+    - { option: "jetty.ssl.stsMaxAgeSeconds", value: "31536000" }
+  loop_control:
+    loop_var: certitem
+  when:
+    - ( shibbolethidp_ssl_cabundle != "not_set_yet" )
+    - ( shibbolethidp_ssl_crt != "not_set_yet" )
+    - ( shibbolethidp_ssl_key != "not_set_yet" )
+    - ( 'https' in confs )
+  notify:
+    - restart shibboleth-idp

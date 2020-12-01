@@ -1,0 +1,8 @@
+[Unit]
+  Description=Shibboleth Identity Provider
+[Service]
+  EnvironmentFile=/etc/default/shibboleth-idp
+  WorkingDirectory={{ shibbolethidp_jetty_base }}
+  ExecStart=/usr/bin/java -jar /opt/jetty/start.jar jetty.home={{ shibbolethidp_jetty_home }} jetty.base={{ shibbolethidp_jetty_base}}
+[Install]
+  WantedBy=multi-user.target

@@ -1,0 +1,133 @@
+---
+- name: configure shibboleth-idp saml-nameid.properties
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/saml-nameid.properties regexp="^#?\s*({{ item_nameid.option }}\s*=)" backrefs=yes  line="\\1 {{ item_nameid.value }}"
+  with_items:
+    - { option: 'idp.persistentId.sourceAttribute', value: "{{ shibbolethidp_persistentid_sourceattribute }}", state: present }
+    - { option: 'idp.persistentId.dataSource', value: "{{ shibbolethidp_persistentid_datasource }}", state: present }
+    - { option: 'idp.persistentId.generator', value: "shibboleth.StoredPersistentIdGenerator", state: present }
+  loop_control:
+    loop_var: item_nameid
+
+- name: configure shibboleth-idp saml-nameid.properties
+  lineinfile: dest={{ shibbolethidp_idp_home }}/credentials/secrets.properties regexp="^#?\s*({{ item_nameid.option }}\s*=)" backrefs=yes  line="\\1 {{ item_nameid.value }}"
+  with_items:
+    - { option: 'idp.persistentId.salt', value: "{{ shibbolethidp_persistentid_salt }}", state: present }
+  loop_control:
+    loop_var: item_nameid
+
+- name: Check is PersistentGenerator already configured
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/saml-nameid.xml"
+    xpath: //x:beans/util:list[@id='shibboleth.SAML2NameIDGenerators']/x:ref[@bean='shibboleth.SAML2PersistentGenerator']
+    namespaces:
+      util: http://www.springframework.org/schema/util
+      x: http://www.springframework.org/schema/beans
+    count: true
+  register: hits
+
+- name: saml-nameid.xml if not already configured. [configured={{ hits.count }}]
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/saml-nameid.xml"
+    xpath: //util:list[@id='shibboleth.SAML2NameIDGenerators']
+    #    pretty_print: True
+    namespaces:
+      util: http://www.springframework.org/schema/util
+    add_children:
+      - ref:
+          bean: shibboleth.SAML2PersistentGenerator
+  when: hits.count|int < 1
+
+- name: Check is support mapping SAML2 Persistent NameIDs back to username already configured
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.xml"
+    xpath: //x:beans/util:list[@id='shibboleth.SAMLSubjectCanonicalizationFlows']/x:ref[@bean='c14n/SAML2Persistent']
+    namespaces:
+      util: http://www.springframework.org/schema/util
+      x: http://www.springframework.org/schema/beans
+    count: true
+  register: hits
+
+- name: support mapping SAML2 Persistent NameIDs back to username [configured={{ hits.count }}] OPTIONAL
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.xml"
+    xpath: //util:list[@id='shibboleth.SAMLSubjectCanonicalizationFlows']
+    #    pretty_print: True
+    namespaces:
+      util: http://www.springframework.org/schema/util
+    add_children:
+      - ref:
+          bean: c14n/SAML2Persistent
+  when: hits.count|int < 1
+
+- name: Configure | {{ item }} | Del | MyDataSource < conf/global.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/global.xml"
+    xpath: "{{ nameiditem }}"
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+    state: absent
+  loop_control:
+    loop_var: nameiditem
+  with_items:
+    - '/x:beans/x:bean[@id="shibboleth.JPAStorageService.DataSource"]'
+    - '/x:beans/x:bean[@id="shibboleth.JPAStorageService"]'
+    - '/x:beans/x:bean[@id="shibboleth.JPAStorageService.entityManagerFactory"]'
+    - '/x:beans/x:bean[@id="shibboleth.JPAStorageService.JPAVendorAdapter"]'
+
+- name: Configure | {{ item }} | Add | MyDataSource > conf/global.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/global.xml"
+    xpath: /x:beans
+    pretty_print: yes
+    #    insertbefore: yes
+    namespaces: &namespaces
+      x: "http://www.springframework.org/schema/beans"
+      p: "http://www.springframework.org/schema/p"
+      c: "http://www.springframework.org/schema/c"
+    add_children:
+      - bean:
+          id: shibboleth.JPAStorageService.DataSource
+          class: org.apache.commons.dbcp2.BasicDataSource
+          "{http://www.springframework.org/schema/p}driverClassName": "org.mariadb.jdbc.Driver"
+          "{http://www.springframework.org/schema/p}url": "jdbc:mariadb://{{ shibbolethidp_dbhost }}:{{ shibbolethidp_dbport }}/{{ shibbolethidp_dbname }}?autoReconnect=true"
+          "{http://www.springframework.org/schema/p}username": "{{ shibbolethidp_dbuser }}"
+          "{http://www.springframework.org/schema/p}password": "{{ shibbolethidp_dbpassword }}"
+          "{http://www.springframework.org/schema/p}maxIdle": "5"
+          "{http://www.springframework.org/schema/p}testOnBorrow": "True"
+          "{http://www.springframework.org/schema/p}validationQuery": "select 1"
+          "{http://www.springframework.org/schema/p}validationQueryTimeout": "5"
+      - bean:
+          id: shibboleth.JPAStorageService
+          class: org.opensaml.storage.impl.JPAStorageService
+          "{http://www.springframework.org/schema/p}cleanupInterval": "%{idp.storage.cleanupInterval:PT10M}"
+          "{http://www.springframework.org/schema/c}factory-ref": "shibboleth.JPAStorageService.entityManagerFactory"
+      - bean: 
+          id: shibboleth.JPAStorageService.entityManagerFactory
+          class: org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
+          _:
+            - property:
+                name: packagesToScan
+                value: org.opensaml.storage.impl
+
+            - property:
+                name: dataSource
+                ref: shibboleth.JPAStorageService.DataSource
+            - property:
+                name: jpaVendorAdapter
+                ref: shibboleth.JPAStorageService.JPAVendorAdapter
+            - property:
+                name: jpaDialect
+                _:
+                  - bean:
+                      class: org.springframework.orm.jpa.vendor.HibernateJpaDialect
+      - bean:
+          id: shibboleth.JPAStorageService.JPAVendorAdapter
+          class: org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter
+          _:
+            - property:
+                name: database
+                value: MYSQL
+
+- shell: mysql < /tmp/idp-schema.sql
+  ignore_errors: yes
+

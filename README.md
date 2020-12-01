@@ -1,57 +1,52 @@
-[![Build Status](https://travis-ci.org/CSCfi/ansible-role-shibboleth-idp.svg?branch=master)](https://travis-ci.org/CSCfi/ansible-role-shibboleth-idp)
+[![Build Status](https://travis-ci.org/CSCfi/ansible-role-shibboleth-idp-configurator.svg?branch=master)](https://travis-ci.org/CSCfi/ansible-role-shibboleth-idp-configurator)
 
-Ansible-Role: Shibboleth IdP
+Shibboleth IdP Configurator
 =========
 
-An role which installs Shibboleth IdP on RedHat/Debian servers
+This role is configurator for Shibboleth IdP. This role can perform modifications for already existing installations on servers or optionally just create needed configuration which can then copied to server or be mounted on containers.
 
 Requirements
 ------------
 
-* CSCfi.jetty 
-* CSCfi.mariadb (Optional, configurable nameid uses database storage )
+* Docker (Optional: If creating configurations tree)
+  * cscfi/shibboleth-idp
+* Ansible 2.9 ->
+* Python 3 ->, python-lxml
 
 Role Variables
 --------------
 
-See defaults/main.yml for the variables you can overwrite via role call via parameter
-You can also pass configurables array for role. This array contains extra configurable items for shibboleth IdP such as
+This role can be called with multiple 'confs' variables, where each variable means some dedicated configuration item. Each configuration item is it's own separate task file which makes it's easier follow what each configuration does. Defaults and configurable variables for each item can be found from defaults/main.yml
+* Tags:
+  * haka: Add trust to Haka federation
+    * shibbolethidp_hakacrt:
+  * edugain: Add trust to Edugain
+    * shibbolethidp_edugaincrt:
+  * hakatest Add trust to Haka-test federation
+    * shibbolethidp_hakatestcrt:
+  * oidc: Configure oidc support
 
-For federations ( Configures metadata source and certificates for IdP)
-* haka-test
-* edugain
-* haka
-* virtu-test
-
-For extra functionality
-* consent ( Configure default consent module parameters, currently contains static predefined values )
-* loganalysis ( Install loganalysis.py script and configure it to cron, with monthly report in Jetty webroot )
-* slo ( Single logout configuration with predefined static values )
-* mfa-client
-* mfa-server
-* mfa-stepup-server
-* nameid ( Configure nameid, Currently utilizes uid. Some parameters (eg: uid, can be overwritten by passing parameters. See defaults/main.yml [ Requires Mariadb ] )
-* fticks ( Configure F-ticks, untested... work in progress )
-* ldap.yml ( Configure LDAP backend for shibboleth IdP, TLS only with overwritable parameters from defaults/main.yml )
-* oidc ( Installs OIDC extension for shibboleth-IdP )
-* certs ( will be copied under /etc/pki/tls/[certs|private] and proper configuration performed)
-  * define SSL certs for shibboleth-IdP jetty installation will be created (needed: shibboleth_idp[_ssl_crt & _ssl_key & _ssl_cabundle & _keystore_password] )
-  * define SAML certificates which will be configured as a encryption and signing certificate (needed: shibbolethidp[_saml_crt & _saml_key ] )
-  * define SAML separate certificates for encryption and signing (needed: shibbolethidp[_saml_sig_crt & _saml_sig_key & _saml_enc_crt &_saml_enc_key ] )
-
-See example playbook for calling role with configurable array and overwritable attributes
+If you want to overwrite default variables you can do it by overwriting those in the group_vars / inventory or in the playbook accordingly.
 
 Dependencies
 ------------
 
-* CSCfi.jetty
-
-* Configurable: nameid debends on CSCfi.mariadb or installed database which can be accessed via root.
-* Configurable: ldap requires existing ldap server.
+* Docker (Optional)
 
 Example Playbook
 ----------------
 
-    - hosts: all
+Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+
+    - hosts: servers
       roles:
-        - { role: CSCfi.shibboleth-idp, configurables: ['certs', 'slo', 'consent'] }
+         - { role: username.rolename, x: 42 }
+
+License
+-------
+
+MIT
+
+Author Information
+------------------
+sami.silen@csc.fi

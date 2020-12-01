@@ -1,8 +1,0 @@
----
-__shibbolethidp_packages: 
-    - openjdk-8-jre-headless
-    - libmysql-java
-
-shibbolethidp_service_name: shibboleth-idp
-
-shibbolethidp_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
