@@ -75,3 +75,9 @@ shibbolethidp_oidcsig_path: "{{ shibbolethidp_idp_home }}/credentials/idp-signin
 shibbolethidp_oidcenc_crt: "{{ vault_oidcenc_crt | default(shibbolethidp_oidcsig_crt) }}"
 shibbolethidp_oidcenc_key: "{{ vault_oidcenc_key | default(shibbolethidp_oidcsig_key) }}"
 shibbolethidp_oidcenc_path: "{{ shibbolethidp_idp_home }}/credentials/idp-encryption"
+
+### Templates default directory
+# Used mainly from the playbook, you can define directory where from to directory hierarcy 
+# is moved to the destination
+shibbolethidp_templates: "{{ playbook_dir}}/../templates"
+shibbolethidp_files: "{{ playbook_dir}}/../files"
