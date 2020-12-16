@@ -18,12 +18,12 @@ shibbolethidp_root: dc={{ shibbolethidp_fqdn.split('.')[-2] }},dc={{ shibbolethi
 shibbolethidp_keystore_password: "{{ vault_keystore_password | default('idpkstorepwd') }}"
 
 ### Edugain
-shibbolethidp_edugaincrt: "https://wiki.eduuni.fi/download/attachments/27297747/haka-edugain-sign.csc.fi.2017.pem"
+shibbolethidp_edugaincrt: "https://wiki.eduuni.fi/download/attachments/27297748/haka-edugain-sign.csc.fi.2020.pem"
 shibbolethidp_edugainmd_url: "https://haka.funet.fi/edugain-nightly/gen-edugain/idp-FILL-metadata-eduGain.xml"
 ### Haka-test
 shibbolethidp_hakatestcrt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2018_sha2.crt"
 ### Haka
-shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297775/haka-sign-v4.pem"
+shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297775/haka-sign-v5.pem"
 
 ### NameID
 shibbolethidp_persistentid_sourceattribute: uid
