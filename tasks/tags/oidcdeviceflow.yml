@@ -5,7 +5,7 @@
 - name: Configure | OIDCDeviceFlow | Download | Plugin v{{ shibbolethidp_oidcdeviceflow_version }}
   unarchive:
     extra_opts: ['--strip-components=1']
-    src: "{{ shibbolethidp_oidcdeviceflow_location }}/releases/download/v{{ shibbolethidp_oidcdeviceflow_version }}/idp-oauth2-deviceflow-extension-distribution-{{ shibbolethidp_oidcdeviceflow_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
+    src: "{{ shibbolethidp_oidcdeviceflow_location }}/releases/download/V{{ shibbolethidp_oidcdeviceflow_version }}/idp-oauth2-deviceflow-extension-distribution-{{ shibbolethidp_oidcdeviceflow_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
     remote_src: yes
     dest: "{{ shibbolethidp_idp_home }}"
     creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-oauth2-deviceflow-extension-api-{{ shibbolethidp_oidcdeviceflow_version | regex_replace('[^0-9.]', '') }}.jar"
