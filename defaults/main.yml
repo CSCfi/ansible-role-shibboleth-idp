@@ -55,6 +55,17 @@ shibbolethidp_oidcplugin_version: 2.0.0
 shibbolethidp_oidcdeviceflow_version: 2.0.4
 shibbolethidp_oidcdeviceflow_location: 'https://github.com/CSCfi/shibboleth-idp-oauth2-deviceflow-extension'
 
+### OIDC Step up server
+shibbolethidp_oidcstepupserver_location: https://github.com/CSCfi/shibboleth-idp-authn-stepup
+shibbolethidp_oidcstepupserver_version: 1.0.0-RC1
+shibbolethidp_stepupSMSAccountSender: "{{ vault_shibbolethidp_stepupSMSAccountSender | default('not_set_yet') }}"
+shibbolethidp_stepupSMSAccountSid: "{{ vault_shibbolethidp_stepupSMSAccountSid | default('not_set_yet') }}"
+shibbolethidp_stepupSMSAccountToken: "{{ vault_shibbolethidp_stepupSMSAccountToken | default('not_set_yet') }}"
+shibbolethidp_stepupEncryptKey: "{{ vault_shibbolethidp_stepupEncryptKey | default('not_set_yet') }}"
+shibbolethidp_stepupStorageService: "{{ vault_shibbolethidp_stepupStorageService | default('shibboleth.JPAStorageService') }}"
+shibbolethidp_stepupTokenValidator: "ValueTokenValidator" #elixir: userInfoMap
+shibbolethidp_stepupUserinfoEndpoint: elixir.op
+
 ### Certs
 shibbolethidp_ssl_key: "{{ vault_ssl_key | default('not_set_yet') }}"
 shibbolethidp_ssl_crt: "{{ vault_ssl_crt | default('not_set_yet') }}"
