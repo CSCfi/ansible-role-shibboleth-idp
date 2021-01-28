@@ -1,6 +1,7 @@
 ---
 shibbolethidp_packages:
   - java-11-openjdk-headless
+  - python3-lxml
 
 shibbolethidp_java_home: /etc/alternatives/jre_11
 
