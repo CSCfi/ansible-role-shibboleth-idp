@@ -1,6 +1,6 @@
 - name: Configurable | OIDCStepUpServer | dependency | oidc
-  include: shibbolethidp_oidc.yml
-  when: "'oidc' not in configurables"
+  include: oidc.yml
+  when: "'oidc' not in confs"
 
 - name: Configurable | OIDCStepUpServer | Download | Plugin v{{ shibbolethidp_oidcstepupserver_version }}
   unarchive:
