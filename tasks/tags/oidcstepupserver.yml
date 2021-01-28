@@ -5,16 +5,16 @@
 - name: Configurable | OIDCStepUpServer | Download | Plugin v{{ shibbolethidp_oidcstepupserver_version }}
   unarchive:
     extra_opts: ['--strip-components=1']
-    src: "{{ shibbolethidp_oidcstepupserver_location }}/releases/download/v{{ shibbolethidp_oidcstepupserver_version }}/idp-stepup-distribution-{{ shibbolethidp_oidcstepupserver_version | regex_replace('[^0-9.]', '') }}-bin.tar.gz"
+    src: "{{ shibbolethidp_oidcstepupserver_location }}/releases/download/v{{ shibbolethidp_oidcstepupserver_version }}/idp-stepup-distribution-{{ shibbolethidp_oidcstepupserver_version | regex_replace('[^0-9RC.', '') }}-bin.tar.gz"
     remote_src: yes
     dest: "{{ shibbolethidp_idp_home }}"
-    creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-stepup-api-{{ shibbolethidp_oidcstepupserver_version | regex_replace('[^0-9.]', '') }}.jar"
+    creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-stepup-api-{{ shibbolethidp_oidcstepupserver_version | regex_replace('[^0-9RC.]', '') }}.jar"
   notify: reown shibboleth-idp
 
 - name: Configurable | OIDCStepUpServer | Detect | Duplicate | Plugins
   find:
     paths: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib"
-    patterns: "^(?!.*({{ shibbolethidp_oidcstepupserver_version | regex_replace('[^0-9.]', '') }})).*idp-stepup"
+    patterns: "^(?!.*({{ shibbolethidp_oidcstepupserver_version | regex_replace('[^0-9RC.]', '') }})).*idp-stepup"
     use_regex: true
   register: files_to_delete
 
