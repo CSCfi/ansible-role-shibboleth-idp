@@ -27,7 +27,7 @@ shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297775/hak
 
 ### NameID
 shibbolethidp_persistentid_sourceattribute: uid
-shibbolethidp_persistentid_salt: this_should_be_ch4ng3d
+shibbolethidp_persistentid_salt: "{{ vault_shibbolethidp_persistentid_salt | default('this_should_be_ch4ng3d') }}"
 shibbolethidp_persistentid_datasource: shibboleth.JPAStorageService.DataSource
 
 ### Database
