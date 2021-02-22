@@ -15,7 +15,7 @@ shibbolethidp_jetty_ssl_port: 443
 shibbolethidp_entityid: https://{{ shibbolethidp_fqdn }}/idp/shibboleth
 shibbolethidp_scope: "{{ shibbolethidp_fqdn.split('.')[1:] | join('.') }}"
 shibbolethidp_root: dc={{ shibbolethidp_fqdn.split('.')[-2] }},dc={{ shibbolethidp_fqdn.split('.')[-1] }}
-shibbolethidp_keystore_password: "{{ vault_keystore_password | default('idpkstorepwd') }}"
+shibbolethidp_keystore_password: "{{ vault_shibbolethidp_keystore_password | default('idpkstorepwd') }}"
 
 ### Edugain
 shibbolethidp_edugaincrt: "https://wiki.eduuni.fi/download/attachments/27297748/haka-edugain-sign.csc.fi.2020.pem"
