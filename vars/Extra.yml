@@ -1,10 +1,10 @@
 ---
 shibbolethidp_jars:
   - name: mariadb-java-client
-    url: https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/2.5.4/mariadb-java-client-2.5.4.jar
+    url: https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/2.7.2/mariadb-java-client-2.7.2.jar
     dst: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/"
   - name: json-web-key-generator
-    url: https://repo1.maven.org/maven2/org/mitre/json-web-key-generator/0.7/json-web-key-generator-0.7.jar
+    url: https://repo1.maven.org/maven2/org/mitre/json-web-key-generator/0.8.2/json-web-key-generator-0.8.2.jar
     dst: "{{ shibbolethidp_idp_home }}/bin/"
 #  - name: Postresql client
 #    url: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.9/postgresql-42.2.9.jar
