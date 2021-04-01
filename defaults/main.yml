@@ -4,7 +4,7 @@ shibbolethidp_fqdn: "{{ ansible_fqdn }}"
 shibbolethidp_idp_home: "{{ playbook_dir }}/customized-shibboleth-idp"
 
 ### Install
-shibbolethidp_version: 4.0.1
+shibbolethidp_version: 4.1.0
 jetty_version: 9.4.29.v20200521
 shibbolethidp_dst_dir: /opt
 shibbolethidp_jetty_base: "{{ shibbolethidp_idp_home }}/jetty-base"
