@@ -49,7 +49,8 @@ shibbolethidp_ldapuserfilter: "(uid={user})"
 shibbolethidp_ldapsubtreesearch: False
 
 ### OIDC
-shibbolethidp_oidcplugin_version: 2.0.0
+shibbolethidp_oidcplugin_version: 3.0.0
+shibbolethidp_oidccommonplugin_version: 1.0.0
 
 ### OIDC Device flow
 shibbolethidp_oidcdeviceflow_version: 2.0.4

@@ -30,7 +30,7 @@
                 "{http://www.w3.org/2001/XMLSchema-instance}type": SignatureValidation
                 certificateFile: "%{idp.home}/credentials/{{ shibbolethidp_hakacrt | basename }}"
             - MetadataFilter:
-                "{http://www.w3.org/2001/XMLSchema-instance}type": EntityRoleWhiteList
+                "{http://www.w3.org/2001/XMLSchema-instance}type": EntityRole
                 _:
                   - RetainedRole: md:SPSSODescriptor
 
@@ -55,7 +55,7 @@
 - name: Configure | {{ item }} | Del | MetadataProvider[@id="HTTPHakatestMetadataProvider"]/MetadataFilter < conf/metadata-providers.xml (Proxy)
   xml:
     file: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
-    xpath: /x:MetadataProvider/x:MetadataProvider[@id="HTTPHakatestMetadata"]/x:MetadataFilter[@xsi:type="EntityRoleWhiteList"]
+    xpath: /x:MetadataProvider/x:MetadataProvider[@id="HTTPHakatestMetadata"]/x:MetadataFilter[@xsi:type="EntityRole"]
     namespaces:
       x: "urn:mace:shibboleth:2.0:metadata"
       xsi:  "http://www.w3.org/2001/XMLSchema-instance"

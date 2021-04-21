@@ -110,19 +110,10 @@
     state=link
     force=yes
 
-- name: Configure | {{ item }} | Shibboleth-IdP | authn/password-authn-config.xml | Username | Lowercase
-  xml:
-    xpath: "{{ item.xpath }}"
-    attribute: "{{ item.attribute }}"
-    value: "{{ item.value }}"
-    ensure: "{{ item.ensure }}"
-    file: "{{ shibbolethidp_idp_home }}/conf/authn/password-authn-config.xml"
-    namespaces:
-      x: http://www.springframework.org/schema/beans
-      p: http://www.springframework.org/schema/p
-      util: http://www.springframework.org/schema/util
+- name: Configure | {{ item }} | Shibboleth-IdP | authn/authn.properties | Username | Lowercase
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/authn/authn.properties regexp="^#?\s*({{ item.option }}\s*=)" backrefs=yes  line="\\1 {{ item.value }}"
   with_items:
-    - { xpath: "//util:constant[@id='shibboleth.authn.Password.Lowercase']", attribute: "static-field", value: "java.lang.Boolean.TRUE", ensure: present }
+    - { option: 'idp.authn.Password.lowercase', value: 'true', state: present }
   notify: restart shibboleth-idp
 
 - name: Configure | {{ item }} | Del | import files

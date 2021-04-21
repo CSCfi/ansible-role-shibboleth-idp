@@ -30,6 +30,6 @@
                 "{http://www.w3.org/2001/XMLSchema-instance}type": SignatureValidation
                 certificateFile: "%{idp.home}/credentials/{{ shibbolethidp_edugaincrt | basename }}"
             - MetadataFilter:
-                "{http://www.w3.org/2001/XMLSchema-instance}type": EntityRoleWhiteList
+                "{http://www.w3.org/2001/XMLSchema-instance}type": EntityRole
                 _:
                   - RetainedRole: md:SPSSODescriptor
