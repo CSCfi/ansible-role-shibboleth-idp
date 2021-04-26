@@ -71,6 +71,21 @@
 - name: Configure | {{ item }} | Create | Directory | .well-known | NOTE MISSING STILL That file 
   file: path={{ shibbolethidp_wwwroot }}/.well-known state=directory
 
+- name: Main | Template | Set | service_name 
+  set_fact:
+    service_name: "{{ shibbolethidp_fqdn }}"
+
+- name: Main | Template | Get | openid-configuration
+  fetch:
+    src: "{{ shibbolethidp_idp_home }}/static/openid-configuration.json"
+    dest: "/tmp/openid-configuration.json"
+    flat: yes
+  
+- name: Main | Template | push | openid-configuration
+  template:
+    src: "/tmp/openid-configuration.j2"
+    dest: "{{ shibbolethidp_wwwroot }}/.well-known/openid-configuration"
+
 - name: Configure | OIDC | Credentials 
   shell: source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/{{ oidcitem }}
   args:

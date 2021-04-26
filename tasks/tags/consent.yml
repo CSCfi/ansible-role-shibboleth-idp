@@ -1,4 +1,9 @@
-- name: Configure | {{ item }} 
+- name: Configure | Consent | Module | Enable
+  shell: "source /etc/default/shibboleth-idp && {{ shibbolethidp_idp_home }}/bin/module.sh -e idp.intercept.Consent"
+  args:
+    executable: /bin/bash
+
+- name: Configure | Consent
   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/idp.properties regexp="^#?\s*({{ consentitem.option }}\s*=)" backrefs=yes  line="\\1 {{ consentitem.value }}"
   with_items:
     - { option: 'idp.consent.allowGlobal', value: "false", state: present }
