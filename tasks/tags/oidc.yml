@@ -83,7 +83,7 @@
   
 - name: Main | Template | push | openid-configuration
   template:
-    src: "/tmp/openid-configuration.j2"
+    src: "/tmp/openid-configuration.json"
     dest: "{{ shibbolethidp_wwwroot }}/.well-known/openid-configuration"
 
 - name: Configure | OIDC | Credentials 
@@ -158,91 +158,6 @@
                          _:
                             - ref:
                                 bean: OIDC.Keyset
-
-- name: Configure | {{ item }} | Del | AttributeDefinition & DataConnector] < conf/attribute-resolver.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
-    xpath: "{{ oidcitem }}"
-    namespaces:
-      x: "urn:mace:shibboleth:2.0:resolver"
-    state: absent
-  loop_control:
-    loop_var: oidcitem
-  with_items:
-    - '/x:AttributeResolver/x:AttributeDefinition[@id="subject"]'
-    - '/x:AttributeResolver/x:DataConnector[@id="computedSubjectId"]'
-
-- name: Configure | {{ item }} | Add | AttributeDefinition[@id="subject"] > conf/attribute-resolver.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
-    xpath: /x:AttributeResolver/x:AttributeDefinition
-    pretty_print: yes
-    insertbefore: yes
-    namespaces: &namespaces
-      x: "urn:mace:shibboleth:2.0:resolver"
-      xsi: "http://www.w3.org/2001/XMLSchema-instance"
-    add_children:
-      - AttributeDefinition:
-          id: subject
-          "{http://www.w3.org/2001/XMLSchema-instance}type": Simple
-          activationConditionRef: SubjectRequired
-          _:
-            - InputDataConnector:
-                ref: computedSubjectId
-                attributeNames: subjectId
-            - AttributeEncoder:
-                "{http://www.w3.org/2001/XMLSchema-instance}type": "oidcext:OIDCString"
-                name: sub
-
-- name: Configure | {{ item }} | Add | DataConnector[@id="computedSubjectId"] > conf/attribute-resolver.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/attribute-resolver.xml"
-    xpath: /x:AttributeResolver/x:DataConnector
-    pretty_print: yes
-    insertafter: yes
-    namespaces:
-      x: "urn:mace:shibboleth:2.0:resolver"
-      xsi: "http://www.w3.org/2001/XMLSchema-instance"
-    add_children:
-      - DataConnector:
-          id: computedSubjectId
-          "{http://www.w3.org/2001/XMLSchema-instance}type": ComputedId
-          generatedAttributeID: "subjectId"
-          salt: "%{idp.oidc.subject.salt}"
-          algorithm: "%{idp.oidc.subject.algorithm:SHA}"
-          encoding: "%{idp.oidc.subject.encoding:BASE32}"
-          _:
-            - InputAttributeDefinition:
-                ref: "%{idp.oidc.subject.sourceAttribute}"
-
-- name: Configure | {{ item }} | Del | AttributeFilterPolicy[@id="OPENID_SCOPE"] < conf/attribute-filter.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/attribute-filter.xml"
-    xpath: /x:AttributeFilterPolicyGroup/x:AttributeFilterPolicy[@id="OPENID_SCOPE"]
-    state: absent
-    namespaces:
-      x: "urn:mace:shibboleth:2.0:afp"
-
-- name: Configure | {{ item }} | Add | AttributeFilterPolicy[@id="OPENID_SCOPE"] > conf/attribute-filter.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/attribute-filter.xml"
-    xpath: /x:AttributeFilterPolicyGroup
-    pretty_print: yes
-    namespaces:
-      x: "urn:mace:shibboleth:2.0:afp"
-      xsi: "http://www.w3.org/2001/XMLSchema-instance"
-    add_children:
-      - AttributeFilterPolicy:
-          id: "OPENID_SCOPE"
-          _:
-            - PolicyRequirementRule:
-                value: "openid"
-                "{http://www.w3.org/2001/XMLSchema-instance}type": "oidcext:OIDCScope"
-            - AttributeRule:
-                attributeID: subject
-                _:
-                  - PermitValueRule:
-                      "{http://www.w3.org/2001/XMLSchema-instance}type": "ANY"
 
 - name: Configure | {{ item }} | Del | oidcFileResolvers
   xml:
