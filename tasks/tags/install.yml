@@ -13,7 +13,7 @@
 
 - name: Configure | {{ item }} | Download | Shibboleth-IdP {{ shibbolethidp_version }}
   unarchive:
-    src: https://shibboleth.net/downloads/identity-provider/{{ shibbolethidp_version }}/shibboleth-identity-provider-{{ shibbolethidp_version }}.tar.gz
+    src: https://shibboleth.net/downloads/identity-provider/archive/{{ shibbolethidp_version }}/shibboleth-identity-provider-{{ shibbolethidp_version }}.tar.gz
     dest: "{{ shibbolethidp_dst_dir }}"
     remote_src: True
   notify: reown shibboleth-idp
