@@ -33,7 +33,7 @@
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
     marker: "    <!-- {mark} ansible managed - stepup-flow -->"
-    insertbefore: '</util:list>'
+    insertafter: 'default-destroy-method="destroy"'
     content: |2
           <bean id="authn/Stepup" parent="shibboleth.AuthenticationFlow" p:passiveAuthenticationSupported="false" p:forcedAuthenticationSupported="true" >
             <property name="supportedPrincipals">
