@@ -1,0 +1,63 @@
+- name: Configure | {{ item }} | Get | Certificate | {{ shibbolethidp_virtutestcrt | basename }}
+  get_url: url="{{ shibbolethidp_virtutestcrt }}" dest="{{ shibbolethidp_idp_home }}/credentials/{{ shibbolethidp_virtutestcrt | basename }}" mode=0755
+
+- name: Configure | {{ item }} | Del | MetadataProvider[@id="HTTPVirtutestMetadataProvider"] < conf/metadata-providers.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
+    xpath: /x:MetadataProvider/x:MetadataProvider[@id="HTTPVirtutestMetadata"]
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:metadata"
+    state: absent
+
+- name: Configure | {{ item }} | Add | MetadataProvider[@id="HTTPVirtutestMetadata"] > conf/metadata-providers.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
+    xpath: /x:MetadataProvider
+    pretty_print: yes
+    namespaces: &namespaces
+      x: "urn:mace:shibboleth:2.0:metadata"
+      xsi: "http://www.w3.org/2001/XMLSchema-instance"
+    add_children:
+      - MetadataProvider:
+          id: HTTPVirtutestMetadata
+          refreshDelayFactor: "0.5"
+          maxRefreshDelay: PT2H
+          "{http://www.w3.org/2001/XMLSchema-instance}type": FileBackedHTTPMetadataProvider
+          backingFile: "%{idp.home}/metadata/virtu_test_metadata_signed.xml"
+          metadataURL: "https://virtu-ds.csc.fi/fed/virtu-test/CSC_Virtu_Test_Servers-metadata.xml"
+          _:
+            - MetadataFilter:
+                "{http://www.w3.org/2001/XMLSchema-instance}type": SignatureValidation
+                certificateFile: "%{idp.home}/credentials/{{ shibbolethidp_virtutestcrt | basename }}"
+            - MetadataFilter:
+                "{http://www.w3.org/2001/XMLSchema-instance}type": EntityRole
+                _:
+                  - RetainedRole: md:SPSSODescriptor
+
+- name: Configure | {{ item }} | Mod | Assertion Signing > conf/relying-party.xml
+  xml:
+    xpath: "{{ item_virtu.xpath }}"
+    attribute: "{{ item_virtu.attribute }}"
+    value: "{{ item_virtu.value }}"
+    ensure: "{{ item_virtu.ensure }}"
+    file: "{{ shibbolethidp_idp_home }}/conf/relying-party.xml"
+    namespaces:
+      x: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+  with_items:
+#    - { xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']/property/list/bean[@parent='SAML2.SSO']", attribute: "p:signResponses", value: "false", ensure: present }
+    - { xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']/x:property/x:list/x:bean[@parent='SAML2.SSO']", attribute: "p:signAssertions", value: "true", ensure: present }
+#    - { xpath: "//x:bean[@id='shibboleth.DefaultRelyingParty']/x:property/x:list/x:bean[@parent='SAML2.SSO']", attribute: "p:encryptAssertions", value: "false", ensure: prese$
+  loop_control:
+    loop_var: item_virtu
+  notify: restart shibboleth-idp
+
+- name: Configure | {{ item }} | Del | MetadataProvider[@id="HTTPVirtutestMetadataProvider"]/MetadataFilter < conf/metadata-providers.xml (Proxy)
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/metadata-providers.xml"
+    xpath: /x:MetadataProvider/x:MetadataProvider[@id="HTTPVirtutestMetadata"]/x:MetadataFilter[@xsi:type="EntityRole"]
+    namespaces:
+      x: "urn:mace:shibboleth:2.0:metadata"
+      xsi:  "http://www.w3.org/2001/XMLSchema-instance"
+    state: absent
+  when: (confs is defined) and ('proxy' in confs)
