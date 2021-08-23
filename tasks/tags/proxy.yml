@@ -42,40 +42,48 @@
           "{http://www.w3.org/2001/XMLSchema-instance}type": Subject
           exportAllAttributes: "true"
 
-- name: Configure | {{ item }} | Del | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] < conf/c14n/attribute-sourced-subject-c14n-config.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
-    xpath: /x:beans/util:list[@id="{{ proxyitem }}"]
-    namespaces:
-      x: "http://www.springframework.org/schema/beans"
-      util: "http://www.springframework.org/schema/util"
-    state: absent
-  loop_control:
-    loop_var: proxyitem
-  with_items:
-    - shibboleth.c14n.attribute.AttributesToResolve
-    - shibboleth.c14n.attribute.AttributeSourceIds
+# !!!
+# Seuraava taski tehtävä uusiksi 4.1.x vastaavaksi, muutokset tehtävä: conf/c14n/subject-c14n.properties
+# idp.c14n.attribute.attributeSourceIds = eduPersonPrincipalName
+# Allows direct use of attributes via SAML proxy authn, bypasses resolver
+# idp.c14n.attribute.resolveFromSubject = true
+# idp.c14n.attribute.resolutionCondition = shibboleth.Conditions.FALSE
+# !!!
+# - name: Configure | {{ item }} | Del | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] < conf/c14n/attribute-sourced-subject-c14n-config.xml
+  # xml:
+    # file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
+    # xpath: /x:beans/util:list[@id="{{ proxyitem }}"]
+    # namespaces:
+      # x: "http://www.springframework.org/schema/beans"
+      # util: "http://www.springframework.org/schema/util"
+    # state: absent
+  # loop_control:
+    # loop_var: proxyitem
+  # with_items:
+    # - shibboleth.c14n.attribute.AttributesToResolve
+    # - shibboleth.c14n.attribute.AttributeSourceIds
 
-- name: Configure | {{ item }} | Add | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] > conf/c14n/attribute-sourced-subject-c14n-config.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
-    xpath: /x:beans/util:list
-    pretty_print: yes
-    insertafter: yes
-    namespaces:
-      x: "http://www.springframework.org/schema/beans"
-      util: "http://www.springframework.org/schema/util"
-    add_children:
-      - "{http://www.springframework.org/schema/util}list":
-          id: "{{ proxyitem }}"
-          _:
-            - value: proxy-eppn
-  loop_control:
-    loop_var: proxyitem
-  with_items:
-     - shibboleth.c14n.attribute.AttributeSourceIds
-     - shibboleth.c14n.attribute.AttributesToResolve
+# - name: Configure | {{ item }} | Add | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] > conf/c14n/attribute-sourced-subject-c14n-config.xml
+  # xml:
+    # file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
+    # xpath: /x:beans/util:list
+    # pretty_print: yes
+    # insertafter: yes
+    # namespaces:
+      # x: "http://www.springframework.org/schema/beans"
+      # util: "http://www.springframework.org/schema/util"
+    # add_children:
+      # - "{http://www.springframework.org/schema/util}list":
+          # id: "{{ proxyitem }}"
+          # _:
+            # - value: proxy-eppn
+  # loop_control:
+    # loop_var: proxyitem
+  # with_items:
+    #  - shibboleth.c14n.attribute.AttributeSourceIds
+    #  - shibboleth.c14n.attribute.AttributesToResolve
 
+# Tämä toimii myös 4.1.x
 - name: Configure | {{ item }} | Del | bean[@id="c14n/attribute"] < conf/c14n/subject-c14n.xml
   xml:
     file: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.xml"
@@ -127,28 +135,33 @@
           "{http://www.springframework.org/schema/p}proxyScopingEnforced": "true"
           "{http://www.springframework.org/schema/p}discoveryRequired": "false"
 
-- name: Configure | {{ item }} | Del | bean[@id="shibboleth.authn.SAML.discoveryFunction"] < conf/authn/saml-authn-config.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
-    xpath: /x:beans/x:bean[@id="shibboleth.authn.SAML.discoveryFunction"]
-    namespaces:
-      x: "http://www.springframework.org/schema/beans"
-    state: absent
 
-- name: Configure | {{ item }} | Add | bean[@id="shibboleth.authn.SAML.discoveryFunction"] > conf/authn/saml-authn-config.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
-    xpath: /x:beans
-    pretty_print: yes
-    namespaces:
-      x: "http://www.springframework.org/schema/beans"
-      p: "http://www.springframework.org/schema/p"
-      c: "http://www.springframework.org/schema/c"
-    add_children:
-      - bean:
-          id: "shibboleth.authn.SAML.discoveryFunction"
-          parent: "shibboleth.Functions.Constant"
-          "{http://www.springframework.org/schema/c}target": "https://testidp.funet.fi/idp/shibboleth"
+# !!!
+# Seuraava taski tehtävä uusiksi 4.1.x vastaavaksi, muutokset tehtävä: conf/authn/authn.properties
+# idp.authn.SAML.proxyEntityID = https://testidp.funet.fi/idp/shibboleth
+# !!!
+# - name: Configure | {{ item }} | Del | bean[@id="shibboleth.authn.SAML.discoveryFunction"] < conf/authn/saml-authn-config.xml
+  # xml:
+    # file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
+    # xpath: /x:beans/x:bean[@id="shibboleth.authn.SAML.discoveryFunction"]
+    # namespaces:
+      # x: "http://www.springframework.org/schema/beans"
+    # state: absent
+
+# - name: Configure | {{ item }} | Add | bean[@id="shibboleth.authn.SAML.discoveryFunction"] > conf/authn/saml-authn-config.xml
+  # xml:
+    # file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
+    # xpath: /x:beans
+    # pretty_print: yes
+    # namespaces:
+      # x: "http://www.springframework.org/schema/beans"
+      # p: "http://www.springframework.org/schema/p"
+      # c: "http://www.springframework.org/schema/c"
+    # add_children:
+      # - bean:
+          # id: "shibboleth.authn.SAML.discoveryFunction"
+          # parent: "shibboleth.Functions.Constant"
+          # "{http://www.springframework.org/schema/c}target": "https://testidp.funet.fi/idp/shibboleth"
 
 - name: Configure | {{ item }} | Mod | ensure checkAddress=false  > conf/relying-party.xml
   xml:
