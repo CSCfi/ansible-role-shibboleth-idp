@@ -42,13 +42,18 @@
           "{http://www.w3.org/2001/XMLSchema-instance}type": Subject
           exportAllAttributes: "true"
 
-# !!!
-# Seuraava taski tehtävä uusiksi 4.1.x vastaavaksi, muutokset tehtävä: conf/c14n/subject-c14n.properties
-# idp.c14n.attribute.attributeSourceIds = eduPersonPrincipalName
-# Allows direct use of attributes via SAML proxy authn, bypasses resolver
-# idp.c14n.attribute.resolveFromSubject = true
-# idp.c14n.attribute.resolutionCondition = shibboleth.Conditions.FALSE
-# !!!
+- name: Set attributes to resolve
+  ansible.builtin.lineinfile:
+    path: {{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties
+    regexp: '#idp\\.c14n\\.attribute\\.attributesToResolve ='
+    line: idp.c14n.attribute.attributesToResolve = proxy-eppn
+
+- name: Set attributes to resolve
+  ansible.builtin.lineinfile:
+    path: {{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties
+    regexp: '#idp\\.c14n\\.attribute\\.attributeSourceIds ='
+    line: idp.c14n.attribute.attributeSourceIds = proxy-eppn
+
 # - name: Configure | {{ item }} | Del | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] < conf/c14n/attribute-sourced-subject-c14n-config.xml
   # xml:
     # file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
@@ -135,11 +140,12 @@
           "{http://www.springframework.org/schema/p}proxyScopingEnforced": "true"
           "{http://www.springframework.org/schema/p}discoveryRequired": "false"
 
+- name: Set proxyEntityID
+  ansible.builtin.lineinfile:
+    path: {{ shibbolethidp_idp_home }}/conf/authn/authn.properties
+    regexp: '#idp\\.authn\\.SAML\\.proxyEntityID = https://idp\\.example\\.org/idp/shibboleth'
+    line: idp.authn.SAML.proxyEntityID = https://testidp.funet.fi/idp/shibboleth
 
-# !!!
-# Seuraava taski tehtävä uusiksi 4.1.x vastaavaksi, muutokset tehtävä: conf/authn/authn.properties
-# idp.authn.SAML.proxyEntityID = https://testidp.funet.fi/idp/shibboleth
-# !!!
 # - name: Configure | {{ item }} | Del | bean[@id="shibboleth.authn.SAML.discoveryFunction"] < conf/authn/saml-authn-config.xml
   # xml:
     # file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
@@ -276,5 +282,5 @@
                   </ds:KeyInfo>
               </KeyDescriptor>
       
-              <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{{ shibbolethidp_fqdn }}/idp/profile/Authn/SAML2/POST/SSO" index="0"/>
+              <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://{{ shibbolethidp_fqdn }}/idp/profile/Authn/SAML2/POST/SSO" index="0"/>
           </SPSSODescriptor>
