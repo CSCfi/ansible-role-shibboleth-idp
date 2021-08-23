@@ -44,13 +44,13 @@
 
 - name: Set attributes to resolve
   ansible.builtin.lineinfile:
-    path: {{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties
+    path: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties"
     regexp: '#idp\\.c14n\\.attribute\\.attributesToResolve ='
     line: idp.c14n.attribute.attributesToResolve = proxy-eppn
 
 - name: Set attributes to resolve
   ansible.builtin.lineinfile:
-    path: {{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties
+    path: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties"
     regexp: '#idp\\.c14n\\.attribute\\.attributeSourceIds ='
     line: idp.c14n.attribute.attributeSourceIds = proxy-eppn
 
@@ -142,7 +142,7 @@
 
 - name: Set proxyEntityID
   ansible.builtin.lineinfile:
-    path: {{ shibbolethidp_idp_home }}/conf/authn/authn.properties
+    path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
     regexp: '#idp\\.authn\\.SAML\\.proxyEntityID = https://idp\\.example\\.org/idp/shibboleth'
     line: idp.authn.SAML.proxyEntityID = https://testidp.funet.fi/idp/shibboleth
 
