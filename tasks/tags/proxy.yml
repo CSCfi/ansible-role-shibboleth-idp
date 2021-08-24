@@ -42,40 +42,53 @@
           "{http://www.w3.org/2001/XMLSchema-instance}type": Subject
           exportAllAttributes: "true"
 
-- name: Configure | {{ item }} | Del | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] < conf/c14n/attribute-sourced-subject-c14n-config.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
-    xpath: /x:beans/util:list[@id="{{ proxyitem }}"]
-    namespaces:
-      x: "http://www.springframework.org/schema/beans"
-      util: "http://www.springframework.org/schema/util"
-    state: absent
-  loop_control:
-    loop_var: proxyitem
-  with_items:
-    - shibboleth.c14n.attribute.AttributesToResolve
-    - shibboleth.c14n.attribute.AttributeSourceIds
+- name: Set attributes to resolve
+  ansible.builtin.lineinfile:
+    path: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties"
+    regexp: '#idp\.c14n\.attribute\.attributesToResolve ='
+    line: idp.c14n.attribute.attributesToResolve = proxy-eppn
 
-- name: Configure | {{ item }} | Add | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] > conf/c14n/attribute-sourced-subject-c14n-config.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
-    xpath: /x:beans/util:list
-    pretty_print: yes
-    insertafter: yes
-    namespaces:
-      x: "http://www.springframework.org/schema/beans"
-      util: "http://www.springframework.org/schema/util"
-    add_children:
-      - "{http://www.springframework.org/schema/util}list":
-          id: "{{ proxyitem }}"
-          _:
-            - value: proxy-eppn
-  loop_control:
-    loop_var: proxyitem
-  with_items:
-     - shibboleth.c14n.attribute.AttributeSourceIds
-     - shibboleth.c14n.attribute.AttributesToResolve
+- name: Set attributes to resolve
+  ansible.builtin.lineinfile:
+    path: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties"
+    regexp: '#idp\.c14n\.attribute\.attributeSourceIds ='
+    line: idp.c14n.attribute.attributeSourceIds = proxy-eppn
 
+# - name: Configure | {{ item }} | Del | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] < conf/c14n/attribute-sourced-subject-c14n-config.xml
+  # xml:
+    # file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
+    # xpath: /x:beans/util:list[@id="{{ proxyitem }}"]
+    # namespaces:
+      # x: "http://www.springframework.org/schema/beans"
+      # util: "http://www.springframework.org/schema/util"
+    # state: absent
+  # loop_control:
+    # loop_var: proxyitem
+  # with_items:
+    # - shibboleth.c14n.attribute.AttributesToResolve
+    # - shibboleth.c14n.attribute.AttributeSourceIds
+
+# - name: Configure | {{ item }} | Add | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] > conf/c14n/attribute-sourced-subject-c14n-config.xml
+  # xml:
+    # file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
+    # xpath: /x:beans/util:list
+    # pretty_print: yes
+    # insertafter: yes
+    # namespaces:
+      # x: "http://www.springframework.org/schema/beans"
+      # util: "http://www.springframework.org/schema/util"
+    # add_children:
+      # - "{http://www.springframework.org/schema/util}list":
+          # id: "{{ proxyitem }}"
+          # _:
+            # - value: proxy-eppn
+  # loop_control:
+    # loop_var: proxyitem
+  # with_items:
+    #  - shibboleth.c14n.attribute.AttributeSourceIds
+    #  - shibboleth.c14n.attribute.AttributesToResolve
+
+# Tämä toimii myös 4.1.x
 - name: Configure | {{ item }} | Del | bean[@id="c14n/attribute"] < conf/c14n/subject-c14n.xml
   xml:
     file: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.xml"
@@ -127,28 +140,34 @@
           "{http://www.springframework.org/schema/p}proxyScopingEnforced": "true"
           "{http://www.springframework.org/schema/p}discoveryRequired": "false"
 
-- name: Configure | {{ item }} | Del | bean[@id="shibboleth.authn.SAML.discoveryFunction"] < conf/authn/saml-authn-config.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
-    xpath: /x:beans/x:bean[@id="shibboleth.authn.SAML.discoveryFunction"]
-    namespaces:
-      x: "http://www.springframework.org/schema/beans"
-    state: absent
+- name: Set proxyEntityID
+  ansible.builtin.lineinfile:
+    path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
+    regexp: '#idp\.authn\.SAML\.proxyEntityID = https://idp\.example\.org/idp/shibboleth'
+    line: idp.authn.SAML.proxyEntityID = https://testidp.funet.fi/idp/shibboleth
 
-- name: Configure | {{ item }} | Add | bean[@id="shibboleth.authn.SAML.discoveryFunction"] > conf/authn/saml-authn-config.xml
-  xml:
-    file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
-    xpath: /x:beans
-    pretty_print: yes
-    namespaces:
-      x: "http://www.springframework.org/schema/beans"
-      p: "http://www.springframework.org/schema/p"
-      c: "http://www.springframework.org/schema/c"
-    add_children:
-      - bean:
-          id: "shibboleth.authn.SAML.discoveryFunction"
-          parent: "shibboleth.Functions.Constant"
-          "{http://www.springframework.org/schema/c}target": "https://test-user-auth.csc.fi/idp/shibboleth"
+# - name: Configure | {{ item }} | Del | bean[@id="shibboleth.authn.SAML.discoveryFunction"] < conf/authn/saml-authn-config.xml
+  # xml:
+    # file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
+    # xpath: /x:beans/x:bean[@id="shibboleth.authn.SAML.discoveryFunction"]
+    # namespaces:
+      # x: "http://www.springframework.org/schema/beans"
+    # state: absent
+
+# - name: Configure | {{ item }} | Add | bean[@id="shibboleth.authn.SAML.discoveryFunction"] > conf/authn/saml-authn-config.xml
+  # xml:
+    # file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
+    # xpath: /x:beans
+    # pretty_print: yes
+    # namespaces:
+      # x: "http://www.springframework.org/schema/beans"
+      # p: "http://www.springframework.org/schema/p"
+      # c: "http://www.springframework.org/schema/c"
+    # add_children:
+      # - bean:
+          # id: "shibboleth.authn.SAML.discoveryFunction"
+          # parent: "shibboleth.Functions.Constant"
+          # "{http://www.springframework.org/schema/c}target": "https://testidp.funet.fi/idp/shibboleth"
 
 - name: Configure | {{ item }} | Mod | ensure checkAddress=false  > conf/relying-party.xml
   xml:
@@ -175,8 +194,8 @@
   loop_control:
     loop_var: proxyitem
   with_items:
-    - proxy
-    - testsp
+    - upstream_idp
+    - downstream_idp
 
 - name: Configure | {{ item }} | Add | AttributeFilterPolicy[@id="proxy"] > conf/attribute-filter.xml
   xml:
@@ -188,10 +207,10 @@
       xsi: "http://www.w3.org/2001/XMLSchema-instance"
     add_children:
       - AttributeFilterPolicy:
-          id: "proxy"
+          id: "upstream_idp"
           _:
             - PolicyRequirementRule:
-                value: "https://test-user-auth.csc.fi/idp/shibboleth"
+                value: "https://testidp.funet.fi/idp/shibboleth"
                 "{http://www.w3.org/2001/XMLSchema-instance}type": Issuer
             - AttributeRule:
                 attributeID: givenName
@@ -212,10 +231,10 @@
                 attributeID: schacHomeOrganizationType
                 permitAny: "true"
       - AttributeFilterPolicy:
-          id: "testsp"
+          id: "downstream_idp"
           _:
             - PolicyRequirementRule:
-                value: "https://testsp.funet.fi/shibboleth"
+                value: "{{ shibbolethidp_entityid }}"
                 "{http://www.w3.org/2001/XMLSchema-instance}type": Requester
             - AttributeRule:
                 attributeID: givenName
@@ -236,3 +255,32 @@
                 attributeID: schacHomeOrganizationType
                 permitAny: "true"
 
+- name: Add SP configuration to idp-metadata
+  blockinfile:
+    path: "{{ shibbolethidp_idp_home }}/metadata/idp-metadata.xml"
+    insertbefore: "</EntityDescriptor>"
+    block: |
+          <!-- New SP block -->
+          <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+      
+              <KeyDescriptor use="signing">
+                  <ds:KeyInfo>
+                      <ds:X509Data>
+                          <ds:X509Certificate>
+                          ...Signing Certificate from IdP...
+                          </ds:X509Certificate>
+                      </ds:X509Data>
+                  </ds:KeyInfo>
+              </KeyDescriptor>
+              <KeyDescriptor use="encryption">
+                  <ds:KeyInfo>
+                      <ds:X509Data>
+                          <ds:X509Certificate>
+                          ...Signing Certificate from IdP...
+                          </ds:X509Certificate>
+                      </ds:X509Data>
+                  </ds:KeyInfo>
+              </KeyDescriptor>
+      
+              <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://{{ shibbolethidp_fqdn }}/idp/profile/Authn/SAML2/POST/SSO" index="0"/>
+          </SPSSODescriptor>
