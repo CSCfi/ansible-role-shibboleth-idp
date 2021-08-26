@@ -54,6 +54,9 @@
     regexp: '#idp\.c14n\.attribute\.attributeSourceIds ='
     line: idp.c14n.attribute.attributeSourceIds = proxy-eppn
 
+# Outdated in 4.1.x
+#
+#
 # - name: Configure | {{ item }} | Del | util:list[@id="shibboleth.c14n.attribute.AttributesToResolver"] < conf/c14n/attribute-sourced-subject-c14n-config.xml
   # xml:
     # file: "{{ shibbolethidp_idp_home }}/conf/c14n/attribute-sourced-subject-c14n-config.xml"
@@ -146,6 +149,15 @@
     regexp: '#idp\.authn\.SAML\.proxyEntityID = https://idp\.example\.org/idp/shibboleth'
     line: idp.authn.SAML.proxyEntityID = https://testidp.funet.fi/idp/shibboleth
 
+- name: Set idp.authn.flows to SAML
+  ansible.builtin.lineinfile:
+    path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
+    regexp: '#idp\.authn\.flows = Password'
+    line: idp.authn.flows = SAML
+
+# Outdated in 4.1.x
+#
+#
 # - name: Configure | {{ item }} | Del | bean[@id="shibboleth.authn.SAML.discoveryFunction"] < conf/authn/saml-authn-config.xml
   # xml:
     # file: "{{ shibbolethidp_idp_home }}/conf/authn/saml-authn-config.xml"
@@ -195,7 +207,7 @@
     loop_var: proxyitem
   with_items:
     - upstream_idp
-    - downstream_idp
+    - sp
 
 - name: Configure | {{ item }} | Add | AttributeFilterPolicy[@id="proxy"] > conf/attribute-filter.xml
   xml:
@@ -231,10 +243,10 @@
                 attributeID: schacHomeOrganizationType
                 permitAny: "true"
       - AttributeFilterPolicy:
-          id: "downstream_idp"
+          id: "sp"
           _:
             - PolicyRequirementRule:
-                value: "{{ shibbolethidp_entityid }}"
+                value: "https://sp.novalocal/shibboleth/haka"
                 "{http://www.w3.org/2001/XMLSchema-instance}type": Requester
             - AttributeRule:
                 attributeID: givenName
@@ -255,32 +267,42 @@
                 attributeID: schacHomeOrganizationType
                 permitAny: "true"
 
-- name: Add SP configuration to idp-metadata
-  blockinfile:
+  - name: Add SPSSODescriptor configuration to idp-metadata.xml
+    blockinfile:
+      path: "{{ shibbolethidp_idp_home }}/metadata/idp-metadata.xml"
+      insertbefore: "</EntityDescriptor>"
+      block: |
+            <!-- SP configuration for proxy -->
+            <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+                <KeyDescriptor use="signing">
+                    <ds:KeyInfo>
+                        <ds:X509Data>
+                            <ds:X509Certificate>
+                            {{ shibbolethidp_samlsig_crt }}
+                            </ds:X509Certificate>
+                        </ds:X509Data>
+                    </ds:KeyInfo>
+                </KeyDescriptor>
+                <KeyDescriptor use="encryption">
+                    <ds:KeyInfo>
+                        <ds:X509Data>
+                            <ds:X509Certificate>
+                            {{ shibbolethidp_samlenc_crt }}
+                            </ds:X509Certificate>
+                        </ds:X509Data>
+                    </ds:KeyInfo>
+                </KeyDescriptor>        
+                <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://{{ shibbolethidp_fqdn }}/idp/profile/Authn/SAML2/POST/SSO" index="0"/>
+            </SPSSODescriptor>
+
+- name: Remove -----BEGIN CERTIFICATE-----
+  ansible.builtin.lineinfile:
     path: "{{ shibbolethidp_idp_home }}/metadata/idp-metadata.xml"
-    insertbefore: "</EntityDescriptor>"
-    block: |
-          <!-- New SP block -->
-          <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
-      
-              <KeyDescriptor use="signing">
-                  <ds:KeyInfo>
-                      <ds:X509Data>
-                          <ds:X509Certificate>
-                          ...Signing Certificate from IdP...
-                          </ds:X509Certificate>
-                      </ds:X509Data>
-                  </ds:KeyInfo>
-              </KeyDescriptor>
-              <KeyDescriptor use="encryption">
-                  <ds:KeyInfo>
-                      <ds:X509Data>
-                          <ds:X509Certificate>
-                          ...Signing Certificate from IdP...
-                          </ds:X509Certificate>
-                      </ds:X509Data>
-                  </ds:KeyInfo>
-              </KeyDescriptor>
-      
-              <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://{{ shibbolethidp_fqdn }}/idp/profile/Authn/SAML2/POST/SSO" index="0"/>
-          </SPSSODescriptor>
+    regexp: '\s*-----BEGIN CERTIFICATE-----'
+    state: absent
+
+- name: Remove -----END CERTIFICATE-----
+  ansible.builtin.lineinfile:
+    path: "{{ shibbolethidp_idp_home }}/metadata/idp-metadata.xml"
+    regexp: '\s*-----END CERTIFICATE-----'
+    state: absent
