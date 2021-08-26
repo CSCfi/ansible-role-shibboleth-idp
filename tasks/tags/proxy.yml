@@ -271,6 +271,7 @@
   blockinfile:
     path: "{{ shibbolethidp_idp_home }}/metadata/idp-metadata.xml"
     insertbefore: "</EntityDescriptor>"
+    marker: "<!-- {mark} - ANSIBLE MANAGED BLOCK -->"
     block: |
           <!-- SP configuration for proxy -->
           <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
