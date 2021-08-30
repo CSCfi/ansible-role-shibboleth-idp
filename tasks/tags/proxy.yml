@@ -45,14 +45,14 @@
 - name: Set idp.c14n.attribute.attributesToResolve
   ansible.builtin.lineinfile:
     path: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties"
-    search_string: "idp.c14n.attribute.attributesToResolve"
+    regexp: ".*idp.c14n.attribute.attributesToResolve.*"
     line: idp.c14n.attribute.attributesToResolve = proxy-eppn
     state: present
 
 - name: Set idp.c14n.attribute.attributeSourceIds
   ansible.builtin.lineinfile:
     path: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties"
-    search_string: "idp.c14n.attribute.attributeSourceIds"
+    regexp: ".*idp.c14n.attribute.attributeSourceIds.*"
     line: idp.c14n.attribute.attributeSourceIds = proxy-eppn
     state: present
 
@@ -149,27 +149,27 @@
 # - name: Set proxyEntityID to haka-test idp
   # ansible.builtin.lineinfile:
     # path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
-    # search_string: "idp.authn.SAML.proxyEntityID"
+    # regexp: ".*idp.authn.SAML.proxyEntityID.*"
     # line: idp.authn.SAML.proxyEntityID = https://testidp.funet.fi/idp/shibboleth
 
 - name: Set idp.authn.discoveryURL to haka-test DS
   ansible.builtin.lineinfile:
     path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
-    search_string: "idp.authn.discoveryURL"
+    regexp: ".*idp.authn.discoveryURL.*"
     line: idp.authn.discoveryURL = https://testsp.funet.fi/DS
     state: present
 
 - name: Set idp.authn.flows to SAML
   ansible.builtin.lineinfile:
     path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
-    search_string: "idp.authn.flows"
+    regexp: ".*idp.authn.flows.*"
     line: idp.authn.flows = SAML
     state: present
 
 - name: Set idp.authn.SAML.discoveryRequired to true
   ansible.builtin.lineinfile:
     path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
-    search_string: "idp.authn.SAML.discoveryRequired"
+    regexp: ".*idp.authn.SAML.discoveryRequired.*"
     line: idp.authn.SAML.discoveryRequired = true
     state: present
 
