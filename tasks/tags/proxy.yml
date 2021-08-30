@@ -42,17 +42,19 @@
           "{http://www.w3.org/2001/XMLSchema-instance}type": Subject
           exportAllAttributes: "true"
 
-- name: Set attributes to resolve
+- name: Set idp.c14n.attribute.attributesToResolve
   ansible.builtin.lineinfile:
     path: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties"
-    regexp: '#idp\.c14n\.attribute\.attributesToResolve ='
+    search_string: "idp.c14n.attribute.attributesToResolve"
     line: idp.c14n.attribute.attributesToResolve = proxy-eppn
+    state: present
 
-- name: Set attributes to resolve
+- name: Set idp.c14n.attribute.attributeSourceIds
   ansible.builtin.lineinfile:
     path: "{{ shibbolethidp_idp_home }}/conf/c14n/subject-c14n.properties"
-    regexp: '#idp\.c14n\.attribute\.attributeSourceIds ='
+    search_string: "idp.c14n.attribute.attributeSourceIds"
     line: idp.c14n.attribute.attributeSourceIds = proxy-eppn
+    state: present
 
 # Outdated in 4.1.x
 #
@@ -143,17 +145,33 @@
           "{http://www.springframework.org/schema/p}proxyScopingEnforced": "true"
           "{http://www.springframework.org/schema/p}discoveryRequired": "false"
 
-- name: Set proxyEntityID
+
+# - name: Set proxyEntityID to haka-test idp
+  # ansible.builtin.lineinfile:
+    # path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
+    # search_string: "idp.authn.SAML.proxyEntityID"
+    # line: idp.authn.SAML.proxyEntityID = https://testidp.funet.fi/idp/shibboleth
+
+- name: Set idp.authn.discoveryURL to haka-test DS
   ansible.builtin.lineinfile:
     path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
-    regexp: '#idp\.authn\.SAML\.proxyEntityID = https://idp\.example\.org/idp/shibboleth'
-    line: idp.authn.SAML.proxyEntityID = https://testidp.funet.fi/idp/shibboleth
+    search_string: "idp.authn.discoveryURL"
+    line: idp.authn.discoveryURL = https://testsp.funet.fi/DS
+    state: present
 
 - name: Set idp.authn.flows to SAML
   ansible.builtin.lineinfile:
     path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
-    regexp: '#idp\.authn\.flows = Password'
+    search_string: "idp.authn.flows"
     line: idp.authn.flows = SAML
+    state: present
+
+- name: Set idp.authn.SAML.discoveryRequired to true
+  ansible.builtin.lineinfile:
+    path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
+    search_string: "idp.authn.SAML.discoveryRequired"
+    line: idp.authn.SAML.discoveryRequired = true
+    state: present
 
 # Outdated in 4.1.x
 #
@@ -209,6 +227,8 @@
     - upstream_idp
     - sp
 
+
+# TO DO: Jos/kun useampia idp proxytettynä, lisää mahdollisuus lisätä filtteriin muutkin Issuerit
 - name: Configure | {{ item }} | Add | AttributeFilterPolicy[@id="proxy"] > conf/attribute-filter.xml
   xml:
     file: "{{ shibbolethidp_idp_home }}/conf/attribute-filter.xml"
