@@ -23,12 +23,12 @@ shibbolethidp_fticks_salt: changemeplease
 shibbolethidp_fticks_loghost: localhost
 
 ### Edugain
-shibbolethidp_edugaincrt: "https://wiki.eduuni.fi/download/attachments/27297748/haka-edugain-sign.csc.fi.2020.pem"
+shibbolethidp_edugaincrt: "https://wiki.eduuni.fi/download/attachments/27297748/haka-edugain-sign.csc.fi.2021.pem"
 shibbolethidp_edugainmd_url: "https://haka.funet.fi/edugain-nightly/gen-edugain/idp-FILL-metadata-eduGain.xml"
 ### Haka-test
 shibbolethidp_hakatestcrt: "https://wiki.eduuni.fi/download/attachments/27297785/haka_testi_2018_sha2.crt"
 ### Haka
-shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297775/haka-sign-v5.pem"
+shibbolethidp_hakacrt: "https://wiki.eduuni.fi/download/attachments/27297860/haka-sign-v6.pem"
 
 ### NameID
 shibbolethidp_persistentid_sourceattribute: uid
