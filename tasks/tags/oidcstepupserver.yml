@@ -64,7 +64,7 @@
     loop_var: item_stepup
 
 - name: Test for idpauthnflows line
-  shell: grep -c "idp.authn.flows" {{ shibbolethidp_idp_home }}/conf/idp.properties || true
+  shell: grep -c "idp.authn.flows" "{{ shibbolethidp_idp_home }}/conf/idp.properties" || true
   register: idpauthnflows
 
 - name: add idp.authn.flows line
