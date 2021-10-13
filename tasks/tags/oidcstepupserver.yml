@@ -63,6 +63,16 @@
   loop_control:
     loop_var: item_stepup
 
+- name: Test for idpauthnflows line
+  shell: grep -c "idp.authn.flows" {{ shibbolethidp_idp_home }}/conf/idp.properties || true
+  register: idpauthnflows
+
+- name: add idp.authn.flows line
+  lineinfile:
+    dest: {{ shibbolethidp_idp_home }}/conf/idp.properties
+    line: idp.authn.flows =
+  when: ifpauthnflows.stdout == "0"
+
 - name: Configurable | OIDCStepUpServer | Configure | Flows | idp.properties
   lineinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
