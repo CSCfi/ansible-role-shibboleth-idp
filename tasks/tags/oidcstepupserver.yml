@@ -35,13 +35,33 @@
     marker: "    <!-- {mark} ansible managed - stepup-flow -->"
     insertafter: 'default-destroy-method="destroy"'
     content: |2
-          <bean id="authn/Stepup" parent="shibboleth.AuthenticationFlow" p:passiveAuthenticationSupported="false" p:forcedAuthenticationSupported="true" >
-            <property name="supportedPrincipals">
-              <list>
-                <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://refeds.org/profile/mfa" />
-              </list>
-            </property>
-          </bean>
+        <util:list id="shibboleth.AvailableAuthenticationFlows">
+
+        <!-- Custom authentication flow -->
+        <bean id="authn/Stepup" parent="shibboleth.AuthenticationFlow" p:passiveAuthenticationSupported="false" p:forcedAuthenticationSupported="true" >
+          <property name="supportedPrincipals">
+            <list>
+              <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://refeds.org/profile/mfa"/>
+              <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://refeds.org/profile/mfa"/>
+            </list>
+          </property>
+        </bean>
+        </util:list>
+
+- name: Configurable | OIDCStepUpServer | authn.properties
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/authn/authn.properties regexp="^#?\s*({{ item_stepup.option }}\s*=)" backrefs=yes  line="\\1 {{ item_stepup.value }}"
+  with_items:
+    - { option: 'idp.authn.MFA.supportedPrincipals', value: "saml2/https://refeds.org/profile/mfa, oidc/https://refeds.org/profile/mfa", state: present }
+  loop_control:
+    loop_var: item_stepup
+
+- name: Configurable | OIDCStepUpServer | stepup.properties
+  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/authn/stepup.properties regexp="^#?\s*({{ item_stepup.option }}\s*=)" backrefs=yes  line="\\1 {{ item_stepup.value }}"
+  with_items:
+    - { option: 'stepup.authenticationManager', value: "{{ shibbolethidp_oidcstepupserver_stepup_authenticationManager }}", state: present }
+    - { option: 'stepup.attributedecryptor.key', value: "{{ shibbolethidp_oidcstepupserver_stepup_attributedecryptor_key }}", state: present }
+  loop_control:
+    loop_var: item_stepup
 
 - name: Configurable | OIDCStepUpServer | Configure | Flows | idp.properties
   lineinfile:
@@ -49,7 +69,7 @@
     regexp: ^(?!.*{{ shibbolethidp_item }})(idp.authn.flows=.*)$
     line: \1|{{ shibbolethidp_item }}
     backrefs: yes
-  with_items: Stepup
+  with_items: Password|MFA
   loop_control:
     loop_var: shibbolethidp_item
   notify:
