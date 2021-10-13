@@ -49,11 +49,11 @@
         </util:list>
 
 - name: Configurable | OIDCStepUpServer | authn.properties
-  lineinfile: dest={{ shibbolethidp_idp_home }}/conf/authn/authn.properties regexp="^#?\s*({{ item_stepup.option }}\s*=)" backrefs=yes  line="\\1 {{ item_stepup.value }}"
-  with_items:
-    - { option: 'idp.authn.MFA.supportedPrincipals', value: "saml2/https://refeds.org/profile/mfa, oidc/https://refeds.org/profile/mfa", state: present }
-  loop_control:
-    loop_var: item_stepup
+  replace:
+    path: "{{ shibbolethidp_idp_home }}/conf/authn/authn.properties"
+    regexp: '^\idp.authn.MFA.supportedPrincipals[^#]+'
+    replace: 'idp.authn.MFA.supportedPrincipals = saml2/https://refeds.org/profile/mfa, oidc/https://refeds.org/profile/mfa'
+    backup: yes
 
 - name: Configurable | OIDCStepUpServer | stepup.properties
   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/authn/stepup.properties regexp="^#?\s*({{ item_stepup.option }}\s*=)" backrefs=yes  line="\\1 {{ item_stepup.value }}"
