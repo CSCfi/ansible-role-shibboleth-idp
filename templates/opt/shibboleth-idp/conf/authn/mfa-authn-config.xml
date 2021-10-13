@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans" 
+           xmlns:context="http://www.springframework.org/schema/context" 
+           xmlns:util="http://www.springframework.org/schema/util" 
+           xmlns:p="http://www.springframework.org/schema/p" 
+           xmlns:c="http://www.springframework.org/schema/c" 
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+           xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd 
+                               http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context.xsd 
+                               http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util.xsd" 
+
+           default-init-method="initialize"
+           default-destroy-method="destroy">
+
+        <!-- MFA flow that performs ALWAYS both Password and Stepup flows. -->
+        <!-- Alternative strategy would be to check need for Stepup after Password has executed. -->
+        <util:map id="shibboleth.authn.MFA.TransitionMap">
+            <entry key="">
+                <bean parent="shibboleth.authn.MFA.Transition" p:nextFlow="authn/Password" />
+            </entry>
+            <entry key="authn/Password">
+                <bean parent="shibboleth.authn.MFA.Transition" p:nextFlowStrategy-ref="prepareStepup" />
+            </entry>
+            <entry key="authn/Stepup">
+                <bean parent="shibboleth.authn.MFA.Transition" p:nextFlowStrategy-ref="removeContext" />
+            </entry>
+        </util:map>
+
+        <!-- We prepare AttributeResolutionContext for Stepup and instruct to perform it. -->
+        <bean id="prepareStepup" parent="shibboleth.ContextFunctions.Scripted" factory-method="inlineScript" p:customObject-ref="shibboleth.AttributeResolverService">
+            <constructor-arg>
+                <value>
+                <![CDATA[
+                    nextFlow = "authn/Stepup";
+                    resCtx = input.getSubcontext(
+                                        "net.shibboleth.idp.attribute.resolver.context.AttributeResolutionContext", true);
+                    usernameLookupStrategyClass = Java.type("net.shibboleth.idp.session.context.navigate.CanonicalUsernameLookupStrategy");
+                                    usernameLookupStrategy = new usernameLookupStrategyClass();
+                    resCtx.setPrincipal(usernameLookupStrategy.apply(input));
+                    // resolve totp seed for Stepup
+                    resCtx.getRequestedIdPAttributeNames().add("totpSeed");
+                    resCtx.resolveAttributes(custom);
+                    nextFlow;
+                ]]>
+                </value>
+            </constructor-arg>
+        </bean>
+
+
+        <!-- Clean up phase. Remove AttributeResolutionContext. -->
+        <bean id="removeContext" parent="shibboleth.ContextFunctions.Scripted" factory-method="inlineScript">
+            <constructor-arg>
+                <value>
+                <![CDATA[
+                    nextFlow = null;
+                    resCtx = input.getSubcontext(
+                                        "net.shibboleth.idp.attribute.resolver.context.AttributeResolutionContext", false);
+                    input.removeSubcontext(resCtx);
+                    nextFlow;
+                ]]>
+                </value>
+            </constructor-arg>
+        </bean>
+
+    </beans>

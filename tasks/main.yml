@@ -14,3 +14,9 @@
   include: tags/{{ item }}.yml
   with_items: "{{ confs }}"
   when: (confs is defined) and (confs|length > 0) and (item!="install")
+
+- name: Remove OIDCstepupserver configuration if not installed
+  file:
+    path: /opt/shibboleth-idp/confs/authn/mfa-authn-config.xml
+    state: absent
+  when: "'oidcstepupserver' not in confs"
