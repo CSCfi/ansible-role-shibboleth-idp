@@ -54,6 +54,8 @@
     regexp: '^idp\.authn\.MFA\.supportedPrincipals =([\s\S]*)#'
     replace: 'idp.authn.MFA.supportedPrincipals = saml2/https://refeds.org/profile/mfa, oidc/https://refeds.org/profile/mfa \n#'
     backup: yes
+  ignore_errors: yes
+
 
 - name: Configurable | OIDCStepUpServer | stepup.properties
   lineinfile: dest={{ shibbolethidp_idp_home }}/conf/authn/stepup.properties regexp="^#?\s*({{ item_stepup.option }}\s*=)" backrefs=yes  line="\\1 {{ item_stepup.value }}"
