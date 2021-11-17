@@ -104,14 +104,11 @@
     line: idp.authn.flows =
   when: idpauthnflows.stdout == "0"
 
-- name: Configurable | OIDCStepUpServer | Configure | Flows | idp.properties
+- name: MFA | Configure | Flow | idp.properties
   lineinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
-    regexp: ^(?!.*{{ shibbolethidp_item }})(idp.authn.flows =.*)$
-    line: \1|{{ shibbolethidp_item }}
+    regexp: ^(?!.*MFA)(idp.authn.flows=.*)$
+    line: \1|MFA
     backrefs: yes
-  with_items: Password|MFA
-  loop_control:
-    loop_var: shibbolethidp_item
   notify:
     - restart shibboleth-idp
