@@ -29,6 +29,10 @@
 #- name: Shibboleth IdP | OIDC | Import OIDC extension configuration files
 # =======================================================================
 
+- name: Test for idpauthnflows line
+  shell: grep -c "<util:list id="shibboleth.AvailableAuthenticationFlows">" "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml" || true
+  register: authenticationflows
+
 - name: Configurable | OIDCStepUpServer | Configure | Flow | Insert | general-authn.xml
   blockinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
@@ -47,6 +51,31 @@
           </property>
         </bean>
         </util:list>
+  when: authenticationflows == "0"
+
+- name: Configurable | OIDCStepUpServer | Configure | Flow | Insert | general-authn.xml
+  blockinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    marker: "    <!-- {mark} ansible managed - stepup-flow -->"
+    insertbefore: '</util:list>'
+    content: |2
+        <!-- Custom authentication flow -->
+        <bean id="authn/Stepup" parent="shibboleth.AuthenticationFlow" p:passiveAuthenticationSupported="false" p:forcedAuthenticationSupported="true" >
+          <property name="supportedPrincipals">
+            <list>
+              <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://refeds.org/profile/mfa"/>
+              <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://refeds.org/profile/mfa"/>
+            </list>
+          </property>
+        </bean>
+  when: authenticationflows != "0"
+
+- name: Configurable | {{ item }} | Configure | idp.properties | (to include /conf/authn/stepup.properties)
+  lineinfile:
+    dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
+    regexp: ^(?!.*oidc)(idp.additionalProperties.*)$
+    line: '\1, /conf/authn/stepup.properties'
+    backrefs: yes
 
 - name: Configurable | OIDCStepUpServer | authn.properties
   replace:
