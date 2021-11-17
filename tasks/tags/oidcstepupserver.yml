@@ -73,7 +73,7 @@
 - name: Configurable | {{ item }} | Configure | idp.properties | (to include /conf/authn/stepup.properties)
   lineinfile:
     dest: "{{ shibbolethidp_idp_home }}/conf/idp.properties"
-    regexp: ^(?!.*oidc)(idp.additionalProperties.*)$
+    regexp: ^(?!.*stepup)(idp.additionalProperties.*)$
     line: '\1, /conf/authn/stepup.properties'
     backrefs: yes
 
