@@ -124,18 +124,17 @@
 - name: Configure | {{ item }} | Add | bean[@id="authn/MFA"] > general-authn.xml
   xml:
     file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
-    xpath: /x:beans/x:bean/[@id="authn/MFA"]/x:property
+    xpath: '/x:beans/x:bean/[@id="authn/MFA"]/x:property/x:list'
     pretty_print: yes
     namespaces:
       x: "http://www.springframework.org/schema/beans"
       p: "http://www.springframework.org/schema/p"
       c: "http://www.springframework.org/schema/c"
     add_children:
-      - list:
-        - bean:
-            id: "shibboleth.OIDCAuthnContextClassReference"
-            "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
-        - bean:
-            id: "shibboleth.SAML2AuthnContextClassRef"
-            "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
+      - bean:
+          id: "shibboleth.OIDCAuthnContextClassReference"
+          "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
+      - bean:
+          id: "shibboleth.SAML2AuthnContextClassRef"
+          "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
 
