@@ -47,6 +47,12 @@
             <list>
               <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://refeds.org/profile/mfa"/>
               <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://refeds.org/profile/mfa"/>
+              <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginHakaMFA"/>
+              <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginHakaMFA"/>
+              <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginCSCMFA"/>
+              <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginCSCMFA"/>
+              <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginVirtuMFA"/>
+              <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginVirtuMFA"/>
             </list>
           </property>
         </bean>
@@ -65,6 +71,12 @@
             <list>
               <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://refeds.org/profile/mfa"/>
               <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://refeds.org/profile/mfa"/>
+              <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginHakaMFA"/>
+              <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginHakaMFA"/>
+              <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginCSCMFA"/>
+              <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginCSCMFA"/>
+              <bean parent="shibboleth.OIDCAuthnContextClassReference" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginVirtuMFA"/>
+              <bean parent="shibboleth.SAML2AuthnContextClassRef" c:classRef="https://{{ shibbolethidp_fqdn }}/LoginVirtuMFA"/>
             </list>
           </property>
         </bean>
@@ -113,13 +125,30 @@
   notify:
     - restart shibboleth-idp
 
-- name: Configure | {{ item }} | Del | bean[@id="authn/MFA"] < general-authn.xml
+- name: Configure | MFA | authn/general-authn.xml | authn/MFAs | Remove
   xml:
+    xpath: "{{ item_stepup }}"
+    ensure: "absent"
     file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
-    xpath: /x:beans/x:bean[@id="authn/MFA"]/x:property/x:list
     namespaces:
-      x: "http://www.springframework.org/schema/beans"
-    state: absent
+      beans: http://www.springframework.org/schema/beans
+      p: http://www.springframework.org/schema/p
+      util: http://www.springframework.org/schema/util
+  with_items:
+    - "//beans:bean[@id='authn/LoginVirtuMFA']"
+    - "//beans:bean[@id='authn/LoginHakaMFA']"
+    - "//beans:bean[@id='authn/MFA']/beans:property/beans:list"
+  loop_control:
+    loop_var: item_stepup
+  notify: restart shibboleth-idp
+
+    #- name: Configure | {{ item }} | Del | bean[@id="authn/MFA"] < general-authn.xml
+    #  xml:
+    #    file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    #    xpath: /x:beans/x:bean[@id="authn/MFA"]/x:property/x:list
+    #    namespaces:
+    #      x: "http://www.springframework.org/schema/beans"
+    #    state: absent
 
 - name: Configure | {{ item }} | Add | bean[@id="authn/MFA"] > general-authn.xml
   xml:
@@ -134,9 +163,104 @@
       - list:
            _:
               - bean:
-                  id: "shibboleth.OIDCAuthnContextClassReference"
-                  "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
+                  parent: "shibboleth.OIDCAuthnContextClassReference"
+                  "{http://www.springframework.org/schema/c}classRef": "https://{{ shibbolethidp_fqdn }}/LoginHakaMFA"
               - bean:
-                  id: "shibboleth.SAML2AuthnContextClassRef"
-                  "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
+                  parent: "shibboleth.SAML2AuthnContextClassRef"
+                  "{http://www.springframework.org/schema/c}classRef": "https://{{ shibbolethidp_fqdn }}/LoginHakaMFA"
+              - bean:
+                  parent: "shibboleth.OIDCAuthnContextClassReference"
+                  "{http://www.springframework.org/schema/c}classRef": "https://{{ shibbolethidp_fqdn }}/LoginVirtuMFA"
+              - bean:
+                  parent: "shibboleth.SAML2AuthnContextClassRef"
+                  "{http://www.springframework.org/schema/c}classRef": "https://{{ shibbolethidp_fqdn }}/LoginVirtuMFA"
+              - bean:
+                  parent: "shibboleth.OIDCAuthnContextClassReference"
+                  "{http://www.springframework.org/schema/c}classRef": "https://{{ shibbolethidp_fqdn }}/LoginCSCMFA"
+              - bean:
+                  parent: "shibboleth.SAML2AuthnContextClassRef"
+                  "{http://www.springframework.org/schema/c}classRef": "https://{{ shibbolethidp_fqdn }}/LoginCSCMFA"
+
+
+- name: Configure | {{ item }} | Add | bean[@id="authn/LoginHakaMFA"] > general-authn.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    xpath: "//x:bean[@id='authn/MFA']"
+    insertbefore: yes
+    pretty_print: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      p: "http://www.springframework.org/schema/p"
+      c: "http://www.springframework.org/schema/c"
+    add_children:
+      - bean:
+          id: "authn/LoginHakaMFA"
+          parent: "shibboleth.AuthenticationFlow"
+          "{http://www.springframework.org/schema/p}nonBrowserSupported": "false"
+          "{http://www.springframework.org/schema/p}forcedAuthenticationSupported": "true"
+          _:
+            - property:
+                name: supportedPrincipals
+                _:
+                  - list:
+                      _:
+                         - bean:
+                             parent: "shibboleth.SAML2AuthnContextClassRef"
+                             "{http://www.springframework.org/schema/c}classRef": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
+                         - bean:
+                             parent: "shibboleth.OIDCAuthnContextClassReference"
+                             "{http://www.springframework.org/schema/c}classRef": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
+                         - bean:
+                             parent: "shibboleth.SAML2AuthnContextClassRef"
+                             "{http://www.springframework.org/schema/c}classRef": "https://{{ shibbolethidp_fqdn }}/LoginHakaMFA"
+                         - bean:
+                             parent: "shibboleth.OIDCAuthnContextClassReference"
+                             "{http://www.springframework.org/schema/c}classRef": "https://{{ shibbolethidp_fqdn }}/LoginHakaMFA"
+                         - bean:
+                             parent: "shibboleth.SAML2AuthnContextClassRef"
+                             "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
+                         - bean:
+                             parent: "shibboleth.OIDCAuthnContextClassReference"
+                             "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
+
+- name: Configure | {{ item }} | Add | bean[@id="authn/LoginVirtuMFA"] > general-authn.xml
+  xml:
+    file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
+    xpath: "//x:bean[@id='authn/MFA']"
+    insertbefore: yes
+    pretty_print: yes
+    namespaces:
+      x: "http://www.springframework.org/schema/beans"
+      p: "http://www.springframework.org/schema/p"
+      c: "http://www.springframework.org/schema/c"
+    add_children:
+      - bean:
+          id: "authn/LoginVirtuMFA"
+          parent: "shibboleth.AuthenticationFlow"
+          "{http://www.springframework.org/schema/p}nonBrowserSupported": "false"
+          "{http://www.springframework.org/schema/p}forcedAuthenticationSupported": "true"
+          _:
+            - property:
+                name: supportedPrincipals
+                _:
+                  - list:
+                      _:
+                         - bean:
+                             parent: "shibboleth.SAML2AuthnContextClassRef"
+                             "{http://www.springframework.org/schema/c}classRef": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
+                         - bean:
+                             parent: "shibboleth.OIDCAuthnContextClassReference"
+                             "{http://www.springframework.org/schema/c}classRef": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
+                         - bean:
+                             parent: "shibboleth.SAML2AuthnContextClassRef"
+                             "{http://www.springframework.org/schema/c}classRef": "https://{{ shibbolethidp_fqdn }}/LoginVirtuMFA"
+                         - bean:
+                             parent: "shibboleth.OIDCAuthnContextClassReference"
+                             "{http://www.springframework.org/schema/c}classRef": "https://{{ shibbolethidp_fqdn }}/LoginVirtuMFA"
+                         - bean:
+                             parent: "shibboleth.SAML2AuthnContextClassRef"
+                             "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
+                         - bean:
+                             parent: "shibboleth.OIDCAuthnContextClassReference"
+                             "{http://www.springframework.org/schema/c}classRef": "https://refeds.org/profile/mfa"
 
