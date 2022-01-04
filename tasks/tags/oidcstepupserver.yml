@@ -137,7 +137,7 @@
   with_items:
     - "//x:bean[@id='authn/LoginVirtuMFA']"
     - "//x:bean[@id='authn/LoginHakaMFA']"
-    - "/x:beans/x:bean[@id='authn/MFA']/x:property/x:list"
+    - "//x:bean[@id='authn/MFA']/x:property/x:list"
   loop_control:
     loop_var: item_stepup
   notify: restart shibboleth-idp
@@ -153,7 +153,7 @@
 - name: Configure | {{ item }} | Add | bean[@id="authn/MFA"] > general-authn.xml
   xml:
     file: "{{ shibbolethidp_idp_home }}/conf/authn/general-authn.xml"
-    xpath: "/x:beans/x:bean[@id='authn/MFA']/x:property"
+    xpath: "//x:bean[@id='authn/MFA']/x:property"
     pretty_print: yes
     namespaces:
       x: "http://www.springframework.org/schema/beans"
