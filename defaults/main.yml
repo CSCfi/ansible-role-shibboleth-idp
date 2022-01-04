@@ -63,6 +63,9 @@ shibbolethidp_oidcdeviceflow_location: 'https://github.com/CSCfi/shibboleth-idp-
 ### OIDC Step up server
 shibbolethidp_oidcstepupserver_location: https://github.com/CSCfi/shibboleth-idp-authn-stepup
 shibbolethidp_oidcstepupserver_version: 1.0.0
+shibbolethidp_oidcstepupserver_stepup_authenticationManager: AttributeSeededGoogleAuthStepUpManager
+shibbolethidp_oidcstepupserver_stepup_attributedecryptor_key: "{{ vault_shibbolethidp_oidcstepupserver_stepup_attributedecryptor_key | default('secretpassword1234567890') }}"
+
 shibbolethidp_stepupSMSAccountSender: "{{ vault_shibbolethidp_stepupSMSAccountSender | default('not_set_yet') }}"
 shibbolethidp_stepupSMSAccountSid: "{{ vault_shibbolethidp_stepupSMSAccountSid | default('not_set_yet') }}"
 shibbolethidp_stepupSMSAccountToken: "{{ vault_shibbolethidp_stepupSMSAccountToken | default('not_set_yet') }}"
