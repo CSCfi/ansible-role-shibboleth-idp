@@ -6,6 +6,17 @@
     dest: "{{ shibbolethidp_idp_home }}"
     creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-oidc-extension-api-{{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }}.jar"
   notify: reown shibboleth-idp
+  when: shibbolethidp_oidcplugin_version != "2.0.1"
+
+- name: Configure | {{ item }} | Download | Plugin v{{ shibbolethidp_oidcplugin_version }}
+  unarchive:
+    extra_opts: ['--strip-components=1']
+    src: "https://artifactory.ci.csc.fi/artifactory/asso-generic-local/shibboleth-oidc-op-maint-2/idp-oidc-extension-distribution-2.0.1-CSC-bin.tar.gz
+    remote_src: yes
+    dest: "{{ shibbolethidp_idp_home }}"
+    creates: "{{ shibbolethidp_idp_home }}/edit-webapp/WEB-INF/lib/idp-oidc-extension-api-{{ shibbolethidp_oidcplugin_version | regex_replace('[^0-9.]', '') }}.jar"
+  notify: reown shibboleth-idp
+  when: shibbolethidp_oidcplugin_version == "2.0.1"
 
 - name: Configure | {{ item }} | Detect | Duplicate | Plugins
   find:
