@@ -8,25 +8,27 @@
   notify: reown shibboleth-idp
   when: shibbolethidp_oidcplugin_version != "2.0.1"
 
-- name: Check if idp-oidc-package already exists
-  delegate_to: localhost
-    stat:
-      path: /tmp/idp-oidc-extension-distribution-2.0.1-CSC-bin.tar.gz
-    register: register_oidcpackage
+    #- name: Check if idp-oidc-package already exists
+    #  local_action:
+    #    stat:
+    #      path: /tmp/idp-oidc-extension-distribution-2.0.1-CSC-bin.tar.gz
+    #    register: register_oidcpackage
 
 - name: Fetch file that requires authentication.
-  delegate_to: localhost
+  local_action:
     get_url:
       url: https://artifactory.ci.csc.fi/artifactory/asso-generic-local/shibboleth-oidc-op-maint-2/idp-oidc-extension-distribution-2.0.1-CSC-bin.tar.gz
       dest: /tmp/idp-oidc-extension-distribution-2.0.1-CSC-bin.tar.gz
       username: '{{ CI_ASSO_ARTIFACTORY_USER }}'
       password: '{{ CI_ASSO_ARTIFACTORY_USER_PASSWORD }}'
-    when: shibbolethidp_oidcplugin_version == "2.0.1" and not register_oidcpackage.stat.exists
+  when: shibbolethidp_oidcplugin_version == "2.0.1"
+      # and not register_oidcpackage.stat.exists
 
 - name: Copy idp-oidc-extension package to remote location
   copy:
     src: /tmp/idp-oidc-extension-distribution-2.0.1-CSC-bin.tar.gz
     dest: /tmp/idp-oidc-extension-distribution-2.0.1-CSC-bin.tar.gz
+  when: shibbolethidp_oidcplugin_version == "2.0.1"
 
 - name: Configure | {{ item }} | Download | Plugin v{{ shibbolethidp_oidcplugin_version }}
   unarchive:
