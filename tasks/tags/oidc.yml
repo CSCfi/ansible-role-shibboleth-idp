@@ -11,6 +11,7 @@
 - name: Check if idp-oidc-package already exists
   local_action: stat path=/tmp/idp-oidc-extension-distribution-2.0.1-CSC-bin.tar.gz
   register: register_oidcpackage
+  become: false
 
 - name: Fetch file that requires authentication.
   local_action:
