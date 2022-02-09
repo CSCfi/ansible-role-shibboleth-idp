@@ -22,6 +22,7 @@
     url_username: "{{ CI_ASSO_ARTIFACTORY_USER }}"
     url_password: "{{ CI_ASSO_ARTIFACTORY_USER_PASSWORD }}"
   when: shibbolethidp_oidcplugin_version == "2.0.1"
+  become: false
       # and not register_oidcpackage.stat.exists
 
 - name: Copy idp-oidc-extension package to remote location
