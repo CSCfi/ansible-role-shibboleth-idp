@@ -25,6 +25,7 @@
   file: path={{ shibbolethidp_idp_home }}/{{ shibbolethidp_item.path }} owner={{ shibbolethidp_item.owner }} group={{ shibbolethidp_item.group }} mode={{ shibbolethidp_item.mode }} recurse=yes
   loop:
     - { path: '.', owner: 'root', group: 'root', mode: 'u=rX,g=rX,o=rX' }
+    - { path: 'bin', owner: 'root', group: 'root', mode: 'u=rX,g=rX,o=rX' }
     - { path: 'logs', owner: 'root', group: 'jetty', mode: 'u=rX,g=rwX,o=rX' }
     - { path: 'jetty-base/logs', owner: 'root', group: 'jetty', mode: 'u=rX,g=rwX,o=rX' }
     - { path: 'metadata', owner: 'root', group: 'jetty', mode: 'u=rX,g=rwX,o=rX' }
